@@ -1,7 +1,9 @@
 // This is the implementation of BloctoPass, the Blocto Non-Fungible Token
 // that is used in-conjunction with BLT, the Blocto Fungible Token
 
+import FungibleToken from 0xFUNGIBLETOKENADDRESS
 import NonFungibleToken from 0xNONFUNGIBLETOKEN
+import BloctoToken from 0xBLOCTOTOKENADDRESS
 
 pub contract BloctoPass: NonFungibleToken {
 
@@ -11,7 +13,16 @@ pub contract BloctoPass: NonFungibleToken {
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
 
-    pub resource NFT: NonFungibleToken.INFT {
+    pub resource interface BloctoPassPublic {
+        pub fun getVipTier(): UInt64
+
+        pub fun deposit(from: @FungibleToken.Vault)
+    }
+
+    pub resource NFT: NonFungibleToken.INFT, FungibleToken.Provider, FungibleToken.Receiver, BloctoPassPublic {
+        // BLT holder vault
+        pub let vault: @BloctoToken.Vault
+
         pub let id: UInt64
 
         pub var metadata: {String: String}
@@ -19,6 +30,19 @@ pub contract BloctoPass: NonFungibleToken {
         init(initID: UInt64) {
             self.id = initID
             self.metadata = {}
+            self.vault <- BloctoToken.createEmptyVault()
+        }
+
+        pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
+            return <- self.vault.withdraw(amount: amount)
+        }
+
+        pub fun deposit(from: @FungibleToken.Vault) {
+            self.vault.deposit(from: <- from)
+        }
+
+        destroy() {
+            destroy self.vault
         }
     }
 
@@ -32,13 +56,14 @@ pub contract BloctoPass: NonFungibleToken {
         }
 
         // withdraw removes an NFT from the collection and moves it to the caller
-        pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
-            let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
+        // withdrawal is disabled during lockup period
+        // pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
+        //     let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
-            emit Withdraw(id: token.id, from: self.owner?.address)
+        //     emit Withdraw(id: token.id, from: self.owner?.address)
 
-            return <-token
-        }
+        //     return <-token
+        // }
 
         // deposit takes a NFT and adds it to the collections dictionary
         // and adds the ID to the id array
