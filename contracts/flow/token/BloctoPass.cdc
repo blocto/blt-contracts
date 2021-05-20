@@ -4,6 +4,7 @@
 import FungibleToken from "./FungibleToken.cdc"
 import NonFungibleToken from "./NonFungibleToken.cdc"
 import BloctoToken from "./BloctoToken.cdc"
+import BloctoTokenStaking from "../staking/BloctoTokenStaking.cdc"
 
 pub contract BloctoPass: NonFungibleToken {
 
@@ -19,7 +20,12 @@ pub contract BloctoPass: NonFungibleToken {
         pub fun deposit(from: @FungibleToken.Vault)
     }
 
-    pub resource NFT: NonFungibleToken.INFT, FungibleToken.Provider, FungibleToken.Receiver, BloctoPassPublic {
+    pub resource NFT:
+        NonFungibleToken.INFT,
+        FungibleToken.Provider,
+        FungibleToken.Receiver,
+        BloctoPassPublic
+    {
         // BLT holder vault
         pub let vault: @BloctoToken.Vault
 
@@ -30,7 +36,7 @@ pub contract BloctoPass: NonFungibleToken {
         init(initID: UInt64) {
             self.id = initID
             self.metadata = {}
-            self.vault <- BloctoToken.createEmptyVault()
+            self.vault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
         }
 
         pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
@@ -41,12 +47,20 @@ pub contract BloctoPass: NonFungibleToken {
             self.vault.deposit(from: <- from)
         }
 
+        pub fun getVipTier(): UInt64 {
+            return 0
+        }
+
         destroy() {
             destroy self.vault
         }
     }
 
-    pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
+    pub resource Collection:
+        NonFungibleToken.Provider,
+        NonFungibleToken.Receiver,
+        NonFungibleToken.CollectionPublic
+    {
         // dictionary of NFT conforming tokens
         // NFT is a resource type with an `UInt64` ID field
         pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
@@ -57,13 +71,16 @@ pub contract BloctoPass: NonFungibleToken {
 
         // withdraw removes an NFT from the collection and moves it to the caller
         // withdrawal is disabled during lockup period
-        // pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
-        //     let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
+        pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
+            // Reject all calls
+            panic("NFT withdrawal is disabled")
 
-        //     emit Withdraw(id: token.id, from: self.owner?.address)
+            let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
-        //     return <-token
-        // }
+            emit Withdraw(id: token.id, from: self.owner?.address)
+
+            return <-token
+        }
 
         // deposit takes a NFT and adds it to the collections dictionary
         // and adds the ID to the id array
