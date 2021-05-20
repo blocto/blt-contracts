@@ -66,10 +66,6 @@ pub contract BloctoTokenStaking {
         /// The tokens that this node has committed to stake for the next epoch.
         pub var tokensCommitted: @BloctoToken.Vault
 
-        /// The tokens that this node has unstaked from the previous epoch
-        /// Moves to the tokensUnstaked bucket at the end of the epoch.
-        pub var tokensUnstaking: @BloctoToken.Vault
-
         /// Tokens that this node is able to withdraw whenever they want
         pub var tokensUnstaked: @BloctoToken.Vault
 
@@ -89,7 +85,6 @@ pub contract BloctoTokenStaking {
 
             self.tokensCommitted <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensStaked <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
-            self.tokensUnstaking <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensUnstaked <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensRewarded <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensRequestedToUnstake = 0.0
@@ -102,7 +97,6 @@ pub contract BloctoTokenStaking {
             BloctoTokenStaking.totalTokensStaked = BloctoTokenStaking.totalTokensStaked - self.tokensStaked.balance
             BloctoTokenRef.deposit(from: <-self.tokensStaked)
             BloctoTokenRef.deposit(from: <-self.tokensCommitted)
-            BloctoTokenRef.deposit(from: <-self.tokensUnstaking)
             BloctoTokenRef.deposit(from: <-self.tokensUnstaked)
             BloctoTokenRef.deposit(from: <-self.tokensRewarded)
         }
@@ -122,7 +116,6 @@ pub contract BloctoTokenStaking {
         pub let id: UInt64
         pub let tokensStaked: UFix64
         pub let tokensCommitted: UFix64
-        pub let tokensUnstaking: UFix64
         pub let tokensUnstaked: UFix64
         pub let tokensRewarded: UFix64
         pub let tokensRequestedToUnstake: UFix64
@@ -133,26 +126,13 @@ pub contract BloctoTokenStaking {
             self.id = stakerRecord.id
             self.tokensStaked = stakerRecord.tokensStaked.balance
             self.tokensCommitted = stakerRecord.tokensCommitted.balance
-            self.tokensUnstaking = stakerRecord.tokensUnstaking.balance
             self.tokensUnstaked = stakerRecord.tokensUnstaked.balance
             self.tokensRewarded = stakerRecord.tokensRewarded.balance
             self.tokensRequestedToUnstake = stakerRecord.tokensRequestedToUnstake
         }
 
-        /// Derived Fields
-        pub fun totalCommittedWithDelegators(): UFix64 {
-            let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
-            var committedSum = self.totalCommittedWithoutDelegators()
-            return committedSum
-        }
-
-        pub fun totalCommittedWithoutDelegators(): UFix64 {
-            let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
-            return stakerRecord.nodeFullCommittedBalance()
-        }
-
         pub fun totalTokensInRecord(): UFix64 {
-            return self.tokensStaked + self.tokensCommitted + self.tokensUnstaking + self.tokensUnstaked + self.tokensRewarded
+            return self.tokensStaked + self.tokensCommitted + self.tokensUnstaked + self.tokensRewarded
         }
     }
 
@@ -164,9 +144,6 @@ pub contract BloctoTokenStaking {
 
         /// Tokens this delegator has staked for the current epoch
         pub var tokensStaked: @BloctoToken.Vault
-
-        /// Tokens this delegator has requested to unstake and is locked for the current epoch
-        pub var tokensUnstaking: @BloctoToken.Vault
 
         /// Tokens this delegator has been rewarded and can withdraw
         pub let tokensRewarded: @BloctoToken.Vault
@@ -180,7 +157,6 @@ pub contract BloctoTokenStaking {
         init() {
             self.tokensCommitted <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensStaked <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
-            self.tokensUnstaking <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensRewarded <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensUnstaked <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensRequestedToUnstake = 0.0
@@ -189,7 +165,6 @@ pub contract BloctoTokenStaking {
         destroy () {
             destroy self.tokensCommitted
             destroy self.tokensStaked
-            destroy self.tokensUnstaking
             destroy self.tokensRewarded
             destroy self.tokensUnstaked
         }
@@ -438,16 +413,10 @@ pub contract BloctoTokenStaking {
                     stakerRecord.tokensStaked.deposit(from: <-stakerRecord.tokensCommitted.withdraw(amount: stakerRecord.tokensCommitted.balance))
                 }
 
-                // marked the unstaking tokens as unstaked
-                if stakerRecord.tokensUnstaking.balance > 0.0 {
-                    emit TokensUnstaked(stakerID: stakerRecord.id, amount: stakerRecord.tokensUnstaking.balance)
-                    stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.tokensUnstaking.withdraw(amount: stakerRecord.tokensUnstaking.balance))
-                }
-
                 // unstake the requested tokens and move them to tokensUnstaking
                 if stakerRecord.tokensRequestedToUnstake > 0.0 {
-                    emit TokensUnstaking(stakerID: stakerRecord.id, amount: stakerRecord.tokensRequestedToUnstake)
-                    stakerRecord.tokensUnstaking.deposit(from: <-stakerRecord.tokensStaked.withdraw(amount: stakerRecord.tokensRequestedToUnstake))
+                    emit TokensUnstaked(stakerID: stakerRecord.id, amount: stakerRecord.tokensRequestedToUnstake)
+                    stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.tokensStaked.withdraw(amount: stakerRecord.tokensRequestedToUnstake))
                 }
 
                 // subtract their requested tokens from the total staked for their node type

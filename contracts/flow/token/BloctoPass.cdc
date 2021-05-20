@@ -14,32 +14,56 @@ pub contract BloctoPass: NonFungibleToken {
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
 
+    pub resource interface BloctoPassPrivate {
+
+    }
+
     pub resource interface BloctoPassPublic {
         pub fun getVipTier(): UInt64
-
-        pub fun deposit(from: @FungibleToken.Vault)
+        pub fun getLockupSchedule(): {UFix64: UFix64}
+        pub fun getLockupAmountAtTimestamp(timestamp: UFix64): UFix64
+        pub fun getIdleBalance(): UFix64
+        pub fun getTotalBalance(): UFix64
     }
 
     pub resource NFT:
         NonFungibleToken.INFT,
         FungibleToken.Provider,
         FungibleToken.Receiver,
+        BloctoPassPrivate,
         BloctoPassPublic
     {
         // BLT holder vault
         pub let vault: @BloctoToken.Vault
 
+        pub let staker: @BloctoTokenStaking.Staker
+
         pub let id: UInt64
 
         pub var metadata: {String: String}
 
-        init(initID: UInt64) {
+        // Defines how much BloctoToken must remain in the BloctoPass on different times
+        pub let lockupSchedule: {UFix64: UFix64}
+
+        init(
+            initID: UInt64,
+            metadata: {String: String},
+            vault: @FungibleToken.Vault,
+            lockupSchedule: {UFix64: UFix64}
+        ) {
             self.id = initID
-            self.metadata = {}
-            self.vault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
+            self.metadata = metadata
+            self.vault <- vault as! @BloctoToken.Vault
+            self.staker <- BloctoTokenStaking.addStakerRecord(id: initID)
+            self.lockupSchedule = lockupSchedule
         }
 
         pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
+            post {
+                self.getTotalBalance() >= self.getLockupAmountAtTimestamp(timestamp: getCurrentBlock().timestamp):
+                    "Cannot withdraw locked-up BloctoTokens"
+            }
+
             return <- self.vault.withdraw(amount: amount)
         }
 
@@ -51,8 +75,37 @@ pub contract BloctoPass: NonFungibleToken {
             return 0
         }
 
+        pub fun getLockupSchedule(): {UFix64: UFix64} {
+            return self.lockupSchedule
+        }
+
+        pub fun getLockupAmountAtTimestamp(timestamp: UFix64): UFix64 {
+            let keys = self.lockupSchedule.keys
+            let currentTimestamp = getCurrentBlock().timestamp
+            var closestTimestamp = 0.0
+            var lockupAmount = 0.0
+
+            for key in keys {
+                if currentTimestamp >= key && key > closestTimestamp {
+                    lockupAmount = self.lockupSchedule[key]!
+                    closestTimestamp = key
+                }
+            }
+
+            return lockupAmount
+        }
+
+        pub fun getIdleBalance(): UFix64 {
+            return self.vault.balance
+        }
+
+        pub fun getTotalBalance(): UFix64 {
+            return self.getIdleBalance() + BloctoTokenStaking.StakerInfo(self.id).totalTokensInRecord()
+        }
+
         destroy() {
             destroy self.vault
+            destroy self.staker
         }
     }
 
@@ -75,11 +128,11 @@ pub contract BloctoPass: NonFungibleToken {
             // Reject all calls
             panic("NFT withdrawal is disabled")
 
-            let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
+            // let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
-            emit Withdraw(id: token.id, from: self.owner?.address)
+            // emit Withdraw(id: token.id, from: self.owner?.address)
 
-            return <-token
+            // return <-token
         }
 
         // deposit takes a NFT and adds it to the collections dictionary
@@ -125,10 +178,29 @@ pub contract BloctoPass: NonFungibleToken {
 
         // mintNFT mints a new NFT with a new ID
         // and deposit it in the recipients collection using their collection reference
-        pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic}) {
+        pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic}, metadata: {String: String}) {
+            self.mintNFTWithLockup(
+                recipient: recipient,
+                metadata: metadata,
+                vault: <- BloctoToken.createEmptyVault(),
+                lockupSchedule: {0.0: 0.0}
+            )
+        }
+
+        pub fun mintNFTWithLockup(
+            recipient: &{NonFungibleToken.CollectionPublic},
+            metadata: {String: String},
+            vault: @FungibleToken.Vault,
+            lockupSchedule: {UFix64: UFix64}
+        ) {
 
             // create a new NFT
-            var newNFT <- create NFT(initID: BloctoPass.totalSupply)
+            var newNFT <- create NFT(
+                initID: BloctoPass.totalSupply,
+                metadata: metadata,
+                vault: <- vault,
+                lockupSchedule: lockupSchedule
+            )
 
             // deposit it in the recipient's account using their reference
             recipient.deposit(token: <-newNFT)
