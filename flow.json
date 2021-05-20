@@ -39,6 +39,13 @@
 		"emulator": {
 			"emulator-account": [
 				"BloctoTokenMining",
+				{
+					"name": "BloctoTokenStaking",
+					"args-json": [
+						{ "name": "epochTokenPayout", "type": "UFix64", "value": "1" },
+						{ "name": "rewardCut", "type": "UFix64", "value": "1" }
+					]
+				},
 				"BloctoPass",
 				"BloctoToken",
 				"NonFungibleToken"
