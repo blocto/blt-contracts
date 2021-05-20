@@ -1,9 +1,9 @@
 // This is the implementation of BloctoPass, the Blocto Non-Fungible Token
 // that is used in-conjunction with BLT, the Blocto Fungible Token
 
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
-import NonFungibleToken from 0xNONFUNGIBLETOKEN
-import BloctoToken from 0xBLOCTOTOKENADDRESS
+import FungibleToken from "./FungibleToken.cdc"
+import NonFungibleToken from "./NonFungibleToken.cdc"
+import BloctoToken from "./BloctoToken.cdc"
 
 pub contract BloctoPass: NonFungibleToken {
 
