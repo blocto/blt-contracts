@@ -80,17 +80,14 @@ pub contract BloctoTokenStaking {
         /// The amount of tokens that this node has requested to unstake for the next epoch
         pub(set) var tokensRequestedToUnstake: UFix64
 
-        init(
-            id: UInt64,
-            tokensCommitted: @FungibleToken.Vault
-        ) {
+        init(id: UInt64) {
             pre {
                 BloctoTokenStaking.stakers[id] == nil: "The ID cannot already exist in the record"
             }
 
             self.id = id
 
-            self.tokensCommitted <- tokensCommitted as! @BloctoToken.Vault
+            self.tokensCommitted <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensStaked <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensUnstaking <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
             self.tokensUnstaked <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
@@ -476,12 +473,12 @@ pub contract BloctoTokenStaking {
 
     /// Any node can call this function to register a new Node
     /// It returns the resource for nodes that they can store in their account storage
-    pub fun addStakerRecord(id: UInt64, tokensCommitted: @FungibleToken.Vault): @Staker {
+    pub fun addStakerRecord(id: UInt64): @Staker {
         pre {
             BloctoTokenStaking.stakingEnabled(): "Cannot register a node operator if the staking auction isn't in progress"
         }
 
-        let newStakerRecord <- create StakerRecord(id: id, tokensCommitted: <-tokensCommitted)
+        let newStakerRecord <- create StakerRecord(id: id)
 
         // Insert the node to the table
         BloctoTokenStaking.stakers[id] <-! newStakerRecord
@@ -497,21 +494,6 @@ pub contract BloctoTokenStaking {
                 "Specified node ID does not exist in the record"
         }
         return &BloctoTokenStaking.stakers[stakerID] as! &StakerRecord
-    }
-
-    /// Updates a claimed boolean for a specific path to indicate that
-    /// a piece of node metadata has been claimed by a node
-    access(account) fun updateClaimed(path: StoragePath, _ key: String, claimed: Bool) {
-        let claimedDictionary = self.account.load<{String: Bool}>(from: path)
-            ?? panic("Invalid path for dictionary")
-
-        if claimed {
-            claimedDictionary[key] = true
-        } else {
-            claimedDictionary[key] = nil
-        }
-
-        self.account.save(claimedDictionary, to: path)
     }
 
     /// Indicates if the staking auction is currently enabled
