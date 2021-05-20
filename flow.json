@@ -7,6 +7,7 @@
 	},
 	"contracts": {
 		"BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
+		"BloctoTokenStaking": "./contracts/flow/staking/BloctoTokenStaking.cdc",
 		"BloctoPass": "./contracts/flow/token/BloctoPass.cdc",
 		"BloctoToken": "./contracts/flow/token/BloctoToken.cdc",
 		"FungibleToken": {
