@@ -109,10 +109,21 @@ pub contract BloctoPass: NonFungibleToken {
         }
     }
 
+    // CollectionPublic is a custom interface that allows us to
+    // access the public fields and methods for our BloctoPass Collection
+    pub resource interface CollectionPublic {
+        pub fun deposit(token: @NonFungibleToken.NFT)
+        pub fun getIDs(): [UInt64]
+        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+        pub fun borrowBloctoPass(id: UInt64): &BloctoPass.NFT
+        pub fun depositBloctoToken(from: @FungibleToken.Vault, id: UInt64)
+    }
+
     pub resource Collection:
         NonFungibleToken.Provider,
         NonFungibleToken.Receiver,
-        NonFungibleToken.CollectionPublic
+        NonFungibleToken.CollectionPublic,
+        CollectionPublic
     {
         // dictionary of NFT conforming tokens
         // NFT is a resource type with an `UInt64` ID field
@@ -161,6 +172,22 @@ pub contract BloctoPass: NonFungibleToken {
             return &self.ownedNFTs[id] as &NonFungibleToken.NFT
         }
 
+        // borrowBloctoPass gets an authorized reference to an NFT in the collection
+        // and returns it to the caller as a reference to the BloctoPass.NFT if it exists.
+        // The method returns nil if the provided token id doesn't exist in the collection
+        pub fun borrowBloctoPass(id: UInt64): &BloctoPass.NFT {
+            let bloctoPassRef = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
+            return bloctoPassRef as! &BloctoPass.NFT
+        }
+
+        pub fun depositBloctoToken(from: @FungibleToken.Vault, id: UInt64) {
+            let token <- (self.ownedNFTs.remove(key: id) ?? panic("missing NFT")) as! @BloctoPass.NFT
+            token.deposit(from: <- from)
+
+            let oldToken <- self.ownedNFTs[id] <- token
+            destroy oldToken
+        }
+
         destroy() {
             destroy self.ownedNFTs
         }
@@ -178,7 +205,7 @@ pub contract BloctoPass: NonFungibleToken {
 
         // mintNFT mints a new NFT with a new ID
         // and deposit it in the recipients collection using their collection reference
-        pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic}, metadata: {String: String}) {
+        pub fun mintNFT(recipient: &{BloctoPass.CollectionPublic}, metadata: {String: String}) {
             self.mintNFTWithLockup(
                 recipient: recipient,
                 metadata: metadata,
@@ -188,7 +215,7 @@ pub contract BloctoPass: NonFungibleToken {
         }
 
         pub fun mintNFTWithLockup(
-            recipient: &{NonFungibleToken.CollectionPublic},
+            recipient: &{BloctoPass.CollectionPublic},
             metadata: {String: String},
             vault: @FungibleToken.Vault,
             lockupSchedule: {UFix64: UFix64}
@@ -218,7 +245,7 @@ pub contract BloctoPass: NonFungibleToken {
         self.account.save(<-collection, to: /storage/bloctoPassCollection)
 
         // create a public capability for the collection
-        self.account.link<&{NonFungibleToken.CollectionPublic}>(
+        self.account.link<&{BloctoPass.CollectionPublic}>(
             /public/bloctoPassCollection,
             target: /storage/bloctoPassCollection
         )
