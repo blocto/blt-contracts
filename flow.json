@@ -41,9 +41,9 @@
 				"BloctoTokenMining",
 				{
 					"name": "BloctoTokenStaking",
-					"args-json": [
-						{ "name": "epochTokenPayout", "type": "UFix64", "value": "1" },
-						{ "name": "rewardCut", "type": "UFix64", "value": "1" }
+					"args": [
+						{ "type": "UFix64", "value": "1.0" },
+						{ "type": "UFix64", "value": "1.0" }
 					]
 				},
 				"BloctoPass",
