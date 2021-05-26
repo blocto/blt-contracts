@@ -15,7 +15,13 @@ pub contract BloctoPass: NonFungibleToken {
     pub event Deposit(id: UInt64, to: Address?)
 
     pub resource interface BloctoPassPrivate {
-
+        pub fun stakeNewTokens(amount: UFix64)
+        pub fun stakeUnstakedTokens(amount: UFix64)
+        pub fun stakeRewardedTokens(amount: UFix64)
+        pub fun requestUnstaking(amount: UFix64)
+        pub fun unstakeAll()
+        pub fun withdrawUnstakedTokens(amount: UFix64)
+        pub fun withdrawRewardedTokens(amount: UFix64)
     }
 
     pub resource interface BloctoPassPublic {
@@ -24,6 +30,8 @@ pub contract BloctoPass: NonFungibleToken {
         pub fun getLockupAmountAtTimestamp(timestamp: UFix64): UFix64
         pub fun getIdleBalance(): UFix64
         pub fun getTotalBalance(): UFix64
+        pub fun getMetadata(): {String: String}
+        pub fun getHistory(): {String: String}
     }
 
     pub resource NFT:
@@ -36,13 +44,19 @@ pub contract BloctoPass: NonFungibleToken {
         // BLT holder vault
         pub let vault: @BloctoToken.Vault
 
+        // BLT staker handle
         pub let staker: @BloctoTokenStaking.Staker
 
+        // BloctoPass ID
         pub let id: UInt64
 
+        // BloctoPass metadata
         pub var metadata: {String: String}
 
-        // Defines how much BloctoToken must remain in the BloctoPass on different times
+        // BloctoPass usage history, including voting records and special events
+        pub var history: {String: String}
+
+        // Defines how much BloctoToken must remain in the BloctoPass on different dates
         pub let lockupSchedule: {UFix64: UFix64}
 
         init(
@@ -61,7 +75,7 @@ pub contract BloctoPass: NonFungibleToken {
         pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
             post {
                 self.getTotalBalance() >= self.getLockupAmountAtTimestamp(timestamp: getCurrentBlock().timestamp):
-                    "Cannot withdraw locked-up BloctoTokens"
+                    "Cannot withdraw locked-up BLTs"
             }
 
             return <- self.vault.withdraw(amount: amount)
@@ -71,7 +85,16 @@ pub contract BloctoPass: NonFungibleToken {
             self.vault.deposit(from: <- from)
         }
 
+        pub fun getMetadata(): {String: String} {
+            return self.metadata
+        }
+
+        pub fun getHistory(): {String: String} {
+            return self.history
+        }
+
         pub fun getVipTier(): UInt64 {
+            // TODO: return tier according to current staked amount
             return 0
         }
 
@@ -125,8 +148,8 @@ pub contract BloctoPass: NonFungibleToken {
         // withdraw removes an NFT from the collection and moves it to the caller
         // withdrawal is disabled during lockup period
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
-            // Reject all calls
-            panic("NFT withdrawal is disabled")
+            // Reject all calls for now
+            panic("BloctoPass NFT withdrawal is disabled")
 
             // let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
