@@ -1,0 +1,38 @@
+version: 2.1
+jobs:
+  test_flow_contracts:
+    docker:
+      - image: circleci/golang:1.15
+
+    environment:
+      TEST_RESULTS: /tmp/test-results
+
+    steps:
+      - checkout
+      - run: mkdir -p $TEST_RESULTS
+
+      - restore_cache:
+          key: go-mod-v4-{{ checksum "contracts/flow/test/go.sum" }}
+
+      - run:
+          name: Run unit tests
+          command: |
+            cd ./contracts/flow/test
+            gotestsum --junitfile ${TEST_RESULTS}/gotestsum-report.xml
+
+      - save_cache:
+          key: go-mod-v4-{{ checksum "contracts/flow/test/go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: raw-test-output
+
+      - store_test_results:
+          path: /tmp/test-results
+
+workflows:
+  test_flow_contracts:
+    jobs:
+      - test_flow_contracts
