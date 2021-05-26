@@ -52,7 +52,7 @@ pub contract BloctoTokenMining {
     pub event CriteriaUpdated(name: String, criteria: Criteria?)
 
     // Event that is emitted when mining raw data is collected
-    pub event DataCollected(data: {String: UInt64}, address: Address, reward: UFix64, replacedReward: UFix64?)
+    pub event DataCollected(data: {String: UFix64}, address: Address, reward: UFix64, replacedReward: UFix64?)
 
     // Event that is emitted when reward is distributed
     pub event RewardDistributed(reward: UFix64, address: Address)
@@ -67,12 +67,12 @@ pub contract BloctoTokenMining {
         pub var reward: UFix64
 
         // Divisor to adjust raw data
-        pub var divisor: UInt64
+        pub var divisor: UFix64
 
         // Cap times in one round
         pub var capTimes: UInt64
 
-        init(reward: UFix64, divisor: UInt64, capTimes: UInt64) {
+        init(reward: UFix64, divisor: UFix64, capTimes: UInt64) {
             self.reward = reward
             self.divisor = divisor
             self.capTimes = capTimes
@@ -163,7 +163,7 @@ pub contract BloctoTokenMining {
 
         // Collect raw data
         // data: {criteria name: raw data}
-        pub fun collectData(_ data: {String: UInt64}, address: Address) {
+        pub fun collectData(_ data: {String: UFix64}, address: Address) {
             pre {
                 BloctoTokenMining.miningState == MiningState.collecting: "Should start collecting"
             }
@@ -261,7 +261,7 @@ pub contract BloctoTokenMining {
     }
 
     // Compute reward in current round without reward cap
-    pub fun computeReward(data: {String: UInt64}, isVIP: Bool): UFix64 {
+    pub fun computeReward(data: {String: UFix64}, isVIP: Bool): UFix64 {
         var reward: UFix64 = 0.0
         for name in data.keys {
             let value = data[name]!
@@ -271,7 +271,7 @@ pub contract BloctoTokenMining {
             if isVIP {
                 capTimes = criteria.capTimes * self.capMultiplier
             }
-            var times = value / criteria.divisor
+            var times = UInt64(value / criteria.divisor)
             if times > capTimes {
                 times = capTimes
             }

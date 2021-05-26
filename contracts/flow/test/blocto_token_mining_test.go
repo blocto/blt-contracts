@@ -232,10 +232,8 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewString("tx"))
-		reward, err := cadence.NewUFix64("2.3")
-		assert.NoError(t, err)
-		_ = tx.AddArgument(reward)
-		_ = tx.AddArgument(cadence.NewUInt64(100))
+		_ = tx.AddArgument(CadenceUFix64("2.3"))
+		_ = tx.AddArgument(CadenceUFix64("100.0"))
 		_ = tx.AddArgument(cadence.NewUInt64(123))
 
 		signAndSubmit(
@@ -251,7 +249,7 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 		expected := make(map[interface{}]interface{})
 		expected["tx"] = []interface{}{
 			uint64(230000000),
-			uint64(100),
+			uint64(10000000000),
 			uint64(123),
 		}
 
@@ -267,10 +265,8 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewString("tx"))
-		reward, err := cadence.NewUFix64("4.7")
-		assert.NoError(t, err)
-		_ = tx.AddArgument(reward)
-		_ = tx.AddArgument(cadence.NewUInt64(101))
+		_ = tx.AddArgument(CadenceUFix64("4.7"))
+		_ = tx.AddArgument(CadenceUFix64("101.0"))
 		_ = tx.AddArgument(cadence.NewUInt64(321))
 
 		signAndSubmit(
@@ -286,7 +282,7 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 		expected := make(map[interface{}]interface{})
 		expected["tx"] = []interface{}{
 			uint64(470000000),
-			uint64(101),
+			uint64(10100000000),
 			uint64(321),
 		}
 
@@ -345,10 +341,8 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewString("tx"))
-		reward, err := cadence.NewUFix64("2.3")
-		assert.NoError(t, err)
-		_ = tx.AddArgument(reward)
-		_ = tx.AddArgument(cadence.NewUInt64(100))
+		_ = tx.AddArgument(CadenceUFix64("2.3"))
+		_ = tx.AddArgument(CadenceUFix64("100.0"))
 		_ = tx.AddArgument(cadence.NewUInt64(123))
 
 		signAndSubmit(
@@ -410,17 +404,17 @@ func TestBPMiningOneRound(t *testing.T) {
 		expected := make(map[interface{}]interface{})
 		expected["tx"] = []interface{}{
 			uint64(100000000),
-			uint64(1),
+			uint64(100000000),
 			uint64(5),
 		}
 		expected["referral"] = []interface{}{
 			uint64(500000000),
-			uint64(1),
+			uint64(100000000),
 			uint64(6),
 		}
 		expected["assetInCirculation"] = []interface{}{
 			uint64(100000000),
-			uint64(100),
+			uint64(10000000000),
 			uint64(10),
 		}
 
@@ -468,9 +462,9 @@ func TestBPMiningOneRound(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user1Addr))
-		_ = tx.AddArgument(cadence.UInt64(1))
-		_ = tx.AddArgument(cadence.UInt64(2))
-		_ = tx.AddArgument(cadence.UInt64(300))
+		_ = tx.AddArgument(CadenceUFix64("1.0"))
+		_ = tx.AddArgument(CadenceUFix64("2.0"))
+		_ = tx.AddArgument(CadenceUFix64("300.0"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -508,9 +502,9 @@ func TestBPMiningOneRound(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user1Addr))
-		_ = tx.AddArgument(cadence.UInt64(2))
-		_ = tx.AddArgument(cadence.UInt64(3))
-		_ = tx.AddArgument(cadence.UInt64(500))
+		_ = tx.AddArgument(CadenceUFix64("2.0"))
+		_ = tx.AddArgument(CadenceUFix64("3.0"))
+		_ = tx.AddArgument(CadenceUFix64("500.0"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -548,9 +542,9 @@ func TestBPMiningOneRound(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user2Addr))
-		_ = tx.AddArgument(cadence.UInt64(2))
-		_ = tx.AddArgument(cadence.UInt64(15))
-		_ = tx.AddArgument(cadence.UInt64(50))
+		_ = tx.AddArgument(CadenceUFix64("2.0"))
+		_ = tx.AddArgument(CadenceUFix64("15.0"))
+		_ = tx.AddArgument(CadenceUFix64("50.0"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -781,17 +775,17 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 		expected := make(map[interface{}]interface{})
 		expected["tx"] = []interface{}{
 			uint64(100000000),
-			uint64(1),
+			uint64(100000000),
 			uint64(5),
 		}
 		expected["referral"] = []interface{}{
 			uint64(500000000),
-			uint64(1),
+			uint64(100000000),
 			uint64(6),
 		}
 		expected["assetInCirculation"] = []interface{}{
 			uint64(100000000),
-			uint64(100),
+			uint64(10000000000),
 			uint64(10),
 		}
 
@@ -863,9 +857,9 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user1Addr))
-		_ = tx.AddArgument(cadence.UInt64(2))
-		_ = tx.AddArgument(cadence.UInt64(3))
-		_ = tx.AddArgument(cadence.UInt64(500))
+		_ = tx.AddArgument(CadenceUFix64("2.0"))
+		_ = tx.AddArgument(CadenceUFix64("3.0"))
+		_ = tx.AddArgument(CadenceUFix64("500.0"))
 
 		signAndSubmit(
 			t, b, tx,
@@ -903,9 +897,9 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user2Addr))
-		_ = tx.AddArgument(cadence.UInt64(2))
-		_ = tx.AddArgument(cadence.UInt64(15))
-		_ = tx.AddArgument(cadence.UInt64(50))
+		_ = tx.AddArgument(CadenceUFix64("2.0"))
+		_ = tx.AddArgument(CadenceUFix64("15.0"))
+		_ = tx.AddArgument(CadenceUFix64("50.0"))
 
 		signAndSubmit(
 			t, b, tx,

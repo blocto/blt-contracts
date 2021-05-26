@@ -1,6 +1,6 @@
 import BloctoTokenMining from "../../contracts/flow/mining/BloctoTokenMining.cdc"
 
-transaction(address: Address, tx: UInt64, referral: UInt64, assetInCirculation: UInt64) {
+transaction(address: Address, tx: UFix64, referral: UFix64, assetInCirculation: UFix64) {
 
     prepare(signer: AuthAccount) {
         let admin = signer
