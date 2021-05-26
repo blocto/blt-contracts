@@ -133,7 +133,7 @@ func TestBPMiningMiningState(t *testing.T) {
 
 	t.Run("Should have Collecting state", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningStartCollectingTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningStartCollectingTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -154,7 +154,7 @@ func TestBPMiningMiningState(t *testing.T) {
 
 	t.Run("Should have Collected state", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningStopCollectingTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningStopCollectingTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -176,7 +176,7 @@ func TestBPMiningMiningState(t *testing.T) {
 
 	t.Run("Should have Distributed state", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningFinishDistributingTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningFinishDistributingTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -198,7 +198,7 @@ func TestBPMiningMiningState(t *testing.T) {
 
 	t.Run("Should have Collecting state after going next round", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -225,7 +225,7 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 
 	t.Run("Should add criteria correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningUpdateCriteriaTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningUpdateCriteriaTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -260,7 +260,7 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 
 	t.Run("Should update criteria correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningUpdateCriteriaTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningUpdateCriteriaTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -295,7 +295,7 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 
 	t.Run("Should remove criteria correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningRemoveCriteriaTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningRemoveCriteriaTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -319,7 +319,7 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 
 	t.Run("Shouldn't be able to add criteria when collecting", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningStartCollectingTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningStartCollectingTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -338,7 +338,7 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 		assert.Equal(t, miningStateExpected, miningState.(cadence.Enum).Fields)
 
 		tx = flow.NewTransaction().
-			SetScript(bpMiningUpdateCriteriaTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningUpdateCriteriaTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -391,7 +391,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to add default criteria correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningAddDefaultCriteriaTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningAddDefaultCriteriaTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -429,7 +429,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to go first round", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -461,7 +461,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to collect data", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -501,7 +501,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to collect data instead of old data", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -541,7 +541,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to collect data with VIP-tier Blocto Pass", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -582,7 +582,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to stop collecting correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningStopCollectingTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningStopCollectingTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -603,7 +603,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to distribute rewards correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
+			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -634,7 +634,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to prevent distributing reward repeatedly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
+			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -653,7 +653,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to distribute rewards correctly for user 2", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
+			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -685,7 +685,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should be able to finish distributing correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningFinishDistributingTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningFinishDistributingTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -706,7 +706,7 @@ func TestBPMiningOneRound(t *testing.T) {
 
 	t.Run("Should have Collecting state after going next round", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -762,7 +762,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should be able to add default criteria correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningAddDefaultCriteriaTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningAddDefaultCriteriaTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -800,7 +800,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should be able to update reward cap correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningUpdateRewardCapTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningUpdateRewardCapTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -824,7 +824,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should be able to go first round", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -856,7 +856,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should be able to collect data", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -896,7 +896,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should be able to collect data with VIP-tier Blocto Pass", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningCollectDataTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -937,7 +937,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should be able to stop collecting correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningStopCollectingTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningStopCollectingTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -958,7 +958,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should be able to distribute rewards correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
+			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -989,7 +989,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should be able to distribute rewards correctly for user 2", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
+			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -1021,7 +1021,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should be able to finish distributing correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningFinishDistributingTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningFinishDistributingTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -1042,7 +1042,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 
 	t.Run("Should have Collecting state after going next round", func(t *testing.T) {
 		tx := flow.NewTransaction().
-			SetScript(bpMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
+			SetScript(btMiningGoNextRoundTransaction(btMiningInfo.BPMiningAddr)).
 			SetGasLimit(100).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
@@ -1086,7 +1086,7 @@ func btMiningGetPropertyScript(filename string, btMiningAddr flow.Address) []byt
 	))
 }
 
-func bpMiningCollectDataTransaction(btMiningAddr flow.Address) []byte {
+func btMiningCollectDataTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningCollectDataPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
@@ -1094,7 +1094,7 @@ func bpMiningCollectDataTransaction(btMiningAddr flow.Address) []byte {
 	))
 }
 
-func bpMiningDistributeRewardTransaction(btMiningAddr flow.Address, btAddr flow.Address) []byte {
+func btMiningDistributeRewardTransaction(btMiningAddr flow.Address, btAddr flow.Address) []byte {
 	code := string(readFile(bpMiningDistributeRewardPath))
 
 	code = strings.ReplaceAll(code, "\"../../contracts/flow/token/BloctoToken.cdc\"", "0x"+btAddr.String())
@@ -1103,7 +1103,7 @@ func bpMiningDistributeRewardTransaction(btMiningAddr flow.Address, btAddr flow.
 	return []byte(code)
 }
 
-func bpMiningFinishDistributingTransaction(btMiningAddr flow.Address) []byte {
+func btMiningFinishDistributingTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningFinishDistributingPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
@@ -1111,7 +1111,7 @@ func bpMiningFinishDistributingTransaction(btMiningAddr flow.Address) []byte {
 	))
 }
 
-func bpMiningGoNextRoundTransaction(btMiningAddr flow.Address) []byte {
+func btMiningGoNextRoundTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningGoNextRoundPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
@@ -1119,7 +1119,7 @@ func bpMiningGoNextRoundTransaction(btMiningAddr flow.Address) []byte {
 	))
 }
 
-func bpMiningStartCollectingTransaction(btMiningAddr flow.Address) []byte {
+func btMiningStartCollectingTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningStartCollectingPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
@@ -1127,7 +1127,7 @@ func bpMiningStartCollectingTransaction(btMiningAddr flow.Address) []byte {
 	))
 }
 
-func bpMiningStopCollectingTransaction(btMiningAddr flow.Address) []byte {
+func btMiningStopCollectingTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningStopCollectingPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
@@ -1135,7 +1135,7 @@ func bpMiningStopCollectingTransaction(btMiningAddr flow.Address) []byte {
 	))
 }
 
-func bpMiningAddDefaultCriteriaTransaction(btMiningAddr flow.Address) []byte {
+func btMiningAddDefaultCriteriaTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningAddDefaultCriteriaPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
@@ -1143,7 +1143,7 @@ func bpMiningAddDefaultCriteriaTransaction(btMiningAddr flow.Address) []byte {
 	))
 }
 
-func bpMiningUpdateCriteriaTransaction(btMiningAddr flow.Address) []byte {
+func btMiningUpdateCriteriaTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningUpdateCriteriaPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
@@ -1151,7 +1151,7 @@ func bpMiningUpdateCriteriaTransaction(btMiningAddr flow.Address) []byte {
 	))
 }
 
-func bpMiningRemoveCriteriaTransaction(btMiningAddr flow.Address) []byte {
+func btMiningRemoveCriteriaTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningRemoveCriteriaPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
@@ -1159,7 +1159,7 @@ func bpMiningRemoveCriteriaTransaction(btMiningAddr flow.Address) []byte {
 	))
 }
 
-func bpMiningUpdateRewardCapTransaction(btMiningAddr flow.Address) []byte {
+func btMiningUpdateRewardCapTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningUpdateRewardCapPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
