@@ -92,12 +92,12 @@ func loadBloctoPass(btStakingInfo TestBloctoTokenStakingContractsInfo, nftAddr f
 }
 
 func MintNewBloctoPass(
-	t *testing.T, b *emulator.Blockchain,
+	t *testing.T, b *emulator.Blockchain, nftAddr flow.Address,
 	userAddr flow.Address, userSigner crypto.Signer,
 	bpAddr flow.Address, bpSigner crypto.Signer) {
 
 	tx := flow.NewTransaction().
-		SetScript(bpSetupBloctoPassCollectionTransaction(bpAddr)).
+		SetScript(bpSetupBloctoPassCollectionTransaction(bpAddr, nftAddr)).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
@@ -111,7 +111,7 @@ func MintNewBloctoPass(
 	)
 
 	tx = flow.NewTransaction().
-		SetScript(bpMintBloctoPassTransaction(bpAddr)).
+		SetScript(bpMintBloctoPassTransaction(bpAddr, nftAddr)).
 		SetGasLimit(100).
 		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 		SetPayer(b.ServiceKey().Address).
@@ -130,26 +130,37 @@ func loadNonFungibleToken() []byte {
 	return nft_contracts.NonFungibleToken()
 }
 
-func bpMintBloctoPassTransaction(bpAddr flow.Address) []byte {
-	return []byte(strings.ReplaceAll(
-		string(readFile(bpMintBloctoPassPath)),
-		"\"../../contracts/flow/token/BloctoPass.cdc\"",
-		"0x"+bpAddr.String(),
-	))
+func bpMintBloctoPassTransaction(bpAddr flow.Address, nftAddr flow.Address) []byte {
+	code := string(readFile(bpMintBloctoPassPath))
+
+	code = strings.ReplaceAll(code, "\"../../contracts/flow/token/NonFungibleToken.cdc\"", "0x"+nftAddr.String())
+	code = strings.ReplaceAll(code, "\"../../contracts/flow/token/BloctoPass.cdc\"", "0x"+bpAddr.String())
+
+	return []byte(code)
 }
 
-func bpSetupBloctoPassCollectionTransaction(bpAddr flow.Address) []byte {
-	return []byte(strings.ReplaceAll(
-		string(readFile(bpSetupBloctoPassCollectionPath)),
-		"\"../../contracts/flow/token/BloctoPass.cdc\"",
-		"0x"+bpAddr.String(),
-	))
+func bpSetupBloctoPassCollectionTransaction(bpAddr flow.Address, nftAddr flow.Address) []byte {
+	code := string(readFile(bpSetupBloctoPassCollectionPath))
+
+	code = strings.ReplaceAll(code, "\"../../contracts/flow/token/NonFungibleToken.cdc\"", "0x"+nftAddr.String())
+	code = strings.ReplaceAll(code, "\"../../contracts/flow/token/BloctoPass.cdc\"", "0x"+bpAddr.String())
+
+	return []byte(code)
 }
 
-func btGetPropertyScript(filename string, btAddr flow.Address) []byte {
+func bpGetPropertyScript(filename string, btAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(filename)),
 		"\"../../contracts/flow/token/BloctoPass.cdc\"",
 		"0x"+btAddr.String(),
 	))
+}
+
+func bpGetBloctoPassVaultBalanceScript(bpAddr flow.Address, nftAddr flow.Address) []byte {
+	code := string(readFile(bpGetBloctoPassVaultBalancePath))
+
+	code = strings.ReplaceAll(code, "\"../../contracts/flow/token/NonFungibleToken.cdc\"", "0x"+nftAddr.String())
+	code = strings.ReplaceAll(code, "\"../../contracts/flow/token/BloctoPass.cdc\"", "0x"+bpAddr.String())
+
+	return []byte(code)
 }

@@ -1,3 +1,4 @@
+import NonFungibleToken from "../../contracts/flow/token/NonFungibleToken.cdc"
 import BloctoPass from "../../contracts/flow/token/BloctoPass.cdc"
 
 transaction {
@@ -9,7 +10,9 @@ transaction {
 
             signer.save(<-collection, to: /storage/bloctoPassCollection)
 
-            signer.link<&{BloctoPass.CollectionPublic}>(/public/bloctoPassCollection, target: /storage/bloctoPassCollection)
+            signer.link<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>(
+                /public/bloctoPassCollection,
+                target: /storage/bloctoPassCollection)
         }
     }
 }

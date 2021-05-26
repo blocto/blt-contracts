@@ -1,4 +1,5 @@
 import FungibleToken from "../token/FungibleToken.cdc"
+import NonFungibleToken from "../token/NonFungibleToken.cdc"
 import BloctoToken from "../token/BloctoToken.cdc"
 import BloctoPass from "../token/BloctoPass.cdc"
 
@@ -210,11 +211,11 @@ pub contract BloctoTokenMining {
 
             let bloctoPass = self.getHighestTierBloctoPass(address: address)
                 ?? panic("Could not find blocto pass")
-            let blocoPassCollectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+            let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
                 .borrow<&{BloctoPass.CollectionPublic}>()
                 ?? panic("Could not borrow blocto pass collection public reference")
             let amount = rewardVault.balance
-            blocoPassCollectionRef.depositBloctoToken(from: <- rewardVault, id: bloctoPass.id)
+            collectionRef.depositBloctoToken(from: <- rewardVault, id: bloctoPass.id)
 
             BloctoTokenMining.rewardsDistributed[address] = BloctoTokenMining.currentRound
 
@@ -222,12 +223,12 @@ pub contract BloctoTokenMining {
         }
 
         access(self) fun isAddressVIP(address: Address): Bool {
-            let blocoPassCollectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
-                .borrow<&{BloctoPass.CollectionPublic}>()
-                ?? panic("Could not borrow blocto pass collection public reference")
+            let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+                .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
+                ?? panic("Could not borrow collection public reference")
 
-            for id in blocoPassCollectionRef.getIDs() {
-                let bloctoPass = blocoPassCollectionRef.borrowBloctoPass(id: id)
+            for id in collectionRef.getIDs() {
+                let bloctoPass = collectionRef.borrowBloctoPass(id: id)
                 if bloctoPass.getVipTier() > (0 as UInt64) {
                     return true
                 }
@@ -236,14 +237,14 @@ pub contract BloctoTokenMining {
         }
 
         access(self) fun getHighestTierBloctoPass(address: Address): &BloctoPass.NFT? {
-            let blocoPassCollectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
-                .borrow<&{BloctoPass.CollectionPublic}>()
-                ?? panic("Could not borrow blocto pass collection public reference")
+            let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+                .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
+                ?? panic("Could not borrow collection public reference")
 
             var highestTier: UInt64? = nil
             var highestBloctoPass: &BloctoPass.NFT? = nil
-            for id in blocoPassCollectionRef.getIDs() {
-                let bloctoPass = blocoPassCollectionRef.borrowBloctoPass(id: id)
+            for id in collectionRef.getIDs() {
+                let bloctoPass = collectionRef.borrowBloctoPass(id: id)
                 let tier = bloctoPass.getVipTier()
                 if let localHighestTier = highestTier {
                     if tier > localHighestTier {

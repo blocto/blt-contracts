@@ -373,7 +373,7 @@ func TestBPMiningOneRound(t *testing.T) {
 	)
 	assert.NoError(t, err)
 	// Add Blocto Pass
-	MintNewBloctoPass(t, b, user1Addr, user1Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
+	MintNewBloctoPass(t, b, btMiningInfo.NFTAddr, user1Addr, user1Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
 
 	user2AccountKey, user2Signer := accountKeys.NewWithSigner()
 	user2Addr, err := b.CreateAccount(
@@ -382,7 +382,7 @@ func TestBPMiningOneRound(t *testing.T) {
 	)
 	assert.NoError(t, err)
 	// Add Blocto Pass
-	MintNewBloctoPass(t, b, user2Addr, user2Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
+	MintNewBloctoPass(t, b, btMiningInfo.NFTAddr, user2Addr, user2Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
 	// TODO: user2 has BloctoPass on VIP tier 1
 
 	var user1AddrBytes, user2AddrBytes [8]byte
@@ -620,7 +620,7 @@ func TestBPMiningOneRound(t *testing.T) {
 		)
 
 		reward := executeScriptAndCheck(t, b,
-			btGetPropertyScript(bpGetBloctoPassVaultBalancePath, btMiningInfo.BPAddr),
+			bpGetBloctoPassVaultBalanceScript(btMiningInfo.BPAddr, btMiningInfo.NFTAddr),
 			[][]byte{json.MustEncode(cadence.Address(user1Addr))})
 		rewardExpected, _ := cadence.NewUFix64("22.0")
 		assert.Equal(t, rewardExpected, reward)
@@ -670,7 +670,7 @@ func TestBPMiningOneRound(t *testing.T) {
 		)
 
 		reward := executeScriptAndCheck(t, b,
-			btGetPropertyScript(bpGetBloctoPassVaultBalancePath, btMiningInfo.BPAddr),
+			bpGetBloctoPassVaultBalanceScript(btMiningInfo.BPAddr, btMiningInfo.NFTAddr),
 			[][]byte{json.MustEncode(cadence.Address(user2Addr))})
 		rewardExpected, _ := cadence.NewUFix64("32.0")
 		assert.Equal(t, rewardExpected, reward)
@@ -744,7 +744,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 	)
 	assert.NoError(t, err)
 	// Add Blocto Pass
-	MintNewBloctoPass(t, b, user1Addr, user1Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
+	MintNewBloctoPass(t, b, btMiningInfo.NFTAddr, user1Addr, user1Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
 
 	user2AccountKey, user2Signer := accountKeys.NewWithSigner()
 	user2Addr, err := b.CreateAccount(
@@ -753,7 +753,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 	)
 	assert.NoError(t, err)
 	// Add Blocto Pass
-	MintNewBloctoPass(t, b, user2Addr, user2Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
+	MintNewBloctoPass(t, b, btMiningInfo.NFTAddr, user2Addr, user2Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
 	// TODO: user2 has BloctoPass on VIP tier 1
 
 	var user1AddrBytes, user2AddrBytes [8]byte
@@ -975,7 +975,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 		)
 
 		reward := executeScriptAndCheck(t, b,
-			btGetPropertyScript(bpGetBloctoPassVaultBalancePath, btMiningInfo.BPAddr),
+			bpGetBloctoPassVaultBalanceScript(btMiningInfo.BPAddr, btMiningInfo.NFTAddr),
 			[][]byte{json.MustEncode(cadence.Address(user1Addr))})
 		rewardExpected, _ := cadence.NewUFix64("4.12422592")
 		assert.Equal(t, rewardExpected, reward)
@@ -1006,7 +1006,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 		)
 
 		reward := executeScriptAndCheck(t, b,
-			btGetPropertyScript(bpGetBloctoPassVaultBalancePath, btMiningInfo.BPAddr),
+			bpGetBloctoPassVaultBalanceScript(btMiningInfo.BPAddr, btMiningInfo.NFTAddr),
 			[][]byte{json.MustEncode(cadence.Address(user2Addr))})
 		rewardExpected, _ := cadence.NewUFix64("5.99887407")
 		assert.Equal(t, rewardExpected, reward)
@@ -1071,6 +1071,7 @@ func loadBloctoTokenMining(bpInfo TestBloctoPassContractsInfo) []byte {
 	code := string(readFile(bloctoTokenMiningPath))
 
 	code = strings.ReplaceAll(code, "\"../token/FungibleToken.cdc\"", "0x"+bpInfo.FTAddr.String())
+	code = strings.ReplaceAll(code, "\"../token/NonFungibleToken.cdc\"", "0x"+bpInfo.NFTAddr.String())
 	code = strings.ReplaceAll(code, "\"../token/BloctoToken.cdc\"", "0x"+bpInfo.BTAddr.String())
 	code = strings.ReplaceAll(code, "\"../token/BloctoPass.cdc\"", "0x"+bpInfo.BPAddr.String())
 

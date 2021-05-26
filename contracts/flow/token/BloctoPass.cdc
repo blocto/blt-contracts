@@ -112,9 +112,6 @@ pub contract BloctoPass: NonFungibleToken {
     // CollectionPublic is a custom interface that allows us to
     // access the public fields and methods for our BloctoPass Collection
     pub resource interface CollectionPublic {
-        pub fun deposit(token: @NonFungibleToken.NFT)
-        pub fun getIDs(): [UInt64]
-        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
         pub fun borrowBloctoPass(id: UInt64): &BloctoPass.NFT
         pub fun depositBloctoToken(from: @FungibleToken.Vault, id: UInt64)
     }
@@ -205,7 +202,7 @@ pub contract BloctoPass: NonFungibleToken {
 
         // mintNFT mints a new NFT with a new ID
         // and deposit it in the recipients collection using their collection reference
-        pub fun mintNFT(recipient: &{BloctoPass.CollectionPublic}, metadata: {String: String}) {
+        pub fun mintNFT(recipient: &{NonFungibleToken.CollectionPublic}, metadata: {String: String}) {
             self.mintNFTWithLockup(
                 recipient: recipient,
                 metadata: metadata,
@@ -215,7 +212,7 @@ pub contract BloctoPass: NonFungibleToken {
         }
 
         pub fun mintNFTWithLockup(
-            recipient: &{BloctoPass.CollectionPublic},
+            recipient: &{NonFungibleToken.CollectionPublic},
             metadata: {String: String},
             vault: @FungibleToken.Vault,
             lockupSchedule: {UFix64: UFix64}
@@ -245,7 +242,7 @@ pub contract BloctoPass: NonFungibleToken {
         self.account.save(<-collection, to: /storage/bloctoPassCollection)
 
         // create a public capability for the collection
-        self.account.link<&{BloctoPass.CollectionPublic}>(
+        self.account.link<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>(
             /public/bloctoPassCollection,
             target: /storage/bloctoPassCollection
         )
