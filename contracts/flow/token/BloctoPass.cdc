@@ -170,13 +170,13 @@ pub contract BloctoPass: NonFungibleToken {
         }
 
         // borrowBloctoPass gets an authorized reference to an NFT in the collection
-        // and returns it to the caller as a reference to the BloctoPass.NFT if it exists.
-        // The method returns nil if the provided token id doesn't exist in the collection
+        // and returns it to the caller as a reference to the BloctoPass.NFT
         pub fun borrowBloctoPass(id: UInt64): &BloctoPass.NFT {
             let bloctoPassRef = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
             return bloctoPassRef as! &BloctoPass.NFT
         }
 
+        // depositBloctoToken deposits BloctoToken to a vault of BloctoPass.NFT
         pub fun depositBloctoToken(from: @FungibleToken.Vault, id: UInt64) {
             let token <- (self.ownedNFTs.remove(key: id) ?? panic("missing NFT")) as! @BloctoPass.NFT
             token.deposit(from: <- from)
