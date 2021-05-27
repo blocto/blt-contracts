@@ -1,6 +1,6 @@
 //! Program state processor
 
-use crate::{error::TeleportError, instruction::TeleportInstruction};
+use crate::{error::TeleportError, instruction::TeleportInstruction, state};
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
     account_info::next_account_info,
@@ -27,8 +27,9 @@ impl Processor {
     ) -> ProgramResult {
         let instruction = TeleportInstruction::try_from_slice(input)?;
         match instruction {
-            TeleportInstruction::Hello => {
-                msg!("Hello");
+            TeleportInstruction::GetOwner => {
+                msg!("Instruction: GetOwner");
+                msg!(&format!("owner is {}", state::OWNER.to_string()));
                 Ok(())
             }
         }
