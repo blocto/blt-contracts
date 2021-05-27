@@ -11,7 +11,16 @@ pub const OWNER: Pubkey = Pubkey::new_from_array([
     92, 127, 241, 91, 118, 190, 46, 20, 186, 220, 132, 23,
 ]);
 
+pub const MAX_ADMIN: usize = 5;
+
 /// Program states.
 #[repr(C)]
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Debug, Clone)]
-pub struct Hello {}
+pub struct Config {
+    pub is_init: bool,
+    pub admins: [Pubkey; MAX_ADMIN],
+}
+
+impl Config {
+    pub const LEN: usize = 161;
+}

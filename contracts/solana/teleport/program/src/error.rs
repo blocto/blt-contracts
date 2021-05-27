@@ -8,7 +8,14 @@ use solana_program::{
 use thiserror::Error;
 
 #[derive(Clone, Debug, Eq, Error, FromPrimitive, PartialEq)]
-pub enum TeleportError {}
+pub enum TeleportError {
+    #[error("AuthFailed")]
+    AuthFailed,
+    #[error("AlreadyInUse")]
+    AlreadyInUse,
+    #[error("NotRentExempt")]
+    NotRentExempt,
+}
 
 impl From<TeleportError> for ProgramError {
     fn from(e: TeleportError) -> Self {
@@ -28,7 +35,9 @@ impl PrintProgramError for TeleportError {
         E: 'static + std::error::Error + DecodeError<E> + PrintProgramError + FromPrimitive,
     {
         match self {
-            _ => msg!("ERROR!"),
+            TeleportError::AuthFailed => msg!("Auth Failed"),
+            TeleportError::AlreadyInUse => msg!("Already In Use"),
+            TeleportError::NotRentExempt => msg!("Not Rent Exempt"),
         }
     }
 }
