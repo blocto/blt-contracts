@@ -14,6 +14,7 @@ use {
 pub enum TeleportInstruction {
     GetOwner,
     InitConfig,
+    InitAdmin { allowance: u64 },
     AddAdmin { admin: Pubkey },
     RemoveAdmin { admin: Pubkey },
 }
@@ -40,6 +41,25 @@ pub fn init_config(
         AccountMeta::new(*owner, true),
         AccountMeta::new(*config, false),
         AccountMeta::new_readonly(sysvar::rent::id(), false),
+    ];
+    Ok(Instruction {
+        program_id: *program_id,
+        accounts,
+        data,
+    })
+}
+
+pub fn init_admin(
+    program_id: &Pubkey,
+    owner: &Pubkey,
+    admin: &Pubkey,
+    allowance: u64,
+) -> Result<Instruction, ProgramError> {
+    let init_data = TeleportInstruction::InitAdmin { allowance };
+    let data = init_data.try_to_vec()?;
+    let accounts = vec![
+        AccountMeta::new(*owner, true),
+        AccountMeta::new(*admin, false),
     ];
     Ok(Instruction {
         program_id: *program_id,

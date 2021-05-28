@@ -47,3 +47,14 @@ impl Config {
         Err(TeleportError::UnexpectedError.into())
     }
 }
+
+#[repr(C)]
+#[derive(BorshSerialize, BorshDeserialize, PartialEq, Debug, Clone)]
+pub struct Admin {
+    pub is_init: bool,
+    pub allowance: u64,
+}
+
+impl Admin {
+    pub const LEN: usize = 9;
+}

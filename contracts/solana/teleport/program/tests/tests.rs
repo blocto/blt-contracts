@@ -82,6 +82,43 @@ async fn create_config(
     config_account.pubkey()
 }
 
+async fn create_admin(
+    banks_client: &mut BanksClient,
+    payer: &Keypair,
+    recent_blockhash: &Hash,
+    allowance: u64,
+) -> Pubkey {
+    let owner_account = get_owner();
+    let admin_account = Keypair::new();
+    let rent = banks_client.get_rent().await.unwrap();
+    let admin_account_len = blt_teleport::state::Admin::LEN;
+    let account_rent = rent.minimum_balance(admin_account_len);
+
+    let instructions = vec![
+        system_instruction::create_account(
+            &payer.pubkey(),
+            &admin_account.pubkey(),
+            account_rent,
+            admin_account_len as u64,
+            &blt_teleport::id(),
+        ),
+        blt_teleport::instruction::init_admin(
+            &blt_teleport::id(),
+            &owner_account.pubkey(),
+            &admin_account.pubkey(),
+            allowance,
+        )
+        .unwrap(),
+    ];
+
+    let mut transaction = Transaction::new_with_payer(&instructions[..], Some(&payer.pubkey()));
+    transaction.sign(&[&payer, &owner_account, &admin_account], *recent_blockhash);
+
+    banks_client.process_transaction(transaction).await.unwrap();
+
+    admin_account.pubkey()
+}
+
 async fn get_config(
     banks_client: &mut BanksClient,
     config_pubkey: &Pubkey,
@@ -92,6 +129,18 @@ async fn get_config(
         .unwrap()
         .unwrap();
     blt_teleport::state::Config::try_from_slice(config_account.data.as_slice()).unwrap()
+}
+
+async fn get_admin(
+    banks_client: &mut BanksClient,
+    admin_pubkey: &Pubkey,
+) -> blt_teleport::state::Admin {
+    let admin_account = banks_client
+        .get_account(*admin_pubkey)
+        .await
+        .unwrap()
+        .unwrap();
+    blt_teleport::state::Admin::try_from_slice(admin_account.data.as_slice()).unwrap()
 }
 
 fn expected_admins(keys: &[Pubkey]) -> Vec<Pubkey> {
@@ -173,6 +222,19 @@ async fn test_init_config() {
     let config = get_config(&mut banks_client, &config_pubkey).await;
 
     assert_eq!(config.is_init, true)
+}
+
+#[tokio::test]
+async fn test_init_admin() {
+    let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
+
+    let allowance = 1_000_000_000;
+    let admin_pubkey = create_admin(&mut banks_client, &payer, &recent_blockhash, allowance).await;
+
+    let admin = get_admin(&mut banks_client, &admin_pubkey).await;
+
+    assert_eq!(admin.is_init, true);
+    assert_eq!(admin.allowance, allowance);
 }
 
 #[tokio::test]

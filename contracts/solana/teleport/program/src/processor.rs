@@ -29,6 +29,10 @@ impl Processor {
                 msg!("Instruction: InitConfig");
                 Self::process_init_config(program_id, accounts)
             }
+            TeleportInstruction::InitAdmin { allowance } => {
+                msg!("Instruction: InitAdmin");
+                Self::process_init_admin(program_id, accounts, allowance)
+            }
             TeleportInstruction::AddAdmin { admin } => {
                 msg!("Instruction: AddAdmin");
                 Self::process_add_admin(program_id, accounts, &admin)
@@ -61,6 +65,30 @@ impl Processor {
 
         config
             .serialize(&mut *config_info.data.borrow_mut())
+            .map_err(|e| e.into())
+    }
+
+    pub fn process_init_admin(
+        _program_id: &Pubkey,
+        accounts: &[AccountInfo],
+        allowance: u64,
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+        let owner_info = next_account_info(account_info_iter)?;
+        let admin_info = next_account_info(account_info_iter)?;
+
+        Self::only_owner(owner_info)?;
+
+        let mut admin = state::Admin::try_from_slice(&admin_info.data.borrow())?;
+        if admin.is_init {
+            return Err(TeleportError::AlreadyInUse.into());
+        }
+
+        admin.is_init = true;
+        admin.allowance = allowance;
+
+        admin
+            .serialize(&mut *admin_info.data.borrow_mut())
             .map_err(|e| e.into())
     }
 
