@@ -40,6 +40,10 @@ impl Processor {
                 msg!("Instruction: AddAdmin");
                 Self::process_add_admin(program_id, accounts, &admin)
             }
+            TeleportInstruction::RemoveAdmin { admin } => {
+                msg!("Instruction: RemoveAdmin");
+                Self::process_remove_admin(program_id, accounts, &admin)
+            }
         }
     }
 
@@ -84,6 +88,29 @@ impl Processor {
         }
 
         config.add_admin(admin)?;
+
+        config
+            .serialize(&mut *config_info.data.borrow_mut())
+            .map_err(|e| e.into())
+    }
+
+    pub fn process_remove_admin(
+        _program_id: &Pubkey,
+        accounts: &[AccountInfo],
+        admin: &Pubkey,
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+        let owner_info = next_account_info(account_info_iter)?;
+        let config_info = next_account_info(account_info_iter)?;
+
+        Self::only_owner(owner_info)?;
+
+        let mut config = state::Config::try_from_slice(&config_info.data.borrow())?;
+        if !config.is_init {
+            return Err(TeleportError::IncorrectProgramAccount.into());
+        }
+
+        config.remove_admin(admin)?;
 
         config
             .serialize(&mut *config_info.data.borrow_mut())

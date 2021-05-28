@@ -35,4 +35,15 @@ impl Config {
         msg!("admin list is full");
         Err(TeleportError::UnexpectedError.into())
     }
+
+    pub fn remove_admin(&mut self, remove_admin_key: &Pubkey) -> Result<(), ProgramError> {
+        for admin in &mut self.admins {
+            if admin == remove_admin_key {
+                *admin = Pubkey::default();
+                return Ok(());
+            }
+        }
+        msg!("key not found");
+        Err(TeleportError::UnexpectedError.into())
+    }
 }

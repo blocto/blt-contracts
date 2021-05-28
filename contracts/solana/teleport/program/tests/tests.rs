@@ -234,3 +234,76 @@ async fn test_add_admin_over_limit() {
         _ => panic!("Wrong error occurs while decreasing with wrong owner"),
     }
 }
+
+#[tokio::test]
+async fn test_remove_admin() {
+    let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
+
+    let admin_keys = &[
+        Keypair::new().pubkey(),
+        Keypair::new().pubkey(),
+        Keypair::new().pubkey(),
+    ];
+    let config_pubkey =
+        create_config(&mut banks_client, &payer, &recent_blockhash, admin_keys).await;
+
+    let owner = get_owner();
+    let mut transaction = Transaction::new_with_payer(
+        &[blt_teleport::instruction::remove_admin(
+            &blt_teleport::id(),
+            &owner.pubkey(),
+            &config_pubkey,
+            &admin_keys[1],
+        )
+        .unwrap()],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer, &owner], recent_blockhash);
+    banks_client.process_transaction(transaction).await.unwrap();
+
+    let config = get_config(&mut banks_client, &config_pubkey).await;
+    assert_eq!(config.is_init, true);
+    let mut keys = expected_admins(admin_keys);
+    keys[1] = Pubkey::default();
+    assert_eq!(config.admins, keys[..]);
+}
+
+#[tokio::test]
+async fn test_remove_not_exist_admin() {
+    let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
+
+    let admin_keys = &[
+        Keypair::new().pubkey(),
+        Keypair::new().pubkey(),
+        Keypair::new().pubkey(),
+    ];
+    let config_pubkey =
+        create_config(&mut banks_client, &payer, &recent_blockhash, admin_keys).await;
+
+    let owner = get_owner();
+    let mut transaction = Transaction::new_with_payer(
+        &[blt_teleport::instruction::remove_admin(
+            &blt_teleport::id(),
+            &owner.pubkey(),
+            &config_pubkey,
+            &Keypair::new().pubkey(),
+        )
+        .unwrap()],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer, &owner], recent_blockhash);
+    let error = banks_client
+        .process_transaction(transaction)
+        .await
+        .err()
+        .unwrap()
+        .unwrap();
+
+    match error {
+        TransactionError::InstructionError(_, InstructionError::Custom(error_index)) => {
+            let program_error = TeleportError::UnexpectedError as u32;
+            assert_eq!(error_index, program_error);
+        }
+        _ => panic!("Wrong error occurs while decreasing with wrong owner"),
+    }
+}
