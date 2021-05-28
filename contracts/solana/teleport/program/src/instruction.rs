@@ -17,6 +17,8 @@ pub enum TeleportInstruction {
     InitAdmin { allowance: u64 },
     AddAdmin { admin: Pubkey },
     RemoveAdmin { admin: Pubkey },
+    Freeze,
+    Unfreeze,
 }
 
 pub fn get_owner(program_id: &Pubkey) -> Result<Instruction, ProgramError> {
@@ -94,6 +96,42 @@ pub fn remove_admin(
     admin: &Pubkey,
 ) -> Result<Instruction, ProgramError> {
     let init_data = TeleportInstruction::RemoveAdmin { admin: *admin };
+    let data = init_data.try_to_vec()?;
+    let accounts = vec![
+        AccountMeta::new(*owner, true),
+        AccountMeta::new(*config, false),
+    ];
+    Ok(Instruction {
+        program_id: *program_id,
+        accounts,
+        data,
+    })
+}
+
+pub fn freeze(
+    program_id: &Pubkey,
+    owner: &Pubkey,
+    config: &Pubkey,
+) -> Result<Instruction, ProgramError> {
+    let init_data = TeleportInstruction::Freeze {};
+    let data = init_data.try_to_vec()?;
+    let accounts = vec![
+        AccountMeta::new(*owner, true),
+        AccountMeta::new(*config, false),
+    ];
+    Ok(Instruction {
+        program_id: *program_id,
+        accounts,
+        data,
+    })
+}
+
+pub fn unfreeze(
+    program_id: &Pubkey,
+    owner: &Pubkey,
+    config: &Pubkey,
+) -> Result<Instruction, ProgramError> {
+    let init_data = TeleportInstruction::Unfreeze {};
     let data = init_data.try_to_vec()?;
     let accounts = vec![
         AccountMeta::new(*owner, true),

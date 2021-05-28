@@ -19,11 +19,12 @@ pub const MAX_ADMIN: usize = 5;
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Debug, Clone)]
 pub struct Config {
     pub is_init: bool,
+    pub is_frozen: bool,
     pub admins: [Pubkey; MAX_ADMIN],
 }
 
 impl Config {
-    pub const LEN: usize = 161;
+    pub const LEN: usize = 162;
 
     pub fn add_admin(&mut self, add_admin_key: &Pubkey) -> Result<(), ProgramError> {
         for admin in &mut self.admins {

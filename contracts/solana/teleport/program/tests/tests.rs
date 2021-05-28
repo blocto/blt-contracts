@@ -221,7 +221,8 @@ async fn test_init_config() {
 
     let config = get_config(&mut banks_client, &config_pubkey).await;
 
-    assert_eq!(config.is_init, true)
+    assert_eq!(config.is_init, true);
+    assert_eq!(config.is_frozen, false);
 }
 
 #[tokio::test]
@@ -367,4 +368,42 @@ async fn test_remove_not_exist_admin() {
         }
         _ => panic!("Wrong error occurs while decreasing with wrong owner"),
     }
+}
+
+#[tokio::test]
+async fn test_freeze_and_unfreeze() {
+    let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
+
+    let config_pubkey = create_config(&mut banks_client, &payer, &recent_blockhash, &[]).await;
+
+    let owner = get_owner();
+    let mut transaction = Transaction::new_with_payer(
+        &[
+            blt_teleport::instruction::freeze(&blt_teleport::id(), &owner.pubkey(), &config_pubkey)
+                .unwrap(),
+        ],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer, &owner], recent_blockhash);
+    banks_client.process_transaction(transaction).await.unwrap();
+
+    let config = get_config(&mut banks_client, &config_pubkey).await;
+    assert_eq!(config.is_init, true);
+    assert_eq!(config.is_frozen, true);
+
+    let mut transaction = Transaction::new_with_payer(
+        &[blt_teleport::instruction::unfreeze(
+            &blt_teleport::id(),
+            &owner.pubkey(),
+            &config_pubkey,
+        )
+        .unwrap()],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer, &owner], recent_blockhash);
+    banks_client.process_transaction(transaction).await.unwrap();
+
+    let config = get_config(&mut banks_client, &config_pubkey).await;
+    assert_eq!(config.is_init, true);
+    assert_eq!(config.is_frozen, false);
 }
