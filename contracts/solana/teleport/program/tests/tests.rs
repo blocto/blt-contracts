@@ -32,6 +32,81 @@ pub fn get_owner() -> Keypair {
     .unwrap()
 }
 
+async fn create_config(
+    banks_client: &mut BanksClient,
+    payer: &Keypair,
+    recent_blockhash: &Hash,
+    admin_keys: &[Pubkey],
+) -> Pubkey {
+    let owner_account = get_owner();
+    let config_account = Keypair::new();
+    let rent = banks_client.get_rent().await.unwrap();
+    let config_account_len = blt_teleport::state::Config::LEN;
+    let account_rent = rent.minimum_balance(config_account_len);
+
+    let mut instructions = vec![
+        system_instruction::create_account(
+            &payer.pubkey(),
+            &config_account.pubkey(),
+            account_rent,
+            config_account_len as u64,
+            &blt_teleport::id(),
+        ),
+        blt_teleport::instruction::init_config(
+            &blt_teleport::id(),
+            &owner_account.pubkey(),
+            &config_account.pubkey(),
+        )
+        .unwrap(),
+    ];
+
+    for admin_key in admin_keys {
+        instructions.push(
+            blt_teleport::instruction::add_admin(
+                &blt_teleport::id(),
+                &owner_account.pubkey(),
+                &config_account.pubkey(),
+                &admin_key,
+            )
+            .unwrap(),
+        )
+    }
+
+    let mut transaction = Transaction::new_with_payer(&instructions[..], Some(&payer.pubkey()));
+    transaction.sign(
+        &[&payer, &owner_account, &config_account],
+        *recent_blockhash,
+    );
+
+    banks_client.process_transaction(transaction).await.unwrap();
+
+    config_account.pubkey()
+}
+
+async fn get_config(
+    banks_client: &mut BanksClient,
+    config_pubkey: &Pubkey,
+) -> blt_teleport::state::Config {
+    let config_account = banks_client
+        .get_account(*config_pubkey)
+        .await
+        .unwrap()
+        .unwrap();
+    blt_teleport::state::Config::try_from_slice(config_account.data.as_slice()).unwrap()
+}
+
+fn expected_admins(keys: &[Pubkey]) -> Vec<Pubkey> {
+    let mut expected_admins = vec![Pubkey::default(); blt_teleport::state::MAX_ADMIN];
+
+    let mut idx = 0;
+    for key in keys {
+        expected_admins[idx] = *key;
+        idx += 1;
+    }
+
+    expected_admins
+}
+
 #[tokio::test]
 async fn test_get_owner() {
     let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
@@ -94,40 +169,68 @@ async fn test_init_config_with_fake_owner() {
 async fn test_init_config() {
     let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
 
-    let owner_account = get_owner();
-    let config_account = Keypair::new();
-    let rent = banks_client.get_rent().await.unwrap();
-    let config_account_len = blt_teleport::state::Config::LEN;
-    let account_rent = rent.minimum_balance(config_account_len);
+    let config_pubkey = create_config(&mut banks_client, &payer, &recent_blockhash, &[]).await;
 
+    let config = get_config(&mut banks_client, &config_pubkey).await;
+
+    assert_eq!(config.is_init, true)
+}
+
+#[tokio::test]
+async fn test_add_admin() {
+    let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
+
+    let admin_keys = &[Keypair::new().pubkey(), Keypair::new().pubkey()];
+    let config_pubkey =
+        create_config(&mut banks_client, &payer, &recent_blockhash, admin_keys).await;
+
+    let config = get_config(&mut banks_client, &config_pubkey).await;
+
+    assert_eq!(config.is_init, true);
+    assert_eq!(config.admins, expected_admins(admin_keys)[..]);
+}
+
+#[tokio::test]
+async fn test_add_admin_over_limit() {
+    let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
+
+    let limit = blt_teleport::state::MAX_ADMIN;
+    let mut admin_keys = Vec::with_capacity(limit);
+    for _ in 0..limit {
+        admin_keys.push(Keypair::new().pubkey());
+    }
+    let config_pubkey = create_config(
+        &mut banks_client,
+        &payer,
+        &recent_blockhash,
+        &admin_keys[..],
+    )
+    .await;
+
+    let owner = get_owner();
     let mut transaction = Transaction::new_with_payer(
-        &[
-            system_instruction::create_account(
-                &payer.pubkey(),
-                &config_account.pubkey(),
-                account_rent,
-                config_account_len as u64,
-                &blt_teleport::id(),
-            ),
-            blt_teleport::instruction::init_config(
-                &blt_teleport::id(),
-                &owner_account.pubkey(),
-                &config_account.pubkey(),
-            )
-            .unwrap(),
-        ],
+        &[blt_teleport::instruction::add_admin(
+            &blt_teleport::id(),
+            &owner.pubkey(),
+            &config_pubkey,
+            &Keypair::new().pubkey(),
+        )
+        .unwrap()],
         Some(&payer.pubkey()),
     );
-    transaction.sign(&[&payer, &owner_account, &config_account], recent_blockhash);
-
-    banks_client.process_transaction(transaction).await.unwrap();
-
-    let config_account = banks_client
-        .get_account(config_account.pubkey())
+    transaction.sign(&[&payer, &owner], recent_blockhash);
+    let error = banks_client
+        .process_transaction(transaction)
         .await
+        .err()
         .unwrap()
         .unwrap();
-    let config_account =
-        blt_teleport::state::Config::try_from_slice(config_account.data.as_slice()).unwrap();
-    assert_eq!(config_account.is_init, true)
+
+    match error {
+        TransactionError::InstructionError(_, InstructionError::Custom(error_index)) => {
+            let program_error = TeleportError::UnexpectedError as u32;
+            assert_eq!(error_index, program_error);
+        }
+        _ => panic!("Wrong error occurs while decreasing with wrong owner"),
+    }
 }

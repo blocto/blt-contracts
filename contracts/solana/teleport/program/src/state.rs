@@ -1,8 +1,9 @@
 //! State transition types
 
 use {
+    crate::error::TeleportError,
     borsh::{BorshDeserialize, BorshSerialize},
-    solana_program::pubkey::Pubkey,
+    solana_program::{msg, program_error::ProgramError, pubkey::Pubkey},
 };
 
 // BsBZoyMThoCCJAZR2nRyeCa3Tg2TyiDbAaNqeJxkqkHU
@@ -23,4 +24,15 @@ pub struct Config {
 
 impl Config {
     pub const LEN: usize = 161;
+
+    pub fn add_admin(&mut self, add_admin_key: &Pubkey) -> Result<(), ProgramError> {
+        for admin in &mut self.admins {
+            if admin == &mut Pubkey::default() {
+                *admin = *add_admin_key;
+                return Ok(());
+            }
+        }
+        msg!("admin list is full");
+        Err(TeleportError::UnexpectedError.into())
+    }
 }

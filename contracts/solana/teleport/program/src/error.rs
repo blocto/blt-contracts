@@ -15,6 +15,10 @@ pub enum TeleportError {
     AlreadyInUse,
     #[error("NotRentExempt")]
     NotRentExempt,
+    #[error("IncorrectProgramAccount")]
+    IncorrectProgramAccount,
+    #[error("UnexpectedError")]
+    UnexpectedError,
 }
 
 impl From<TeleportError> for ProgramError {
@@ -38,6 +42,8 @@ impl PrintProgramError for TeleportError {
             TeleportError::AuthFailed => msg!("Auth Failed"),
             TeleportError::AlreadyInUse => msg!("Already In Use"),
             TeleportError::NotRentExempt => msg!("Not Rent Exempt"),
+            TeleportError::IncorrectProgramAccount => msg!("Incorrect Program Account"),
+            TeleportError::UnexpectedError => msg!("Unexpected Error"),
         }
     }
 }
