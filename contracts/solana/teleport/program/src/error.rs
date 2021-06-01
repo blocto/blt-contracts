@@ -20,6 +20,8 @@ pub enum TeleportError {
     AlreadyInUse,
     #[error("NotRentExempt")]
     NotRentExempt,
+    #[error("MissingRequiredSignature")]
+    MissingRequiredSignature,
     #[error("IncorrectProgramAccount")]
     IncorrectProgramAccount,
     #[error("Freeze")]
@@ -50,6 +52,7 @@ impl PrintProgramError for TeleportError {
             TeleportError::UninitializedAccount => msg!("Uninitialized Account"),
             TeleportError::AlreadyInUse => msg!("Already In Use"),
             TeleportError::NotRentExempt => msg!("Not Rent Exempt"),
+            TeleportError::MissingRequiredSignature => msg!("Missing Required Signature"),
             TeleportError::IncorrectProgramAccount => msg!("Incorrect Program Account"),
             TeleportError::Freeze => msg!("Freeze"),
             TeleportError::UnexpectedError => msg!("Unexpected Error"),

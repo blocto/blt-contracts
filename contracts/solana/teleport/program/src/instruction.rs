@@ -22,6 +22,7 @@ pub enum TeleportInstruction {
     Unfreeze,
     TeleportIn { amount: u64, decimals: u8 },
     TeleportOutByOwner { tx_hash: [u8; 32], amount: u64, decimals: u8 },
+    TeleportOut { tx_hash: [u8; 32], amount: u64, decimals: u8 },
 }
 
 pub fn get_owner(program_id: &Pubkey) -> Result<Instruction, ProgramError> {
@@ -164,3 +165,4 @@ pub fn unfreeze(
 // TODO
 // pub fn teleport_in()
 // pub fn teleport_out_by_owner()
+// pub fn teleport()

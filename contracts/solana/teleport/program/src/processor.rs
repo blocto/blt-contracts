@@ -77,6 +77,14 @@ impl Processor {
                     program_id, accounts, &tx_hash, amount, decimals,
                 )
             }
+            TeleportInstruction::TeleportOut {
+                tx_hash,
+                amount,
+                decimals,
+            } => {
+                msg!("Instruction: TeleportOut");
+                Self::process_teleport_out(program_id, accounts, &tx_hash, amount, decimals)
+            }
         }
     }
 
@@ -315,6 +323,56 @@ impl Processor {
     ) -> ProgramResult {
         let account_info_iter = &mut accounts.iter();
         let owner_info = next_account_info(account_info_iter)?;
+        Self::only_owner(owner_info)?;
+
+        Self::teleport_out(program_id, account_info_iter, txhash, amount, decimals)
+    }
+
+    pub fn process_teleport_out(
+        program_id: &Pubkey,
+        accounts: &[AccountInfo],
+        txhash: &[u8; 32],
+        amount: u64,
+        decimals: u8,
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+        let config_info = next_account_info(account_info_iter)?;
+        let admin_info = next_account_info(account_info_iter)?;
+
+        let config = Self::get_config(program_id, config_info)?;
+        if config.is_frozen {
+            return Err(TeleportError::Freeze.into());
+        }
+
+        if !config.contain_admin(admin_info.key) {
+            msg!("config doesn't contain admin key");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+
+        if !admin_info.is_signer {
+            return Err(TeleportError::MissingRequiredSignature.into());
+        }
+        let mut admin = state::Admin::try_from_slice(&admin_info.data.borrow())?;
+        if !admin.is_init {
+            return Err(TeleportError::UninitializedAccount.into());
+        }
+        if admin.allowance < amount {
+            msg!("admin allowance isn't enough");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+        admin.allowance -= amount;
+        admin.serialize(&mut *admin_info.data.borrow_mut())?;
+
+        Self::teleport_out(program_id, account_info_iter, txhash, amount, decimals)
+    }
+
+    fn teleport_out(
+        program_id: &Pubkey,
+        account_info_iter: &mut std::slice::Iter<solana_program::account_info::AccountInfo>,
+        txhash: &[u8; 32],
+        amount: u64,
+        decimals: u8,
+    ) -> ProgramResult {
         let record_info = next_account_info(account_info_iter)?;
         let wallet_info = next_account_info(account_info_iter)?;
         let wallet_signer_info = next_account_info(account_info_iter)?;
@@ -328,9 +386,6 @@ impl Processor {
         let teleport_program_info = next_account_info(account_info_iter)?;
         let rent_sysvar_info = next_account_info(account_info_iter)?;
         let rent = &Rent::from_account_info(rent_sysvar_info)?;
-
-        Self::only_owner(owner_info)?;
-
         // check wallet program
         if wallet_program_info.key != &state::MULTISIG_PROGRAM {
             msg!("unexpected multisig program");

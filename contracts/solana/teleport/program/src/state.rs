@@ -53,6 +53,15 @@ impl Config {
         msg!("key not found");
         Err(TeleportError::UnexpectedError.into())
     }
+
+    pub fn contain_admin(&self, target: &Pubkey) -> bool {
+        for admin in &self.admins {
+            if admin == target {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 #[repr(C)]
