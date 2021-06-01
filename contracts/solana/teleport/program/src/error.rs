@@ -14,12 +14,16 @@ use {
 pub enum TeleportError {
     #[error("AuthFailed")]
     AuthFailed,
+    #[error("UninitializedAccount")]
+    UninitializedAccount,
     #[error("AlreadyInUse")]
     AlreadyInUse,
     #[error("NotRentExempt")]
     NotRentExempt,
     #[error("IncorrectProgramAccount")]
     IncorrectProgramAccount,
+    #[error("Freeze")]
+    Freeze,
     #[error("UnexpectedError")]
     UnexpectedError,
 }
@@ -43,9 +47,11 @@ impl PrintProgramError for TeleportError {
     {
         match self {
             TeleportError::AuthFailed => msg!("Auth Failed"),
+            TeleportError::UninitializedAccount => msg!("Uninitialized Account"),
             TeleportError::AlreadyInUse => msg!("Already In Use"),
             TeleportError::NotRentExempt => msg!("Not Rent Exempt"),
             TeleportError::IncorrectProgramAccount => msg!("Incorrect Program Account"),
+            TeleportError::Freeze => msg!("Freeze"),
             TeleportError::UnexpectedError => msg!("Unexpected Error"),
         }
     }

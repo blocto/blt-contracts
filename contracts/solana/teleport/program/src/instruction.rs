@@ -20,6 +20,7 @@ pub enum TeleportInstruction {
     RemoveAdmin { admin: Pubkey },
     Freeze,
     Unfreeze,
+    TeleportIn { amount: u64, decimals: u8 },
 }
 
 pub fn get_owner(program_id: &Pubkey) -> Result<Instruction, ProgramError> {
@@ -158,3 +159,6 @@ pub fn unfreeze(
         data,
     })
 }
+
+// TODO
+// pub fn teleport_in()

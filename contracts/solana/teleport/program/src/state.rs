@@ -12,6 +12,12 @@ pub const OWNER: Pubkey = Pubkey::new_from_array([
     92, 127, 241, 91, 118, 190, 46, 20, 186, 220, 132, 23,
 ]);
 
+// D6vhDDD47LqHfHGps5YKkzJNBhXasrTf5LbNmkF3XHww
+pub const MULTISIG_PROGRAM: Pubkey = Pubkey::new_from_array([
+    179, 208, 219, 188, 251, 227, 215, 188, 180, 224, 242, 225, 39, 246, 138, 13, 26, 29, 195, 101,
+    12, 247, 227, 6, 11, 98, 112, 139, 37, 42, 72, 2,
+]);
+
 pub const MAX_ADMIN: usize = 5;
 
 /// Program states.

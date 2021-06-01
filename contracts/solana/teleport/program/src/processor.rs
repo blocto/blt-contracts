@@ -4,9 +4,20 @@ use {
     crate::{error::TeleportError, instruction::TeleportInstruction, state},
     borsh::{BorshDeserialize, BorshSerialize},
     solana_program::{
-        account_info::next_account_info, account_info::AccountInfo, entrypoint::ProgramResult, msg,
-        pubkey::Pubkey, rent::Rent, sysvar::Sysvar,
+        account_info::next_account_info,
+        account_info::AccountInfo,
+        entrypoint::ProgramResult,
+        instruction::{AccountMeta, Instruction},
+        msg,
+        program::{invoke, invoke_signed},
+        program_error::ProgramError,
+        program_pack::Pack,
+        pubkey::Pubkey,
+        rent::Rent,
+        system_instruction,
+        sysvar::Sysvar,
     },
+    spl_token,
 };
 
 /// Program state handler.
@@ -52,6 +63,10 @@ impl Processor {
             TeleportInstruction::Unfreeze => {
                 msg!("Instruction: Unfreeze");
                 Self::process_unfreeze(program_id, accounts)
+            }
+            TeleportInstruction::TeleportIn { amount, decimals } => {
+                msg!("Instruction: TeleportIn");
+                Self::process_teleport_in(program_id, accounts, amount, decimals)
             }
         }
     }
@@ -206,6 +221,82 @@ impl Processor {
             .map_err(|e| e.into())
     }
 
+    pub fn process_teleport_in(
+        program_id: &Pubkey,
+        accounts: &[AccountInfo],
+        amount: u64,
+        decimals: u8,
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+        let config_info = next_account_info(account_info_iter)?;
+        let wallet_info = next_account_info(account_info_iter)?;
+        let wallet_pda_info = next_account_info(account_info_iter)?;
+        let wallet_signer_info = next_account_info(account_info_iter)?;
+        let fee_payer_info = next_account_info(account_info_iter)?;
+        let wallet_program_info = next_account_info(account_info_iter)?;
+        let from_info = next_account_info(account_info_iter)?;
+        let mint_info = next_account_info(account_info_iter)?;
+        let from_auth_info = next_account_info(account_info_iter)?;
+        let spl_token_program_info = next_account_info(account_info_iter)?;
+
+        let config = Self::get_config(program_id, config_info)?;
+        if config.is_frozen {
+            return Err(TeleportError::Freeze.into());
+        }
+
+        // check wallet program
+        if wallet_program_info.key != &state::MULTISIG_PROGRAM {
+            msg!("unexpected multisig program");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+
+        // check token program
+        if spl_token_program_info.key != &spl_token::id() {
+            msg!("unexpected spl-token-program");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+
+        let seeds: &[&[_]] = &[
+            b"BLT",
+            &[Pubkey::find_program_address(&[b"BLT"], &program_id).1],
+        ];
+
+        let mut data = vec![3, 3, 3, 0, 5, 1, 6, 1, 7, 2, 15];
+        data.extend(amount.to_le_bytes().iter().cloned());
+        data.push(decimals);
+
+        invoke_signed(
+            &Instruction::new_with_bytes(
+                *wallet_program_info.key,
+                &data[..],
+                vec![
+                    AccountMeta::new(*wallet_info.key, false),
+                    AccountMeta::new_readonly(*wallet_pda_info.key, false),
+                    AccountMeta::new(*fee_payer_info.key, true),
+                    AccountMeta::new_readonly(*spl_token_program_info.key, false),
+                    AccountMeta::new_readonly(*wallet_signer_info.key, true),
+                    AccountMeta::new(*from_info.key, false),
+                    AccountMeta::new(*mint_info.key, false),
+                    AccountMeta::new_readonly(*from_auth_info.key, true),
+                ],
+            ),
+            &[
+                wallet_info.clone(),
+                wallet_pda_info.clone(),
+                fee_payer_info.clone(),
+                spl_token_program_info.clone(),
+                wallet_signer_info.clone(),
+                wallet_program_info.clone(),
+                from_info.clone(),
+                mint_info.clone(),
+                from_auth_info.clone(),
+            ],
+            &[&seeds],
+        )?;
+
+        Ok(())
+    }
+
     fn only_owner(account_info: &AccountInfo) -> ProgramResult {
         if account_info.key != &state::OWNER {
             msg!("owner mismatch");
@@ -218,5 +309,25 @@ impl Processor {
         }
 
         Ok(())
+    }
+
+    fn get_config(
+        program_id: &Pubkey,
+        config_info: &AccountInfo,
+    ) -> Result<state::Config, ProgramError> {
+        if config_info.owner != program_id {
+            return Err(TeleportError::IncorrectProgramAccount.into());
+        }
+
+        if config_info.data_len() != state::Config::LEN {
+            return Err(TeleportError::IncorrectProgramAccount.into());
+        }
+
+        let config = state::Config::try_from_slice(&config_info.data.borrow())?;
+        if !config.is_init {
+            return Err(TeleportError::UninitializedAccount.into());
+        }
+
+        return Ok(config);
     }
 }
