@@ -59,3 +59,13 @@ pub struct Admin {
 impl Admin {
     pub const LEN: usize = 9;
 }
+
+#[repr(C)]
+#[derive(BorshSerialize, BorshDeserialize, PartialEq, Debug, Clone)]
+pub struct TeleportOutRecord {
+    pub is_init: bool,
+}
+
+impl TeleportOutRecord {
+    pub const LEN: usize = 1;
+}

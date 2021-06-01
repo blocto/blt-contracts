@@ -15,6 +15,7 @@ pub enum TeleportInstruction {
     GetOwner,
     InitConfig,
     InitAdmin { allowance: u64 },
+    InitTeleportOutRecord,
     AddAdmin { admin: Pubkey },
     RemoveAdmin { admin: Pubkey },
     Freeze,
@@ -63,6 +64,20 @@ pub fn init_admin(
         AccountMeta::new(*owner, true),
         AccountMeta::new(*admin, false),
     ];
+    Ok(Instruction {
+        program_id: *program_id,
+        accounts,
+        data,
+    })
+}
+
+pub fn init_teleport_out_record(
+    program_id: &Pubkey,
+    record: &Pubkey,
+) -> Result<Instruction, ProgramError> {
+    let init_data = TeleportInstruction::InitTeleportOutRecord {};
+    let data = init_data.try_to_vec()?;
+    let accounts = vec![AccountMeta::new(*record, false)];
     Ok(Instruction {
         program_id: *program_id,
         accounts,

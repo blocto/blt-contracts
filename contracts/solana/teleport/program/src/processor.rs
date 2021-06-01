@@ -33,6 +33,10 @@ impl Processor {
                 msg!("Instruction: InitAdmin");
                 Self::process_init_admin(program_id, accounts, allowance)
             }
+            TeleportInstruction::InitTeleportOutRecord => {
+                msg!("Instruction: InitTeleportOutRecord");
+                Self::process_init_teleport_out_record(program_id, accounts)
+            }
             TeleportInstruction::AddAdmin { admin } => {
                 msg!("Instruction: AddAdmin");
                 Self::process_add_admin(program_id, accounts, &admin)
@@ -97,6 +101,24 @@ impl Processor {
 
         admin
             .serialize(&mut *admin_info.data.borrow_mut())
+            .map_err(|e| e.into())
+    }
+
+    pub fn process_init_teleport_out_record(
+        _program_id: &Pubkey,
+        accounts: &[AccountInfo],
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+        let record_info = next_account_info(account_info_iter)?;
+
+        let mut record = state::TeleportOutRecord::try_from_slice(&record_info.data.borrow())?;
+        if record.is_init {
+            return Err(TeleportError::AlreadyInUse.into());
+        }
+
+        record.is_init = true;
+        record
+            .serialize(&mut *record_info.data.borrow_mut())
             .map_err(|e| e.into())
     }
 

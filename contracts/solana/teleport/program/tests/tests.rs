@@ -143,6 +143,14 @@ async fn get_admin(
     blt_teleport::state::Admin::try_from_slice(admin_account.data.as_slice()).unwrap()
 }
 
+async fn get_teleport_out_record(
+    banks_client: &mut BanksClient,
+    record: &Pubkey,
+) -> blt_teleport::state::TeleportOutRecord {
+    let record_account = banks_client.get_account(*record).await.unwrap().unwrap();
+    blt_teleport::state::TeleportOutRecord::try_from_slice(record_account.data.as_slice()).unwrap()
+}
+
 fn expected_admins(keys: &[Pubkey]) -> Vec<Pubkey> {
     let mut expected_admins = vec![Pubkey::default(); blt_teleport::state::MAX_ADMIN];
 
@@ -406,4 +414,38 @@ async fn test_freeze_and_unfreeze() {
     let config = get_config(&mut banks_client, &config_pubkey).await;
     assert_eq!(config.is_init, true);
     assert_eq!(config.is_frozen, false);
+}
+
+#[tokio::test]
+async fn test_inin_teleport_out_record() {
+    let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
+
+    let rent = banks_client.get_rent().await.unwrap();
+    let record_account_len = blt_teleport::state::TeleportOutRecord::LEN;
+    let account_rent = rent.minimum_balance(record_account_len);
+
+    let record = Keypair::new();
+
+    let mut transaction = Transaction::new_with_payer(
+        &[
+            system_instruction::create_account(
+                &payer.pubkey(),
+                &record.pubkey(),
+                account_rent,
+                record_account_len as u64,
+                &blt_teleport::id(),
+            ),
+            blt_teleport::instruction::init_teleport_out_record(
+                &blt_teleport::id(),
+                &record.pubkey(),
+            )
+            .unwrap(),
+        ],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer, &record], recent_blockhash);
+    banks_client.process_transaction(transaction).await.unwrap();
+
+    let record = get_teleport_out_record(&mut banks_client, &record.pubkey()).await;
+    assert_eq!(record.is_init, true);
 }
