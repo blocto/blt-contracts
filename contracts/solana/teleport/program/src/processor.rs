@@ -11,10 +11,9 @@ use {
         msg,
         program::{invoke, invoke_signed},
         program_error::ProgramError,
-        program_pack::Pack,
         pubkey::Pubkey,
         rent::Rent,
-        system_instruction,
+        system_instruction, system_program,
         sysvar::Sysvar,
     },
     spl_token,
@@ -67,6 +66,16 @@ impl Processor {
             TeleportInstruction::TeleportIn { amount, decimals } => {
                 msg!("Instruction: TeleportIn");
                 Self::process_teleport_in(program_id, accounts, amount, decimals)
+            }
+            TeleportInstruction::TeleportOutByOwner {
+                tx_hash,
+                amount,
+                decimals,
+            } => {
+                msg!("Instruction: TeleportOutByOwner");
+                Self::process_teleport_out_by_owner(
+                    program_id, accounts, &tx_hash, amount, decimals,
+                )
             }
         }
     }
@@ -290,6 +299,131 @@ impl Processor {
                 from_info.clone(),
                 mint_info.clone(),
                 from_auth_info.clone(),
+            ],
+            &[&seeds],
+        )?;
+
+        Ok(())
+    }
+
+    pub fn process_teleport_out_by_owner(
+        program_id: &Pubkey,
+        accounts: &[AccountInfo],
+        txhash: &[u8; 32],
+        amount: u64,
+        decimals: u8,
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+        let owner_info = next_account_info(account_info_iter)?;
+        let record_info = next_account_info(account_info_iter)?;
+        let wallet_info = next_account_info(account_info_iter)?;
+        let wallet_signer_info = next_account_info(account_info_iter)?;
+        let fee_payer_info = next_account_info(account_info_iter)?;
+        let wallet_program_info = next_account_info(account_info_iter)?;
+        let mint_info = next_account_info(account_info_iter)?;
+        let to_info = next_account_info(account_info_iter)?;
+        let mint_auth_info = next_account_info(account_info_iter)?;
+        let spl_token_program_info = next_account_info(account_info_iter)?;
+        let system_program_info = next_account_info(account_info_iter)?;
+        let teleport_program_info = next_account_info(account_info_iter)?;
+        let rent_sysvar_info = next_account_info(account_info_iter)?;
+        let rent = &Rent::from_account_info(rent_sysvar_info)?;
+
+        Self::only_owner(owner_info)?;
+
+        // check wallet program
+        if wallet_program_info.key != &state::MULTISIG_PROGRAM {
+            msg!("unexpected multisig program");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+
+        // check token program
+        if spl_token_program_info.key != &spl_token::id() {
+            msg!("unexpected token program");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+
+        // check system program
+        if system_program_info.key != &system_program::id() {
+            msg!("unexpected system program id");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+
+        // check teleport program
+        if teleport_program_info.key != program_id {
+            msg!("unexpected teleport program");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+
+        let (pda, bump) = Pubkey::find_program_address(&[&txhash[..]], &program_id);
+        if record_info.key != &pda {
+            msg!("record account mismatch");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+        // TODO assign owner for account hold lamports
+        if record_info.try_lamports().unwrap() != 0 {
+            msg!("record lamports is not zero");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+        if !record_info.data_is_empty() {
+            msg!("record data is not empty");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+
+        // create teleport out account
+        let seeds: &[&[_]] = &[&txhash[..], &[bump]];
+        invoke_signed(
+            &system_instruction::create_account(
+                &fee_payer_info.key,
+                &record_info.key,
+                rent.minimum_balance(state::TeleportOutRecord::LEN),
+                state::TeleportOutRecord::LEN as u64,
+                &program_id,
+            ),
+            &[fee_payer_info.clone(), record_info.clone()],
+            &[&seeds],
+        )?;
+
+        // init teleport out account
+        invoke(
+            &crate::instruction::init_teleport_out_record(&program_id, &record_info.key).unwrap(),
+            &[record_info.clone()],
+        )?;
+
+        // mint blt token
+        let seeds: &[&[_]] = &[
+            b"BLT",
+            &[Pubkey::find_program_address(&[b"BLT"], &program_id).1],
+        ];
+
+        let mut data = vec![3, 3, 3, 0, 5, 1, 6, 1, 7, 2, 14];
+        data.extend(amount.to_le_bytes().iter().cloned());
+        data.push(decimals);
+
+        invoke_signed(
+            &Instruction::new_with_bytes(
+                *wallet_program_info.key,
+                &data[..],
+                vec![
+                    AccountMeta::new(*wallet_info.key, false),
+                    AccountMeta::new_readonly(*mint_auth_info.key, false),
+                    AccountMeta::new(*fee_payer_info.key, true),
+                    AccountMeta::new_readonly(*spl_token_program_info.key, false),
+                    AccountMeta::new_readonly(*wallet_signer_info.key, true),
+                    AccountMeta::new(*mint_info.key, false),
+                    AccountMeta::new(*to_info.key, false),
+                    AccountMeta::new_readonly(*mint_auth_info.key, false),
+                ],
+            ),
+            &[
+                wallet_info.clone(),
+                mint_auth_info.clone(),
+                fee_payer_info.clone(),
+                spl_token_program_info.clone(),
+                wallet_signer_info.clone(),
+                wallet_program_info.clone(),
+                mint_info.clone(),
+                to_info.clone(),
             ],
             &[&seeds],
         )?;
