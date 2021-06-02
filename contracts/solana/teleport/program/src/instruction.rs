@@ -22,6 +22,7 @@ pub enum TeleportInstruction {
     Unfreeze,
     TeleportIn { amount: u64, decimals: u8 },
     TeleportOut { tx_hash: [u8; 32], amount: u64, decimals: u8 },
+    DepositAllowance { allowance: u64 },
 }
 
 pub fn get_owner(program_id: &Pubkey) -> Result<Instruction, ProgramError> {
@@ -154,6 +155,25 @@ pub fn unfreeze(
     let accounts = vec![
         AccountMeta::new(*owner, true),
         AccountMeta::new(*config, false),
+    ];
+    Ok(Instruction {
+        program_id: *program_id,
+        accounts,
+        data,
+    })
+}
+
+pub fn deposit_allowance(
+    program_id: &Pubkey,
+    owner: &Pubkey,
+    admin: &Pubkey,
+    allowance: u64,
+) -> Result<Instruction, ProgramError> {
+    let init_data = TeleportInstruction::DepositAllowance { allowance };
+    let data = init_data.try_to_vec()?;
+    let accounts = vec![
+        AccountMeta::new(*owner, true),
+        AccountMeta::new(*admin, false),
     ];
     Ok(Instruction {
         program_id: *program_id,

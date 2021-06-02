@@ -241,7 +241,14 @@ async fn test_init_admin() {
 
     let auth = Pubkey::new_unique();
     let allowance = 1_000_000_000;
-    let admin_pubkey = create_admin(&mut banks_client, &payer, &recent_blockhash, &auth, allowance).await;
+    let admin_pubkey = create_admin(
+        &mut banks_client,
+        &payer,
+        &recent_blockhash,
+        &auth,
+        allowance,
+    )
+    .await;
 
     let admin = get_admin(&mut banks_client, &admin_pubkey).await;
 
@@ -262,6 +269,42 @@ async fn test_add_admin() {
 
     assert_eq!(config.is_init, true);
     assert_eq!(config.admins, expected_admins(admin_keys)[..]);
+}
+
+#[tokio::test]
+async fn test_deposit_allowance() {
+    let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
+
+    let auth = Pubkey::new_unique();
+    let allowance = 1_000_000_000;
+    let admin_pubkey = create_admin(
+        &mut banks_client,
+        &payer,
+        &recent_blockhash,
+        &auth,
+        allowance,
+    )
+    .await;
+
+    let deposit_num = 1;
+    let owner = get_owner();
+    let mut transaction = Transaction::new_with_payer(
+        &[blt_teleport::instruction::deposit_allowance(
+            &blt_teleport::id(),
+            &owner.pubkey(),
+            &admin_pubkey,
+            deposit_num,
+        )
+        .unwrap()],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer, &owner], recent_blockhash);
+    banks_client.process_transaction(transaction).await.unwrap();
+
+    let admin = get_admin(&mut banks_client, &admin_pubkey).await;
+    assert_eq!(admin.is_init, true);
+    assert_eq!(admin.auth, auth);
+    assert_eq!(admin.allowance, allowance + deposit_num);
 }
 
 #[tokio::test]

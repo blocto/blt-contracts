@@ -75,6 +75,10 @@ impl Processor {
                 msg!("Instruction: TeleportOut");
                 Self::process_teleport_out(program_id, accounts, &tx_hash, amount, decimals)
             }
+            TeleportInstruction::DepositAllowance { allowance } => {
+                msg!("Instruction: DepositAllowance");
+                Self::process_deposit_allowance(program_id, accounts, allowance)
+            }
         }
     }
 
@@ -470,6 +474,29 @@ impl Processor {
         )?;
 
         Ok(())
+    }
+
+    pub fn process_deposit_allowance(
+        _program_id: &Pubkey,
+        accounts: &[AccountInfo],
+        allowance: u64,
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+        let owner_info = next_account_info(account_info_iter)?;
+        let admin_info = next_account_info(account_info_iter)?;
+
+        Self::only_owner(owner_info)?;
+
+        let mut admin = state::Admin::try_from_slice(&admin_info.data.borrow())?;
+        if !admin.is_init {
+            return Err(TeleportError::UninitializedAccount.into());
+        }
+
+        admin.allowance = admin.allowance.checked_add(allowance).unwrap();
+
+        admin
+            .serialize(&mut *admin_info.data.borrow_mut())
+            .map_err(|e| e.into())
     }
 
     fn only_owner(account_info: &AccountInfo) -> ProgramResult {
