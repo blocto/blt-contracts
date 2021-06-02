@@ -68,11 +68,12 @@ impl Config {
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Debug, Clone)]
 pub struct Admin {
     pub is_init: bool,
+    pub auth: Pubkey,
     pub allowance: u64,
 }
 
 impl Admin {
-    pub const LEN: usize = 9;
+    pub const LEN: usize = 41;
 }
 
 #[repr(C)]

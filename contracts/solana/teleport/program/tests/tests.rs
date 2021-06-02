@@ -86,6 +86,7 @@ async fn create_admin(
     banks_client: &mut BanksClient,
     payer: &Keypair,
     recent_blockhash: &Hash,
+    auth: &Pubkey,
     allowance: u64,
 ) -> Pubkey {
     let owner_account = get_owner();
@@ -106,6 +107,7 @@ async fn create_admin(
             &blt_teleport::id(),
             &owner_account.pubkey(),
             &admin_account.pubkey(),
+            auth,
             allowance,
         )
         .unwrap(),
@@ -237,12 +239,14 @@ async fn test_init_config() {
 async fn test_init_admin() {
     let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
 
+    let auth = Pubkey::new_unique();
     let allowance = 1_000_000_000;
-    let admin_pubkey = create_admin(&mut banks_client, &payer, &recent_blockhash, allowance).await;
+    let admin_pubkey = create_admin(&mut banks_client, &payer, &recent_blockhash, &auth, allowance).await;
 
     let admin = get_admin(&mut banks_client, &admin_pubkey).await;
 
     assert_eq!(admin.is_init, true);
+    assert_eq!(admin.auth, auth);
     assert_eq!(admin.allowance, allowance);
 }
 

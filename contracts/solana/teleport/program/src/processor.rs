@@ -39,9 +39,9 @@ impl Processor {
                 msg!("Instruction: InitConfig");
                 Self::process_init_config(program_id, accounts)
             }
-            TeleportInstruction::InitAdmin { allowance } => {
+            TeleportInstruction::InitAdmin { auth, allowance } => {
                 msg!("Instruction: InitAdmin");
-                Self::process_init_admin(program_id, accounts, allowance)
+                Self::process_init_admin(program_id, accounts, &auth, allowance)
             }
             TeleportInstruction::InitTeleportOutRecord => {
                 msg!("Instruction: InitTeleportOutRecord");
@@ -105,6 +105,7 @@ impl Processor {
     pub fn process_init_admin(
         _program_id: &Pubkey,
         accounts: &[AccountInfo],
+        auth: &Pubkey,
         allowance: u64,
     ) -> ProgramResult {
         let account_info_iter = &mut accounts.iter();
@@ -119,6 +120,7 @@ impl Processor {
         }
 
         admin.is_init = true;
+        admin.auth = *auth;
         admin.allowance = allowance;
 
         admin
@@ -314,24 +316,32 @@ impl Processor {
         let account_info_iter = &mut accounts.iter();
         let config_info = next_account_info(account_info_iter)?;
         let admin_info = next_account_info(account_info_iter)?;
+        let admin_auth_info = next_account_info(account_info_iter)?;
 
+        // check config
         let config = Self::get_config(program_id, config_info)?;
         if config.is_frozen {
             return Err(TeleportError::Freeze.into());
         }
 
+        // check admin & auth
         if !config.contain_admin(admin_info.key) {
             msg!("config doesn't contain admin key");
             return Err(TeleportError::UnexpectedError.into());
-        }
-
-        if !admin_info.is_signer {
-            return Err(TeleportError::MissingRequiredSignature.into());
         }
         let mut admin = state::Admin::try_from_slice(&admin_info.data.borrow())?;
         if !admin.is_init {
             return Err(TeleportError::UninitializedAccount.into());
         }
+
+        if admin_auth_info.key != &admin.auth {
+            msg!("admin auth mismatch");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+        if !admin_auth_info.is_signer {
+            return Err(TeleportError::MissingRequiredSignature.into());
+        }
+
         if admin.allowance < amount {
             msg!("admin allowance isn't enough");
             return Err(TeleportError::UnexpectedError.into());
