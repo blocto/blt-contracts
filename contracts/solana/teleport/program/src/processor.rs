@@ -67,16 +67,6 @@ impl Processor {
                 msg!("Instruction: TeleportIn");
                 Self::process_teleport_in(program_id, accounts, amount, decimals)
             }
-            TeleportInstruction::TeleportOutByOwner {
-                tx_hash,
-                amount,
-                decimals,
-            } => {
-                msg!("Instruction: TeleportOutByOwner");
-                Self::process_teleport_out_by_owner(
-                    program_id, accounts, &tx_hash, amount, decimals,
-                )
-            }
             TeleportInstruction::TeleportOut {
                 tx_hash,
                 amount,
@@ -312,20 +302,6 @@ impl Processor {
         )?;
 
         Ok(())
-    }
-
-    pub fn process_teleport_out_by_owner(
-        program_id: &Pubkey,
-        accounts: &[AccountInfo],
-        txhash: &[u8; 32],
-        amount: u64,
-        decimals: u8,
-    ) -> ProgramResult {
-        let account_info_iter = &mut accounts.iter();
-        let owner_info = next_account_info(account_info_iter)?;
-        Self::only_owner(owner_info)?;
-
-        Self::teleport_out(program_id, account_info_iter, txhash, amount, decimals)
     }
 
     pub fn process_teleport_out(
