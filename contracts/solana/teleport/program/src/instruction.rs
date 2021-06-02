@@ -30,6 +30,7 @@ pub enum TeleportInstruction {
     TeleportIn {
         amount: u64,
         decimals: u8,
+        to: Vec<u8>,
     },
     TeleportOut {
         tx_hash: [u8; 32],
