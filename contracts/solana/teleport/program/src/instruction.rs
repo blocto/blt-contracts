@@ -163,4 +163,4 @@ pub fn unfreeze(
 
 // TODO
 // pub fn teleport_in()
-// pub fn teleport()
+// pub fn teleport_out()
