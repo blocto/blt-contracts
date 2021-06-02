@@ -14,15 +14,31 @@ use {
 pub enum TeleportInstruction {
     GetOwner,
     InitConfig,
-    InitAdmin { auth: Pubkey, allowance: u64 },
+    InitAdmin {
+        auth: Pubkey,
+        allowance: u64,
+    },
     InitTeleportOutRecord,
-    AddAdmin { admin: Pubkey },
-    RemoveAdmin { admin: Pubkey },
+    AddAdmin {
+        admin: Pubkey,
+    },
+    RemoveAdmin {
+        admin: Pubkey,
+    },
     Freeze,
     Unfreeze,
-    TeleportIn { amount: u64, decimals: u8 },
-    TeleportOut { tx_hash: [u8; 32], amount: u64, decimals: u8 },
-    DepositAllowance { allowance: u64 },
+    TeleportIn {
+        amount: u64,
+        decimals: u8,
+    },
+    TeleportOut {
+        tx_hash: [u8; 32],
+        amount: u64,
+        decimals: u8,
+    },
+    DepositAllowance {
+        allowance: u64,
+    },
 }
 
 pub fn get_owner(program_id: &Pubkey) -> Result<Instruction, ProgramError> {
@@ -62,7 +78,10 @@ pub fn init_admin(
     auth: &Pubkey,
     allowance: u64,
 ) -> Result<Instruction, ProgramError> {
-    let init_data = TeleportInstruction::InitAdmin { auth: *auth, allowance };
+    let init_data = TeleportInstruction::InitAdmin {
+        auth: *auth,
+        allowance,
+    };
     let data = init_data.try_to_vec()?;
     let accounts = vec![
         AccountMeta::new(*owner, true),
