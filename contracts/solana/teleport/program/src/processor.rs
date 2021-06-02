@@ -269,6 +269,12 @@ impl Processor {
             return Err(TeleportError::UnexpectedError.into());
         }
 
+        // check mint
+        if mint_info.key != &state::BLT_MINT {
+            msg!("unexpected mint");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+
         let seeds: &[&[_]] = &[
             b"BLT",
             &[Pubkey::find_program_address(&[b"BLT"], &program_id).1],

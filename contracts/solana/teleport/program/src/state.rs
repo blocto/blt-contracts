@@ -18,6 +18,12 @@ pub const MULTISIG_PROGRAM: Pubkey = Pubkey::new_from_array([
     12, 247, 227, 6, 11, 98, 112, 139, 37, 42, 72, 2,
 ]);
 
+// BLT1noyNr3GttckEVrtcfC6oyK6yV1DpPgSyXbncMwef
+pub const BLT_MINT: Pubkey = Pubkey::new_from_array([
+    153, 144, 81, 125, 228, 170, 183, 36, 177, 216, 231, 254, 173, 2, 211, 242, 90, 122, 214, 145,
+    43, 163, 57, 198, 183, 182, 55, 210, 245, 61, 125, 16,
+]);
+
 pub const MAX_ADMIN: usize = 5;
 
 /// Program states.
