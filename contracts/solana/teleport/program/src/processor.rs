@@ -276,8 +276,8 @@ impl Processor {
         }
 
         let seeds: &[&[_]] = &[
-            b"BLT",
-            &[Pubkey::find_program_address(&[b"BLT"], &program_id).1],
+            state::SIGNER_SEED,
+            &[Pubkey::find_program_address(&[state::SIGNER_SEED], &program_id).1],
         ];
 
         let mut data = vec![3, 3, 3, 0, 5, 1, 6, 1, 7, 2, 15];
@@ -443,8 +443,8 @@ impl Processor {
 
         // mint blt token
         let seeds: &[&[_]] = &[
-            b"BLT",
-            &[Pubkey::find_program_address(&[b"BLT"], &program_id).1],
+            state::SIGNER_SEED,
+            &[Pubkey::find_program_address(&[state::SIGNER_SEED], &program_id).1],
         ];
 
         let mut data = vec![3, 3, 3, 0, 5, 1, 6, 1, 7, 2, 14];

@@ -24,6 +24,8 @@ pub const BLT_MINT: Pubkey = Pubkey::new_from_array([
     43, 163, 57, 198, 183, 182, 55, 210, 245, 61, 125, 16,
 ]);
 
+pub const SIGNER_SEED: &[u8] = b"BLT";
+
 pub const MAX_ADMIN: usize = 5;
 
 /// Program states.
