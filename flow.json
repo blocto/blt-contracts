@@ -9,7 +9,12 @@
     "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
     "BloctoTokenStaking": "./contracts/flow/staking/BloctoTokenStaking.cdc",
     "BloctoPass": "./contracts/flow/token/BloctoPass.cdc",
-    "BloctoToken": "./contracts/flow/token/BloctoToken.cdc",
+    "BloctoToken": {
+      "source": "./contracts/flow/token/BloctoToken.cdc",
+      "aliases": {
+        "testnet": "0xccc5c610f25031c9"
+      }
+    },
     "FungibleToken": {
       "source": "./contracts/flow/token/FungibleToken.cdc",
       "aliases": {
@@ -50,7 +55,38 @@
   "accounts": {
     "emulator-account": {
       "address": "f8d6e0586b0a20c7",
-      "keys": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87"
+      "keys": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87",
+      "chain": "flow-emulator"
+    },
+    "blt-admin": {
+      "address": "ccc5c610f25031c9",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 0,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "1de30bc0ec3c4ead208ddef38fb98a6a78dae0efc8ec7a463805654091559a45"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
+    },
+    "blt-user": {
+      "address": "03d1e02a48354e2b",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 0,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "838a1a9db78377b0a9bf4de6069752a739398667cb468bfb2e1eea4358438aed"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
     }
   },
   "deployments": {
