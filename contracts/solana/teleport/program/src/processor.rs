@@ -280,7 +280,15 @@ impl Processor {
             &[Pubkey::find_program_address(&[state::SIGNER_SEED], &program_id).1],
         ];
 
-        let mut data = vec![3, 3, 3, 0, 5, 1, 6, 1, 7, 2, 15];
+        let mut data = vec![
+            3, // u8, wallet program invoke instruction
+            3, // u8, invoke program idx
+            3, 0, // u16, total account, little endian
+            5, 1, // u8, u8, account idx, not signer writable
+            6, 1, // ..
+            7, 2,  // readonly singer
+            15, // u8, mint instruction in token program
+        ];
         data.extend(amount.to_le_bytes().iter().cloned());
         data.push(decimals);
 
@@ -447,7 +455,15 @@ impl Processor {
             &[Pubkey::find_program_address(&[state::SIGNER_SEED], &program_id).1],
         ];
 
-        let mut data = vec![3, 3, 3, 0, 5, 1, 6, 1, 7, 2, 14];
+        let mut data = vec![
+            3, // u8, wallet program invoke instruction
+            3, // u8, invoke program idx
+            3, 0, // u16, total account, little endian
+            5, 1, // u8, u8, account idx, not signer writable
+            6, 1, // ..
+            7, 2,  // readonly singer
+            14, // u8, burn instruction in token program
+        ];
         data.extend(amount.to_le_bytes().iter().cloned());
         data.push(decimals);
 
