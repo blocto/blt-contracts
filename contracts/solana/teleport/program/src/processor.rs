@@ -63,7 +63,11 @@ impl Processor {
                 msg!("Instruction: Unfreeze");
                 Self::process_unfreeze(program_id, accounts)
             }
-            TeleportInstruction::TeleportIn { amount, decimals, to: _ } => {
+            TeleportInstruction::TeleportIn {
+                amount,
+                decimals,
+                to: _,
+            } => {
                 msg!("Instruction: TeleportIn");
                 Self::process_teleport_in(program_id, accounts, amount, decimals)
             }
