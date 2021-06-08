@@ -204,7 +204,9 @@ pub contract BloctoTokenMining {
                     "Same address in currrent round should be distributed"
             }
 
-            let reward = BloctoTokenMining.computeFinalReward(address: address)
+            let reward = BloctoTokenMining.computeFinalReward(
+                address: address,
+                totalReward: BloctoTokenMining.currentTotalReward)
             if rewardVault.balance != reward {
                 panic("The balance of reward vault must be the same as reward")
             }
@@ -283,10 +285,10 @@ pub contract BloctoTokenMining {
     }
 
     // Compute final reward in current round with reward cap
-    pub fun computeFinalReward(address: Address): UFix64 {
+    pub fun computeFinalReward(address: Address, totalReward: UFix64): UFix64 {
         var reward = self.userRewards[address] ?? 0.0
-        if self.currentTotalReward > self.rewardCap {
-            reward = reward * self.rewardCap / self.currentTotalReward
+        if totalReward > self.rewardCap {
+            reward = reward * self.rewardCap / totalReward
         }
         return reward
     }

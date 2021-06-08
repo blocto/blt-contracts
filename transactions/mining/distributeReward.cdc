@@ -12,7 +12,9 @@ transaction(address: Address) {
             .borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)
             ?? panic("Reward holder doens't BloctoToken vault")
 
-        let reward = BloctoTokenMining.computeFinalReward(address: address)
+        let reward = BloctoTokenMining.computeFinalReward(
+            address: address,
+            totalReward: BloctoTokenMining.currentTotalReward)
         let rewardVault <- vault.withdraw(amount: reward) as! @BloctoToken.Vault
 
         admin.distributeReward(address: address, rewardVault: <- rewardVault)
