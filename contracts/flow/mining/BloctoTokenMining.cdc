@@ -168,7 +168,7 @@ pub contract BloctoTokenMining {
                 BloctoTokenMining.miningState == MiningState.collecting: "Should start collecting"
             }
 
-            let isVIP = self.isAddressVIP(address: address)
+            let isVIP = BloctoTokenMining.isAddressVIP(address: address)
             let round = BloctoTokenMining.userRewardsCollected[address] ?? (0 as UInt64)
             if round < BloctoTokenMining.currentRound {
                 let reward = BloctoTokenMining.computeReward(data: data, isVIP: isVIP)
@@ -222,20 +222,6 @@ pub contract BloctoTokenMining {
             emit RewardDistributed(reward: amount, address: address)
         }
 
-        access(self) fun isAddressVIP(address: Address): Bool {
-            let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
-                .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
-                ?? panic("Could not borrow collection public reference")
-
-            for id in collectionRef.getIDs() {
-                let bloctoPass = collectionRef.borrowBloctoPass(id: id)
-                if bloctoPass.getVipTier() > (0 as UInt64) {
-                    return true
-                }
-            }
-            return false
-        }
-
         access(self) fun getHighestTierBloctoPass(address: Address): &BloctoPass.NFT? {
             let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
                 .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
@@ -258,6 +244,21 @@ pub contract BloctoTokenMining {
             }
             return highestBloctoPass
         }
+    }
+
+    // Chceck if the address is VIP
+    pub fun isAddressVIP(address: Address): Bool {
+        let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+            .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
+            ?? panic("Could not borrow collection public reference")
+
+        for id in collectionRef.getIDs() {
+            let bloctoPass = collectionRef.borrowBloctoPass(id: id)
+            if bloctoPass.getVipTier() > (0 as UInt64) {
+                return true
+            }
+        }
+        return false
     }
 
     // Compute reward in current round without reward cap
