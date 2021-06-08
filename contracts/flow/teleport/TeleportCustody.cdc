@@ -52,7 +52,7 @@ pub contract TeleportCustody {
     pub var lockFee: UFix64
 
     pub var unlockFee: UFix64
-    
+
     pub var allowedAmount: UFix64
 
     pub fun lock(from: @FungibleToken.Vault, to: [UInt8])
@@ -89,11 +89,12 @@ pub contract TeleportCustody {
       let fee <- vault.withdraw(amount: self.lockFee)
 
       self.feeCollector.deposit(from: <-fee)
-      emit FeeCollected(amount: self.lockFee, type: 0)
 
       let amount = vault.balance
       TeleportCustody.lockVault.deposit(vault)
+
       emit Locked(amount: amount, to: to)
+      emit FeeCollected(amount: self.lockFee, type: 0)
     }
 
     pub fun unlock(amount: UFix64, from: [UInt8], txHash: String): @BloctoToken.Vault {
