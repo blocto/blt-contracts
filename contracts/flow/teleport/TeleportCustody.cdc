@@ -61,7 +61,7 @@ pub contract TeleportCustody {
   }
 
   pub resource interface TeleportControl {
-    pub fun unlock(amount: UFix64, from: [UInt8], txHash: String): @BloctoToken.Vault
+    pub fun unlock(amount: UFix64, from: [UInt8], txHash: String): @FungibleToken.Vault
 
     pub fun withdrawFee(amount: UFix64): @FungibleToken.Vault
 
@@ -97,7 +97,7 @@ pub contract TeleportCustody {
       emit FeeCollected(amount: self.lockFee, type: 0)
     }
 
-    pub fun unlock(amount: UFix64, from: [UInt8], txHash: String): @BloctoToken.Vault {
+    pub fun unlock(amount: UFix64, from: [UInt8], txHash: String): @FungibleToken.Vault {
       pre {
         !TeleportCustody.isFrozen: "Teleport service is frozen"
         amount <= self.allowedAmount: "Amount unlocked must be less than the allowed amount"
