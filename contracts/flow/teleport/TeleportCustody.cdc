@@ -91,7 +91,7 @@ pub contract TeleportCustody {
       self.feeCollector.deposit(from: <-fee)
 
       let amount = vault.balance
-      TeleportCustody.lockVault.deposit(vault)
+      TeleportCustody.lockVault.deposit(from: <-vault)
 
       emit Locked(amount: amount, to: to)
       emit FeeCollected(amount: self.lockFee, type: 0)
