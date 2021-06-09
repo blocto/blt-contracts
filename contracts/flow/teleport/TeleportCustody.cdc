@@ -155,6 +155,18 @@ pub contract TeleportCustody {
     }
   }
 
+  pub fun TeleportAdminStoragePath(): StoragePath {
+    return /storage/teleportCustodyTeleportAdmin
+  }
+
+  pub fun TeleportAdminTeleportUserPath(): PublicPath {
+    return /public/teleportCustodyTeleportUser
+  }
+
+  pub fun TeleportAdminTeleportControlPath(): PrivatePath {
+    return /private/teleportCustodyTeleportControl
+  }
+
   init(teleportAddressLength: Int, teleportTxHashLength: Int) {
     self.isFrozen = false
     self.teleportAddressLength = teleportAddressLength
