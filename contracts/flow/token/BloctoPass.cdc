@@ -15,13 +15,13 @@ pub contract BloctoPass: NonFungibleToken {
     pub event Deposit(id: UInt64, to: Address?)
 
     pub resource interface BloctoPassPrivate {
-        pub fun stakeNewTokens(amount: UFix64)
-        pub fun stakeUnstakedTokens(amount: UFix64)
-        pub fun stakeRewardedTokens(amount: UFix64)
-        pub fun requestUnstaking(amount: UFix64)
-        pub fun unstakeAll()
-        pub fun withdrawUnstakedTokens(amount: UFix64)
-        pub fun withdrawRewardedTokens(amount: UFix64)
+        // pub fun stakeNewTokens(amount: UFix64)
+        // pub fun stakeUnstakedTokens(amount: UFix64)
+        // pub fun stakeRewardedTokens(amount: UFix64)
+        // pub fun requestUnstaking(amount: UFix64)
+        // pub fun unstakeAll()
+        // pub fun withdrawUnstakedTokens(amount: UFix64)
+        // pub fun withdrawRewardedTokens(amount: UFix64)
     }
 
     pub resource interface BloctoPassPublic {

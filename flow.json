@@ -6,8 +6,6 @@
     }
   },
   "contracts": {
-    "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
-    "BloctoTokenStaking": "./contracts/flow/staking/BloctoTokenStaking.cdc",
     "BloctoPass": "./contracts/flow/token/BloctoPass.cdc",
     "BloctoToken": {
       "source": "./contracts/flow/token/BloctoToken.cdc",
@@ -15,6 +13,9 @@
         "testnet": "0xccc5c610f25031c9"
       }
     },
+    "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
+    "BloctoTokenSale": "./contracts/flow/sale/BloctoTokenSale.cdc",
+    "BloctoTokenStaking": "./contracts/flow/staking/BloctoTokenStaking.cdc",
     "FungibleToken": {
       "source": "./contracts/flow/token/FungibleToken.cdc",
       "aliases": {
@@ -58,7 +59,17 @@
       "keys": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87",
       "chain": "flow-emulator"
     },
-    "blt-admin": {
+    "blt-admin-emulator": {
+      "address": "f3fcd2c1a78f5eee",
+      "keys": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87",
+      "chain": "flow-emulator"
+    },
+    "blt-user-emulator": {
+      "address": "e03daebed8ca0615",
+      "keys": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87",
+      "chain": "flow-emulator"
+    },
+    "blt-admin-testnet": {
       "address": "ccc5c610f25031c9",
       "keys": [
         {
@@ -73,7 +84,7 @@
       ],
       "chain": "flow-testnet"
     },
-    "blt-user": {
+    "blt-user-testnet": {
       "address": "03d1e02a48354e2b",
       "keys": [
         {
@@ -91,18 +102,19 @@
   },
   "deployments": {
     "emulator": {
-      "emulator-account": [
+      "blt-admin-emulator": [
+        "BloctoPass",
+        "BloctoToken",
         "BloctoTokenMining",
+        "BloctoTokenSale",
         {
           "name": "BloctoTokenStaking",
           "args": [
-            { "type": "UFix64", "value": "1.0" },
             { "type": "UFix64", "value": "1.0" }
           ]
         },
-        "BloctoPass",
-        "BloctoToken",
-        "NonFungibleToken"
+        "NonFungibleToken",
+        "TeleportedTetherToken"
       ]
     }
   }
