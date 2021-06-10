@@ -67,6 +67,7 @@ pub contract BloctoPass: NonFungibleToken {
         ) {
             self.id = initID
             self.metadata = metadata
+            self.history = {}
             self.vault <- vault as! @BloctoToken.Vault
             self.staker <- BloctoTokenStaking.addStakerRecord(id: initID)
             self.lockupSchedule = lockupSchedule
