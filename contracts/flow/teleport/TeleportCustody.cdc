@@ -4,6 +4,12 @@ import BloctoToken from 0xBLOCTOTOKENADDRESS
 pub contract TeleportCustody {
   pub var isFrozen: Bool
 
+  pub let TeleportAdminStoragePath: StoragePath
+
+  pub let TeleportAdminTeleportUserPath: PublicPath
+
+  pub let TeleportAdminTeleportControlPath: PrivatePath
+
   pub let teleportAddressLength: Int
 
   pub let teleportTxHashLength: Int
@@ -155,24 +161,15 @@ pub contract TeleportCustody {
     }
   }
 
-  pub fun TeleportAdminStoragePath(): StoragePath {
-    return /storage/teleportCustodyTeleportAdmin
-  }
-
-  pub fun TeleportAdminTeleportUserPath(): PublicPath {
-    return /public/teleportCustodyTeleportUser
-  }
-
-  pub fun TeleportAdminTeleportControlPath(): PrivatePath {
-    return /private/teleportCustodyTeleportControl
-  }
-
   init(teleportAddressLength: Int, teleportTxHashLength: Int) {
     self.isFrozen = false
     self.teleportAddressLength = teleportAddressLength
     self.teleportTxHashLength = teleportTxHashLength
     self.lockVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
     self.unlocked = {}
+    self.TeleportAdminStoragePath = /storage/teleportCustodyTeleportAdmin
+    self.TeleportAdminTeleportUserPath = /public/teleportCustodyTeleportUser
+    self.TeleportAdminTeleportControlPath = /private/teleportCustodyTeleportControl
 
     let admin <- create Administrator()
     self.account.save(<-admin, to: /storage/teleportCustodyAdmin)
