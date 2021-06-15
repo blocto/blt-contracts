@@ -7,12 +7,7 @@
   },
   "contracts": {
     "BloctoPass": "./contracts/flow/token/BloctoPass.cdc",
-    "BloctoToken": {
-      "source": "./contracts/flow/token/BloctoToken.cdc",
-      "aliases": {
-        "testnet": "0xccc5c610f25031c9"
-      }
-    },
+    "BloctoToken": "./contracts/flow/token/BloctoToken.cdc",
     "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
     "BloctoTokenSale": "./contracts/flow/sale/BloctoTokenSale.cdc",
     "BloctoTokenStaking": "./contracts/flow/staking/BloctoTokenStaking.cdc",
@@ -31,6 +26,7 @@
         "mainnet": "0x1d7e57aa55817448"
       }
     },
+    "TeleportCustody": "./contracts/flow/teleport/TeleportCustody.cdc",
     "TeleportedTetherToken": {
       "source": "./contracts/flow/token/TeleportedTetherToken.cdc",
       "aliases": {
@@ -84,6 +80,11 @@
       ],
       "chain": "flow-testnet"
     },
+    "blt-teleport-testnet": {
+      "address": "967a0fb3c949cbc5",
+      "keys": "4d90e59b86fb7cede90f764eb3593b56fe4fe02205e315828d5d62e117dba575",
+      "chain": "flow-testnet"
+    },
     "blt-user-testnet": {
       "address": "03d1e02a48354e2b",
       "keys": [
@@ -107,12 +108,7 @@
         "BloctoToken",
         "BloctoTokenMining",
         "BloctoTokenSale",
-        {
-          "name": "BloctoTokenStaking",
-          "args": [
-            { "type": "UFix64", "value": "1.0" }
-          ]
-        },
+        "BloctoTokenStaking",
         "NonFungibleToken",
         "TeleportedTetherToken"
       ]
@@ -122,12 +118,10 @@
         "BloctoPass",
         "BloctoToken",
         "BloctoTokenMining",
-        {
-          "name": "BloctoTokenStaking",
-          "args": [
-            { "type": "UFix64", "value": "1.0" }
-          ]
-        }
+        "BloctoTokenStaking"
+      ],
+      "blt-teleport-testnet": [
+        "TeleportCustody"
       ]
     }
   }

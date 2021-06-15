@@ -1,5 +1,5 @@
-import FungibleToken from 0xFUNGIBLETOKENADDRESS
-import BloctoToken from 0xBLOCTOTOKENADDRESS
+import FungibleToken from "../token/FungibleToken.cdc"
+import BloctoToken from "../token/BloctoToken.cdc"
 
 pub contract TeleportCustody {
   pub var isFrozen: Bool

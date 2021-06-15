@@ -502,7 +502,7 @@ pub contract BloctoTokenStaking {
         return BloctoTokenStaking.totalTokensStaked
     }
 
-    init(_ epochTokenPayout: UFix64) {
+    init() {
         self.account.save(true, to: /storage/stakingEnabled)
 
         self.stakers <- {}
@@ -512,8 +512,7 @@ pub contract BloctoTokenStaking {
         self.StakingAdminStoragePath = /storage/flowStakingAdmin
 
         self.totalTokensStaked = 0.0
-
-        self.epochTokenPayout = epochTokenPayout
+        self.epochTokenPayout = 1.0
 
         self.account.save(<-create Admin(), to: self.StakingAdminStoragePath)
     }
