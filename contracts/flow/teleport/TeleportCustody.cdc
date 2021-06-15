@@ -4,6 +4,12 @@ import BloctoToken from 0xBLOCTOTOKENADDRESS
 pub contract TeleportCustody {
   pub var isFrozen: Bool
 
+  pub let TeleportAdminStoragePath: StoragePath
+
+  pub let TeleportAdminTeleportUserPath: PublicPath
+
+  pub let TeleportAdminTeleportControlPath: PrivatePath
+
   pub let teleportAddressLength: Int
 
   pub let teleportTxHashLength: Int
@@ -61,7 +67,7 @@ pub contract TeleportCustody {
   }
 
   pub resource interface TeleportControl {
-    pub fun unlock(amount: UFix64, from: [UInt8], txHash: String): @BloctoToken.Vault
+    pub fun unlock(amount: UFix64, from: [UInt8], txHash: String): @FungibleToken.Vault
 
     pub fun withdrawFee(amount: UFix64): @FungibleToken.Vault
 
@@ -91,13 +97,13 @@ pub contract TeleportCustody {
       self.feeCollector.deposit(from: <-fee)
 
       let amount = vault.balance
-      TeleportCustody.lockVault.deposit(vault)
+      TeleportCustody.lockVault.deposit(from: <-vault)
 
       emit Locked(amount: amount, to: to)
       emit FeeCollected(amount: self.lockFee, type: 0)
     }
 
-    pub fun unlock(amount: UFix64, from: [UInt8], txHash: String): @BloctoToken.Vault {
+    pub fun unlock(amount: UFix64, from: [UInt8], txHash: String): @FungibleToken.Vault {
       pre {
         !TeleportCustody.isFrozen: "Teleport service is frozen"
         amount <= self.allowedAmount: "Amount unlocked must be less than the allowed amount"
@@ -161,6 +167,9 @@ pub contract TeleportCustody {
     self.teleportTxHashLength = teleportTxHashLength
     self.lockVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
     self.unlocked = {}
+    self.TeleportAdminStoragePath = /storage/teleportCustodyTeleportAdmin
+    self.TeleportAdminTeleportUserPath = /public/teleportCustodyTeleportUser
+    self.TeleportAdminTeleportControlPath = /private/teleportCustodyTeleportControl
 
     let admin <- create Administrator()
     self.account.save(<-admin, to: /storage/teleportCustodyAdmin)
