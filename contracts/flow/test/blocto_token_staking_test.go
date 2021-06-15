@@ -47,7 +47,7 @@ func BloctoTokenStakingDeployContract(b *emulator.Blockchain, t *testing.T) Test
 			Name:   "BloctoTokenStaking",
 			Source: string(bloctoTokenStakingCode),
 		},
-		[]cadence.Value{oneUFix64, oneUFix64},
+		[]cadence.Value{oneUFix64},
 	)
 	assert.NoError(t, err)
 

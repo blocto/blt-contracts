@@ -598,7 +598,7 @@ func TestBPMiningOneRound(t *testing.T) {
 	t.Run("Should be able to distribute rewards correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
-			SetGasLimit(100).
+			SetGasLimit(150).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(btMiningInfo.BPMiningAddr).
@@ -629,7 +629,7 @@ func TestBPMiningOneRound(t *testing.T) {
 	t.Run("Should be able to prevent distributing reward repeatedly", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
-			SetGasLimit(100).
+			SetGasLimit(150).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(btMiningInfo.BPMiningAddr).
@@ -648,7 +648,7 @@ func TestBPMiningOneRound(t *testing.T) {
 	t.Run("Should be able to distribute rewards correctly for user 2", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
-			SetGasLimit(100).
+			SetGasLimit(150).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(btMiningInfo.BPMiningAddr).
@@ -953,7 +953,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 	t.Run("Should be able to distribute rewards correctly", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
-			SetGasLimit(100).
+			SetGasLimit(150).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(btMiningInfo.BPMiningAddr).
@@ -984,7 +984,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 	t.Run("Should be able to distribute rewards correctly for user 2", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
-			SetGasLimit(100).
+			SetGasLimit(150).
 			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(btMiningInfo.BPMiningAddr).
