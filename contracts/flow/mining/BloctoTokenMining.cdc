@@ -217,22 +217,22 @@ pub contract BloctoTokenMining {
                 .borrow<&{BloctoPass.CollectionPublic}>()
                 ?? panic("Could not borrow blocto pass collection public reference")
             let amount = rewardVault.balance
-            collectionRef.depositBloctoToken(from: <- rewardVault, id: bloctoPass.id)
+            collectionRef.depositBloctoToken(from: <- (rewardVault as! @FungibleToken.Vault), id: bloctoPass.id)
 
             BloctoTokenMining.rewardsDistributed[address] = BloctoTokenMining.currentRound
 
             emit RewardDistributed(reward: amount, address: address)
         }
 
-        access(self) fun getHighestTierBloctoPass(address: Address): &BloctoPass.NFT? {
+        access(self) fun getHighestTierBloctoPass(address: Address): &BloctoPass.NFT{NonFungibleToken.INFT}? {
             let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
                 .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
                 ?? panic("Could not borrow collection public reference")
 
             var highestTier: UInt64? = nil
-            var highestBloctoPass: &BloctoPass.NFT? = nil
+            var highestBloctoPass: &BloctoPass.NFT{NonFungibleToken.INFT}? = nil
             for id in collectionRef.getIDs() {
-                let bloctoPass = collectionRef.borrowBloctoPass(id: id)
+                let bloctoPass = collectionRef.borrowBloctoPassPublic(id: id)
                 let tier = bloctoPass.getVipTier()
                 if let localHighestTier = highestTier {
                     if tier > localHighestTier {
@@ -255,7 +255,7 @@ pub contract BloctoTokenMining {
             ?? panic("Could not borrow collection public reference")
 
         for id in collectionRef.getIDs() {
-            let bloctoPass = collectionRef.borrowBloctoPass(id: id)
+            let bloctoPass = collectionRef.borrowBloctoPassPublic(id: id)
             if bloctoPass.getVipTier() > (0 as UInt64) {
                 return true
             }

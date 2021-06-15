@@ -7,7 +7,7 @@ pub fun main(address: Address): UFix64 {
         ?? panic("Could not borrow collection public reference")
 
     let ids = collectionRef.getIDs()
-    let bloctoPass = collectionRef.borrowBloctoPass(id: ids[0])
+    let bloctoPass = collectionRef.borrowBloctoPassPublic(id: ids[0])
 
-    return bloctoPass.vault.balance
+    return bloctoPass.getIdleBalance()
 }

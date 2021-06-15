@@ -21,3 +21,10 @@ flow transactions send ./transactions/token/transferBloctoToken.cdc \
   --signer blt-admin-testnet \
   --gas-limit 1000
 ```
+
+### Get Blocto Token Balance
+```
+flow scripts execute ./scripts/token/getBloctoTokenBalance.cdc \
+  --network testnet \
+  --arg Address:0x03d1e02a48354e2b
+```

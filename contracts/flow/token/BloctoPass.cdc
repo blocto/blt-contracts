@@ -179,8 +179,12 @@ pub contract BloctoPass: NonFungibleToken {
     // CollectionPublic is a custom interface that allows us to
     // access the public fields and methods for our BloctoPass Collection
     pub resource interface CollectionPublic {
-        pub fun borrowBloctoPass(id: UInt64): &BloctoPass.NFT
+        pub fun borrowBloctoPassPublic(id: UInt64): &BloctoPass.NFT{BloctoPass.BloctoPassPublic, FungibleToken.Receiver, NonFungibleToken.INFT}
         pub fun depositBloctoToken(from: @FungibleToken.Vault, id: UInt64)
+    }
+
+    pub resource interface CollectionPrivate {
+        pub fun borrowBloctoPassPrivate(id: UInt64): &BloctoPass.NFT
     }
 
     pub resource Collection:
@@ -236,20 +240,27 @@ pub contract BloctoPass: NonFungibleToken {
             return &self.ownedNFTs[id] as &NonFungibleToken.NFT
         }
 
-        // borrowBloctoPass gets an authorized reference to an NFT in the collection
-        // and returns it to the caller as a reference to the BloctoPass.NFT
-        pub fun borrowBloctoPass(id: UInt64): &BloctoPass.NFT {
+        // borrowBloctoPassPublic gets the public references to a BloctoPass NFT in the collection
+        // and returns it to the caller as a reference to the NFT
+        pub fun borrowBloctoPassPublic(id: UInt64): &BloctoPass.NFT{BloctoPass.BloctoPassPublic, FungibleToken.Receiver, NonFungibleToken.INFT} {
             let bloctoPassRef = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
+            let intermediateRef = bloctoPassRef as! auth &BloctoPass.NFT
+
+            return intermediateRef as &BloctoPass.NFT{BloctoPass.BloctoPassPublic, FungibleToken.Receiver, NonFungibleToken.INFT}
+        }
+
+        // borrowBloctoPassPublic gets the public references to a BloctoPass NFT in the collection
+        // and returns it to the caller as a reference to the NFT
+        pub fun borrowBloctoPassPrivate(id: UInt64): &BloctoPass.NFT {
+            let bloctoPassRef = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
+
             return bloctoPassRef as! &BloctoPass.NFT
         }
 
         // depositBloctoToken deposits BloctoToken to a vault of BloctoPass.NFT
         pub fun depositBloctoToken(from: @FungibleToken.Vault, id: UInt64) {
-            let token <- (self.ownedNFTs.remove(key: id) ?? panic("missing NFT")) as! @BloctoPass.NFT
-            token.deposit(from: <- from)
-
-            let oldToken <- self.ownedNFTs[id] <- token
-            destroy oldToken
+            let bloctoPassRef = self.borrowBloctoPassPublic(id: id)
+            bloctoPassRef.deposit(from: <- from)
         }
 
         destroy() {
