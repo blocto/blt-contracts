@@ -15,17 +15,18 @@ pub contract BloctoPass: NonFungibleToken {
     pub event Deposit(id: UInt64, to: Address?)
 
     pub resource interface BloctoPassPrivate {
-        // pub fun stakeNewTokens(amount: UFix64)
-        // pub fun stakeUnstakedTokens(amount: UFix64)
-        // pub fun stakeRewardedTokens(amount: UFix64)
-        // pub fun requestUnstaking(amount: UFix64)
-        // pub fun unstakeAll()
-        // pub fun withdrawUnstakedTokens(amount: UFix64)
-        // pub fun withdrawRewardedTokens(amount: UFix64)
+        pub fun stakeNewTokens(amount: UFix64)
+        pub fun stakeUnstakedTokens(amount: UFix64)
+        pub fun stakeRewardedTokens(amount: UFix64)
+        pub fun requestUnstaking(amount: UFix64)
+        pub fun unstakeAll()
+        pub fun withdrawUnstakedTokens(amount: UFix64)
+        pub fun withdrawRewardedTokens(amount: UFix64)
     }
 
     pub resource interface BloctoPassPublic {
         pub fun getVipTier(): UInt64
+        pub fun getInternalStakingInfo(): BloctoTokenStaking.StakerInfo
         pub fun getLockupSchedule(): {UFix64: UFix64}
         pub fun getLockupAmountAtTimestamp(timestamp: UFix64): UFix64
         pub fun getIdleBalance(): UFix64
@@ -95,12 +96,23 @@ pub contract BloctoPass: NonFungibleToken {
         }
 
         pub fun getVipTier(): UInt64 {
-            // TODO: return tier according to current staked amount
+            let stakedAmount = self.getInternalStakingInfo().tokensStaked
+            
+            if stakedAmount >= 1000.0 {
+                return 1
+            }
+            
+            // TODO: add more tiers
+            
             return 0
         }
 
         pub fun getLockupSchedule(): {UFix64: UFix64} {
             return self.lockupSchedule
+        }
+
+        pub fun getInternalStakingInfo(): BloctoTokenStaking.StakerInfo {
+            return BloctoTokenStaking.StakerInfo(stakerID: self.id)
         }
 
         pub fun getLockupAmountAtTimestamp(timestamp: UFix64): UFix64 {
@@ -125,6 +137,37 @@ pub contract BloctoPass: NonFungibleToken {
 
         pub fun getTotalBalance(): UFix64 {
             return self.getIdleBalance() + BloctoTokenStaking.StakerInfo(self.id).totalTokensInRecord()
+        }
+
+        // Private staking methods
+        pub fun stakeNewTokens(amount: UFix64) {
+            self.staker.stakeNewTokens(<- self.vault.withdraw(amount: amount))
+        }
+
+        pub fun stakeUnstakedTokens(amount: UFix64) {
+            self.staker.stakeUnstakedTokens(amount: amount)
+        }
+
+        pub fun stakeRewardedTokens(amount: UFix64) {
+            self.staker.stakeRewardedTokens(amount: amount)
+        }
+
+        pub fun requestUnstaking(amount: UFix64) {
+            self.staker.requestUnstaking(amount: amount)
+        }
+
+        pub fun unstakeAll() {
+            self.staker.unstakeAll()
+        }
+
+        pub fun withdrawUnstakedTokens(amount: UFix64) {
+            let vault <- self.staker.withdrawUnstakedTokens(amount: amount)
+            self.vault.deposit(from: <- vault)
+        }
+
+        pub fun withdrawRewardedTokens(amount: UFix64) {
+            let vault <- self.staker.withdrawRewardedTokens(amount: amount)
+            self.vault.deposit(from: <- vault)
         }
 
         destroy() {
