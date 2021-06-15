@@ -354,7 +354,7 @@ pub contract BloctoTokenStaking {
 
             let allstakerIDs = BloctoTokenStaking.getstakerIDs()
 
-            let BloctoTokenMinter = BloctoTokenStaking.account.borrow<&BloctoToken.Minter>(from: /storage/BloctoTokenMinter)
+            let BloctoTokenMinter = BloctoTokenStaking.account.borrow<&BloctoToken.Minter>(from: /storage/bloctoTokenMinter)
                 ?? panic("Could not borrow minter reference")
 
             // calculate the total number of tokens staked
