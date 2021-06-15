@@ -116,6 +116,19 @@
         "NonFungibleToken",
         "TeleportedTetherToken"
       ]
+    },
+    "testnet": {
+      "blt-admin-testnet": [
+        "BloctoPass",
+        "BloctoToken",
+        "BloctoTokenMining",
+        {
+          "name": "BloctoTokenStaking",
+          "args": [
+            { "type": "UFix64", "value": "1.0" }
+          ]
+        }
+      ]
     }
   }
 }
