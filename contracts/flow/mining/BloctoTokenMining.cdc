@@ -217,7 +217,7 @@ pub contract BloctoTokenMining {
                 .borrow<&{BloctoPass.CollectionPublic}>()
                 ?? panic("Could not borrow blocto pass collection public reference")
             let amount = rewardVault.balance
-            collectionRef.depositBloctoToken(from: <- (rewardVault as! @FungibleToken.Vault), id: bloctoPass.id)
+            collectionRef.depositBloctoToken(from: <- (rewardVault as @FungibleToken.Vault), id: bloctoPass.id)
 
             BloctoTokenMining.rewardsDistributed[address] = BloctoTokenMining.currentRound
 
