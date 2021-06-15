@@ -26,7 +26,7 @@ pub contract BloctoPass: NonFungibleToken {
 
     pub resource interface BloctoPassPublic {
         pub fun getVipTier(): UInt64
-        pub fun getInternalStakingInfo(): BloctoTokenStaking.StakerInfo
+        pub fun getStakingInfo(): BloctoTokenStaking.StakerInfo
         pub fun getLockupSchedule(): {UFix64: UFix64}
         pub fun getLockupAmountAtTimestamp(timestamp: UFix64): UFix64
         pub fun getIdleBalance(): UFix64
@@ -96,7 +96,7 @@ pub contract BloctoPass: NonFungibleToken {
         }
 
         pub fun getVipTier(): UInt64 {
-            let stakedAmount = self.getInternalStakingInfo().tokensStaked
+            let stakedAmount = self.getStakingInfo().tokensStaked
             
             if stakedAmount >= 1000.0 {
                 return 1
@@ -111,7 +111,7 @@ pub contract BloctoPass: NonFungibleToken {
             return self.lockupSchedule
         }
 
-        pub fun getInternalStakingInfo(): BloctoTokenStaking.StakerInfo {
+        pub fun getStakingInfo(): BloctoTokenStaking.StakerInfo {
             return BloctoTokenStaking.StakerInfo(stakerID: self.id)
         }
 
