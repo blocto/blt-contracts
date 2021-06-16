@@ -33,35 +33,38 @@ func BloctoTokenStakingDeployContract(b *emulator.Blockchain, t *testing.T) Test
 
 	bloctoTokenStakingAddr, err := b.CreateAccount(
 		[]*flow.AccountKey{bloctoTokenStakingAccountKey},
-		nil,
+		[]templates.Contract{{
+			Name:   "BloctoTokenStaking",
+			Source: string(bloctoTokenStakingCode),
+		}},
 	)
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
 	assert.NoError(t, err)
 
-	oneUFix64, _ := cadence.NewUFix64("1.0")
-	tx, err := addAccountContractWithArgs(
-		bloctoTokenStakingAddr,
-		templates.Contract{
-			Name:   "BloctoTokenStaking",
-			Source: string(bloctoTokenStakingCode),
-		},
-		[]cadence.Value{oneUFix64},
-	)
-	assert.NoError(t, err)
+	// oneUFix64, _ := cadence.NewUFix64("1.0")
+	// tx, err := addAccountContractWithArgs(
+	// 	bloctoTokenStakingAddr,
+	// 	templates.Contract{
+	// 		Name:   "BloctoTokenStaking",
+	// 		Source: string(bloctoTokenStakingCode),
+	// 	},
+	// 	[]cadence.Value{oneUFix64},
+	// )
+	// assert.NoError(t, err)
 
-	tx = tx.
-		SetGasLimit(100).
-		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
-		SetPayer(b.ServiceKey().Address)
+	// tx = tx.
+	// 	SetGasLimit(100).
+	// 	SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
+	// 	SetPayer(b.ServiceKey().Address)
 
-	signAndSubmit(
-		t, b, tx,
-		[]flow.Address{b.ServiceKey().Address, bloctoTokenStakingAddr},
-		[]crypto.Signer{b.ServiceKey().Signer(), bloctoTokenStakingSigner},
-		false,
-	)
+	// signAndSubmit(
+	// 	t, b, tx,
+	// 	[]flow.Address{b.ServiceKey().Address, bloctoTokenStakingAddr},
+	// 	[]crypto.Signer{b.ServiceKey().Signer(), bloctoTokenStakingSigner},
+	// 	false,
+	// )
 
 	return TestBloctoTokenStakingContractsInfo{
 		FTAddr:          fungibleAddr,
