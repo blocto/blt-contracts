@@ -273,10 +273,19 @@ pub contract BloctoPass: NonFungibleToken {
         return <- create Collection()
     }
 
+    pub resource interface MinterPublic {
+        pub fun mintBasicNFT(recipient: &{NonFungibleToken.CollectionPublic})
+    }
+
     // Resource that an admin or something similar would own to be
     // able to mint new NFTs
     //
-    pub resource NFTMinter {
+    pub resource NFTMinter: MinterPublic {
+
+        // mintBasicNFT mints a new NFT without any special metadata or lockups
+        pub fun mintBasicNFT(recipient: &{NonFungibleToken.CollectionPublic}) {
+            self.mintNFT(recipient: recipient, metadata: {})
+        }
 
         // mintNFT mints a new NFT with a new ID
         // and deposit it in the recipients collection using their collection reference
