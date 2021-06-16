@@ -20,7 +20,7 @@ pub contract TeleportCustody {
 
   pub event TeleportAdminCreated(allowedAmount: UFix64)
 
-  pub event Locked(amount: UFix64, to: [UInt8])
+  pub event Locked(amount: UFix64, to: [UInt8], toAddressType: String)
 
   pub event Unlocked(amount: UFix64, from: [UInt8], txHash: String)
 
@@ -61,7 +61,7 @@ pub contract TeleportCustody {
 
     pub var allowedAmount: UFix64
 
-    pub fun lock(from: @FungibleToken.Vault, to: [UInt8])
+    pub fun lock(from: @FungibleToken.Vault, to: [UInt8], toAddressType: String)
 
     pub fun depositAllowance(from: @Allowance)
   }
@@ -85,7 +85,7 @@ pub contract TeleportCustody {
 
     pub let feeCollector: @BloctoToken.Vault
 
-    pub fun lock(from: @FungibleToken.Vault, to: [UInt8]) {
+    pub fun lock(from: @FungibleToken.Vault, to: [UInt8], toAddressType: String) {
       pre {
         !TeleportCustody.isFrozen: "Teleport service is frozen"
         to.length == TeleportCustody.teleportAddressLength: "Teleport address should be teleportAddressLength bytes"
@@ -99,7 +99,7 @@ pub contract TeleportCustody {
       let amount = vault.balance
       TeleportCustody.lockVault.deposit(from: <-vault)
 
-      emit Locked(amount: amount, to: to)
+      emit Locked(amount: amount, to: to, toAddressType: toAddressType)
       emit FeeCollected(amount: self.lockFee, type: 0)
     }
 
