@@ -21,3 +21,30 @@ flow transactions send ./transactions/teleport/unlockTokens.cdc \
   --signer blt-teleport-admin-testnet \
   --gas-limit 1000
 ```
+
+### Setup TeleportAdmin
+```
+flow transactions build ./transactions/teleport/createTeleportAdminSolana.cdc \
+  --network testnet \
+  --arg UFix64:1000000000.0 \
+  --proposer 0x967a0fb3c949cbc5 \
+  --proposer-key-index 0 \
+  --authorizer 0x967a0fb3c949cbc5 \
+  --authorizer 0xf086a545ce3c552d \
+  --payer 0xf086a545ce3c552d \
+  --gas-limit 1000 \
+  -x payload \
+  --save ./build/unsigned.rlp
+
+flow transactions sign ./build/unsigned.rlp \
+  --signer blt-teleport-testnet \
+  --filter payload \
+  --save ./build/signed-1.rlp
+
+flow transactions sign ./build/signed-1.rlp \
+  --signer blt-teleport-admin-testnet \
+  --filter payload \
+  --save ./build/signed-2.rlp
+
+flow transactions send-signed --network testnet ./build/signed-2.rlp
+```
