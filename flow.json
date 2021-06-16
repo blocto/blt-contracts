@@ -27,6 +27,7 @@
       }
     },
     "TeleportCustody": "./contracts/flow/teleport/TeleportCustody.cdc",
+    "TeleportCustodySolana": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
     "TeleportedTetherToken": {
       "source": "./contracts/flow/token/TeleportedTetherToken.cdc",
       "aliases": {
@@ -136,7 +137,8 @@
         "BloctoTokenStaking"
       ],
       "blt-teleport-testnet": [
-        "TeleportCustody"
+        "TeleportCustody",
+        "TeleportCustodySolana"
       ]
     }
   }
