@@ -19,8 +19,9 @@ pub contract TeleportCustody {
   pub var unlocked: {String: Bool}
 
   pub event TeleportAdminCreated(allowedAmount: UFix64)
-
-  pub event Locked(amount: UFix64, to: [UInt8])
+  
+  // toAddressType: SOL, SPL
+  pub event Locked(amount: UFix64, to: [UInt8], toAddressType: String)
 
   pub event Unlocked(amount: UFix64, from: [UInt8], txHash: String)
 
@@ -61,7 +62,8 @@ pub contract TeleportCustody {
 
     pub var allowedAmount: UFix64
 
-    pub fun lock(from: @FungibleToken.Vault, to: [UInt8])
+    // toAddressType: SOL, SPL
+    pub fun lock(from: @FungibleToken.Vault, to: [UInt8], toAddressType: String)
 
     pub fun depositAllowance(from: @Allowance)
   }
@@ -85,7 +87,8 @@ pub contract TeleportCustody {
 
     pub let feeCollector: @BloctoToken.Vault
 
-    pub fun lock(from: @FungibleToken.Vault, to: [UInt8]) {
+    // toAddressType: SOL, SPL
+    pub fun lock(from: @FungibleToken.Vault, to: [UInt8], toAddressType: String) {
       pre {
         !TeleportCustody.isFrozen: "Teleport service is frozen"
         to.length == TeleportCustody.teleportAddressLength: "Teleport address should be teleportAddressLength bytes"
@@ -99,7 +102,7 @@ pub contract TeleportCustody {
       let amount = vault.balance
       TeleportCustody.lockVault.deposit(from: <-vault)
 
-      emit Locked(amount: amount, to: to)
+      emit Locked(amount: amount, to: to, toAddressType: toAddressType)
       emit FeeCollected(amount: self.lockFee, type: 0)
     }
 
@@ -161,17 +164,23 @@ pub contract TeleportCustody {
     }
   }
 
-  init(teleportAddressLength: Int, teleportTxHashLength: Int) {
+  init() {
     self.isFrozen = false
-    self.teleportAddressLength = teleportAddressLength
-    self.teleportTxHashLength = teleportTxHashLength
+    
+    // Solana address length
+    self.teleportAddressLength = 32
+
+    // Solana tx hash length
+    self.teleportTxHashLength = 128
+    
     self.lockVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
     self.unlocked = {}
-    self.TeleportAdminStoragePath = /storage/teleportCustodyTeleportAdmin
-    self.TeleportAdminTeleportUserPath = /public/teleportCustodyTeleportUser
-    self.TeleportAdminTeleportControlPath = /private/teleportCustodyTeleportControl
+
+    self.TeleportAdminStoragePath = /storage/teleportCustodySolanaTeleportAdmin
+    self.TeleportAdminTeleportUserPath = /public/teleportCustodySolanaTeleportUser
+    self.TeleportAdminTeleportControlPath = /private/teleportCustodySolanaTeleportControl
 
     let admin <- create Administrator()
-    self.account.save(<-admin, to: /storage/teleportCustodyAdmin)
+    self.account.save(<-admin, to: /storage/teleportCustodySolanaAdmin)
   }
 }
