@@ -85,6 +85,21 @@
       "keys": "4d90e59b86fb7cede90f764eb3593b56fe4fe02205e315828d5d62e117dba575",
       "chain": "flow-testnet"
     },
+    "blt-teleport-admin-testnet": {
+      "address": "f086a545ce3c552d",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 2,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "cf89ac36ee891eeeaa1e55cab68350b479d946a94f46e411c31975be80bc48ab"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
+    },
     "blt-user-testnet": {
       "address": "03d1e02a48354e2b",
       "keys": [
