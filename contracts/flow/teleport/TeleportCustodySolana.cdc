@@ -16,6 +16,10 @@ pub contract TeleportCustodySolana {
 
   access(contract) let lockVault: @BloctoToken.Vault
 
+  pub fun getLockVaultBalance(): UFix64 {
+    return TeleportCustodySolana.lockVault.balance
+  }
+
   pub var unlocked: {String: Bool}
 
   pub event TeleportAdminCreated(allowedAmount: UFix64)
