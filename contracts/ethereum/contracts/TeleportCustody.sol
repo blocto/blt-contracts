@@ -2,13 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Token.sol";
 
-contract TeleportCustody is AccessControl {
+contract TeleportCustody is Ownable {
     using SafeMath for uint256;
-    bytes32 public constant TELEPORT_ADMIN_ROLE =
-        keccak256("TELEPORT_ADMIN_ROLE");
 
     mapping(address => uint256) private _allowedAmount;
 
@@ -19,7 +17,6 @@ contract TeleportCustody is AccessControl {
 
     constructor(Token token) {
         _token = token;
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     /**
@@ -41,14 +38,14 @@ contract TeleportCustody is AccessControl {
     /**
      * @dev Owner freezes the contract.
      */
-    function freeze() public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function freeze() public onlyOwner {
         _isFrozen = true;
     }
 
     /**
      * @dev Owner unfreezes the contract.
      */
-    function unfreeze() public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function unfreeze() public onlyOwner {
         _isFrozen = false;
     }
 
@@ -65,7 +62,7 @@ contract TeleportCustody is AccessControl {
      */
     function depositAllowance(address account, uint256 allowedAmount)
         public
-        onlyRole(DEFAULT_ADMIN_ROLE)
+        onlyOwner
     {
         _allowedAmount[account] = _allowedAmount[account].add(allowedAmount);
         emit AdminUpdated(account, allowedAmount);
