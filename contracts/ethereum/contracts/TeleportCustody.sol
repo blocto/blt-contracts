@@ -9,11 +9,17 @@ contract TeleportCustody is Ownable {
     using SafeMath for uint256;
 
     mapping(address => uint256) private _allowedAmount;
+    mapping(bytes32 => bool) internal _unlocked;
 
     bool private _isFrozen;
     Token private _token;
 
     event AdminUpdated(address indexed account, uint256 allowedAmount);
+    event TeleportOut(
+        uint256 amount,
+        address indexed ethereumAddress,
+        bytes32 indexed flowHash
+    );
 
     constructor(Token token) {
         _token = token;
@@ -73,5 +79,30 @@ contract TeleportCustody is Ownable {
      */
     function allowedAmount(address account) public view returns (uint256) {
         return _allowedAmount[account];
+    }
+
+    /**
+     * @dev Teleport admin will teleport out tokens by the other chain's tx hash
+     */
+    function teleportOut(
+        uint256 amount,
+        address ethereumAddress,
+        bytes32 flowHash
+    ) public notFrozen {
+        // check admin's allowance
+        require(
+            _allowedAmount[msg.sender] >= amount,
+            "caller does not have sufficient allowance"
+        );
+        _allowedAmount[msg.sender] = _allowedAmount[msg.sender].sub(amount);
+        emit AdminUpdated(msg.sender, _allowedAmount[msg.sender]);
+
+        // checking has tx hash unlocked
+        require(!_unlocked[flowHash], "the hash has already unlocked");
+        _unlocked[flowHash] = true;
+
+        // mint
+        _token.mint(ethereumAddress, amount);
+        emit TeleportOut(amount, ethereumAddress, flowHash);
     }
 }
