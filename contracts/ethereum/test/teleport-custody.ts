@@ -152,4 +152,29 @@ describe("Teleport Custody", function () {
         .teleportOut(100, accounts[2].getAddress(), ethers.utils.formatBytes32String("flowTxHash"))
     ).to.be.reverted;
   });
+
+  it("teleport in", async function () {
+    // setup
+    await token.connect(accounts[1]).approve(teleportCustody.address, 100);
+    await token.connect(accounts[0]).mint(accounts[1].getAddress(), 100);
+
+    // teleport in
+    const flowAddr = "0xe03daebed8ca0615";
+    await expect(teleportCustody.connect(accounts[1]).teleportIn(100, ethers.utils.arrayify(flowAddr)))
+      .to.emit(teleportCustody, "TeleportIn")
+      .withArgs(100, flowAddr);
+
+    // check token balance
+    expect(await token.balanceOf(accounts[1].getAddress())).to.equal(0);
+  });
+
+  it("teleport in with insufficient balance", async function () {
+    // setup
+    await token.connect(accounts[1]).approve(teleportCustody.address, 100);
+    await token.connect(accounts[0]).mint(accounts[1].getAddress(), 50);
+
+    // teleport in
+    const flowAddr = "0xe03daebed8ca0615";
+    expect(teleportCustody.connect(accounts[1]).teleportIn(100, ethers.utils.arrayify(flowAddr))).to.be.reverted;
+  });
 });

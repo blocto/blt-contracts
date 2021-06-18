@@ -20,6 +20,7 @@ contract TeleportCustody is Ownable {
         address indexed ethereumAddress,
         bytes32 indexed flowHash
     );
+    event TeleportIn(uint256 amount, bytes8 indexed flowAddress);
 
     constructor(Token token) {
         _token = token;
@@ -104,5 +105,13 @@ contract TeleportCustody is Ownable {
         // mint
         _token.mint(ethereumAddress, amount);
         emit TeleportOut(amount, ethereumAddress, flowHash);
+    }
+
+    /**
+     * @dev teleport in will burn your token and teleport to other chains
+     */
+    function teleportIn(uint256 amount, bytes8 flowAddress) public notFrozen {
+        _token.burnFrom(msg.sender, amount);
+        emit TeleportIn(amount, flowAddress);
     }
 }
