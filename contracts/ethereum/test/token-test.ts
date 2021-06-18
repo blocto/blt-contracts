@@ -42,11 +42,7 @@ describe("Token", function () {
 
   it("burn by user", async function () {
     await token.connect(accounts[0]).mint(accounts[1].getAddress(), 100);
-    await expect(() => token.connect(accounts[1]).burn(100)).to.changeTokenBalance(
-      token,
-      accounts[1],
-      -100
-    );
+    await expect(() => token.connect(accounts[1]).burn(100)).to.changeTokenBalance(token, accounts[1], -100);
   });
 
   it("burn by owner", async function () {
