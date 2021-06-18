@@ -23,7 +23,7 @@ pub contract TeleportCustodySolana {
   pub var unlocked: {String: Bool}
 
   pub event TeleportAdminCreated(allowedAmount: UFix64)
-  
+
   // toAddressType: SOL, SPL
   pub event Locked(amount: UFix64, to: [UInt8], toAddressType: String)
 
@@ -170,7 +170,7 @@ pub contract TeleportCustodySolana {
 
   init() {
     self.isFrozen = false
-    
+
     // Solana address length
     self.teleportAddressLength = 32
 
