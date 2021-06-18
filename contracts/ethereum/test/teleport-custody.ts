@@ -42,4 +42,33 @@ describe("Teleport Custody", function () {
   it("get token", async function () {
     expect(await teleportCustody.getToken()).to.equal(token.address);
   });
+
+  it("deposit allowance by other", async function () {
+    expect(teleportCustody.connect(accounts[1]).depositAllowance(accounts[1].getAddress(), 100)).to.be.reverted;
+  });
+
+  it("deposit allowance by owner", async function () {
+    // deposit allowance
+    await expect(teleportCustody.connect(accounts[0]).depositAllowance(accounts[1].getAddress(), 100))
+      .to.emit(teleportCustody, "AdminUpdated")
+      .withArgs(await accounts[1].getAddress(), 100);
+
+    // check it
+    expect(await teleportCustody.allowedAmount(accounts[1].getAddress())).to.equal(100);
+  });
+
+  it("deposit allowance twice", async function () {
+    // deposit allowance 1
+    await expect(teleportCustody.connect(accounts[0]).depositAllowance(accounts[1].getAddress(), 100))
+      .to.emit(teleportCustody, "AdminUpdated")
+      .withArgs(await accounts[1].getAddress(), 100);
+
+    // deposit allowance 2
+    await expect(teleportCustody.connect(accounts[0]).depositAllowance(accounts[1].getAddress(), 100))
+      .to.emit(teleportCustody, "AdminUpdated")
+      .withArgs(await accounts[1].getAddress(), 100);
+
+    // check it
+    expect(await teleportCustody.allowedAmount(accounts[1].getAddress())).to.equal(200);
+  });
 });
