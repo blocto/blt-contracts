@@ -2,11 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "./Token.sol";
 
 contract TeleportCustody is AccessControl {
     bool private _isFrozen;
+    Token private _token;
 
-    constructor() {
+    constructor(Token token) {
+        _token = token;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
@@ -38,5 +41,12 @@ contract TeleportCustody is AccessControl {
      */
     function unfreeze() public onlyRole(DEFAULT_ADMIN_ROLE) {
         _isFrozen = false;
+    }
+
+    /**
+     * @dev Returns the teleport token
+     */
+    function getToken() public view returns (Token) {
+        return _token;
     }
 }

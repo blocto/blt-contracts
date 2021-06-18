@@ -7,13 +7,17 @@ use(solidity);
 
 describe("Teleport Custody", function () {
   let accounts: Signer[];
+  let token: Contract;
   let teleportCustody: Contract;
 
   beforeEach(async function () {
     accounts = await ethers.getSigners();
 
+    const Token = await ethers.getContractFactory("Token");
+    token = await Token.deploy("BloctoToken", "BLT");
+
     const TeleportCustody = await ethers.getContractFactory("TeleportCustody");
-    teleportCustody = await TeleportCustody.deploy();
+    teleportCustody = await TeleportCustody.deploy(token.address);
   });
 
   it("freeze by owner", async function () {
@@ -33,5 +37,9 @@ describe("Teleport Custody", function () {
 
   it("unfreeze by other", async function () {
     expect(teleportCustody.connect(accounts[1]).unfreeze()).to.be.reverted;
+  });
+
+  it("get token", async function () {
+    expect(await teleportCustody.getToken()).to.equal(token.address);
   });
 });
