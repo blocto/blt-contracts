@@ -170,6 +170,19 @@ describe("Teleport Custody", function () {
     expect(await token.balanceOf(accounts[1].getAddress())).to.equal(0);
   });
 
+  it("teleport in when frozen", async function () {
+    // setup
+    await token.connect(accounts[1]).approve(teleportCustody.address, 100);
+    await token.connect(accounts[0]).mint(accounts[1].getAddress(), 100);
+    await teleportCustody.connect(accounts[0]).freeze();
+
+    // teleport in
+    const flowAddr = "0xe03daebed8ca0615";
+    expect(teleportCustody.connect(accounts[1]).teleportIn(100, ethers.utils.arrayify(flowAddr))).to.be.revertedWith(
+      "contract is frozen by owner"
+    );
+  });
+
   it("teleport in with insufficient balance", async function () {
     // setup
     await token.connect(accounts[1]).approve(teleportCustody.address, 100);
