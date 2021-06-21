@@ -3,6 +3,12 @@ import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-ethers";
 
 const config: HardhatUserConfig = {
+  networks: {
+    rinkeby: {
+      url: "", // rinkeby url
+      accounts: [/* private key here. 0x... */],
+    },
+  },
   solidity: {
     compilers: [
       {
