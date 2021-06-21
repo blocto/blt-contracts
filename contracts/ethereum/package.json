@@ -1,6 +1,8 @@
 {
   "name": "hardhat-project",
   "scripts": {
+    "clean-build": "hardhat clean && hardhat compile",
+    "build": "hardhat compile",
     "test": "hardhat test"
   },
   "devDependencies": {
