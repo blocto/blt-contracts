@@ -67,12 +67,12 @@ contract TeleportCustody is Ownable {
      * @dev Updates the admin status of an account.
      * Can only be called by the current owner.
      */
-    function depositAllowance(address account, uint256 allowedAmount)
+    function depositAllowance(address account, uint256 amount)
         public
         onlyOwner
     {
-        _allowedAmount[account] = _allowedAmount[account].add(allowedAmount);
-        emit AdminUpdated(account, allowedAmount);
+        _allowedAmount[account] = _allowedAmount[account].add(amount);
+        emit AdminUpdated(account, amount);
     }
 
     /**
