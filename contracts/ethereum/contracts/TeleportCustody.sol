@@ -99,7 +99,10 @@ contract TeleportCustody is Ownable {
         emit AdminUpdated(msg.sender, _allowedAmount[msg.sender]);
 
         // checking has tx hash unlocked
-        require(!_teleportOutRecord[flowHash], "the hash has already teleported out");
+        require(
+            !_teleportOutRecord[flowHash],
+            "the hash has already teleported out"
+        );
         _teleportOutRecord[flowHash] = true;
 
         // mint
