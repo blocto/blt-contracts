@@ -37,3 +37,27 @@ networks: {
 ```sh
 npm run depoly-rinkeby
 ```
+
+## Verify
+
+### Rinkeby
+
+1. set up etherscan api key in `hardhat.config.ts`
+
+```
+etherscan: {
+	apiKey: "", // etherscan api key here...
+},
+```
+
+2. verify token
+
+```js
+npx hardhat verify --network rinkeby TOKEN_ADDRESS "BloctoToken" "BLT"
+```
+
+3. verify teleportCustody
+
+```js
+npx hardhat verify --network rinkeby TELEPORT_CUSTODY_ADDRESS "TOKEN_ADDRESS"
+```

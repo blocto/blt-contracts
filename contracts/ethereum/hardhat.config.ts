@@ -1,6 +1,7 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-etherscan";
 
 const config: HardhatUserConfig = {
   networks: {
@@ -18,6 +19,9 @@ const config: HardhatUserConfig = {
         },
       },
     ],
+  },
+  etherscan: {
+    apiKey: "", // etherscan api key here...
   },
 };
 
