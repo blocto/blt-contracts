@@ -3,5 +3,5 @@
 ## Test
 
 ```
-npx hardhat test
+npm run test
 ```
