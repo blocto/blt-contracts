@@ -9,7 +9,7 @@ contract TeleportCustody is Ownable {
     using SafeMath for uint256;
 
     mapping(address => uint256) private _allowedAmount;
-    mapping(bytes32 => bool) internal _unlocked;
+    mapping(bytes32 => bool) internal _teleportOutRecord;
 
     bool private _isFrozen;
     Token private _token;
@@ -99,8 +99,8 @@ contract TeleportCustody is Ownable {
         emit AdminUpdated(msg.sender, _allowedAmount[msg.sender]);
 
         // checking has tx hash unlocked
-        require(!_unlocked[flowHash], "the hash has already unlocked");
-        _unlocked[flowHash] = true;
+        require(!_teleportOutRecord[flowHash], "the hash has already teleported out");
+        _teleportOutRecord[flowHash] = true;
 
         // mint
         _token.mint(ethereumAddress, amount);

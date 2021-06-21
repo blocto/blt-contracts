@@ -26,7 +26,7 @@ describe("Teleport Custody", function () {
   });
 
   it("freeze by other", async function () {
-    expect(teleportCustody.connect(accounts[1]).freeze()).to.be.reverted;
+    expect(teleportCustody.connect(accounts[1]).freeze()).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   it("unfreeze by owner", async function () {
@@ -36,7 +36,7 @@ describe("Teleport Custody", function () {
   });
 
   it("unfreeze by other", async function () {
-    expect(teleportCustody.connect(accounts[1]).unfreeze()).to.be.reverted;
+    expect(teleportCustody.connect(accounts[1]).unfreeze()).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   it("get token", async function () {
@@ -44,7 +44,9 @@ describe("Teleport Custody", function () {
   });
 
   it("deposit allowance by other", async function () {
-    expect(teleportCustody.connect(accounts[1]).depositAllowance(accounts[1].getAddress(), 100)).to.be.reverted;
+    expect(teleportCustody.connect(accounts[1]).depositAllowance(accounts[1].getAddress(), 100)).to.be.revertedWith(
+      "Ownable: caller is not the owner"
+    );
   });
 
   it("deposit allowance by owner", async function () {
@@ -77,7 +79,7 @@ describe("Teleport Custody", function () {
       teleportCustody
         .connect(accounts[1])
         .teleportOut(100, accounts[2].getAddress(), ethers.utils.formatBytes32String("flowTxHash"))
-    ).to.be.reverted;
+    ).to.be.revertedWith("caller does not have sufficient allowance");
   });
 
   it("teleport out by teleport admin", async function () {
@@ -118,7 +120,7 @@ describe("Teleport Custody", function () {
       teleportCustody
         .connect(accounts[1])
         .teleportOut(50, accounts[2].getAddress(), ethers.utils.formatBytes32String("flowTxHash"))
-    ).to.be.reverted;
+    ).to.be.revertedWith("the hash has already teleported out");
   });
 
   it("teleport out over admin's allowance", async function () {
@@ -136,7 +138,7 @@ describe("Teleport Custody", function () {
       teleportCustody
         .connect(accounts[1])
         .teleportOut(50, accounts[2].getAddress(), ethers.utils.formatBytes32String("flowTxHash2"))
-    ).to.be.reverted;
+    ).to.be.revertedWith("caller does not have sufficient allowance");
   });
 
   it("teleport out when is frozen", async function () {
@@ -150,7 +152,7 @@ describe("Teleport Custody", function () {
       teleportCustody
         .connect(accounts[1])
         .teleportOut(100, accounts[2].getAddress(), ethers.utils.formatBytes32String("flowTxHash"))
-    ).to.be.reverted;
+    ).to.be.revertedWith("contract is frozen by owner");
   });
 
   it("teleport in", async function () {
