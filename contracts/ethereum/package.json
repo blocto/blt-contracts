@@ -3,7 +3,9 @@
   "scripts": {
     "clean-build": "hardhat clean && hardhat compile",
     "build": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "emulator": "hardhat node",
+    "depoly-local": "hardhat run --network localhost scripts/deploy.ts"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",

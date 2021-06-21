@@ -4,7 +4,14 @@ import "@nomiclabs/hardhat-ethers";
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.0",
+    compilers: [
+      {
+        version: "0.8.0",
+        settings: {
+          optimizer: { enabled: true, runs: 200 },
+        },
+      },
+    ],
   },
 };
 
