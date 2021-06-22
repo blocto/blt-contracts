@@ -40,6 +40,7 @@ pub enum TeleportInstruction {
     DepositAllowance {
         allowance: u64,
     },
+    CloseTeleportOutRecord,
 }
 
 pub fn get_owner(program_id: &Pubkey) -> Result<Instruction, ProgramError> {
@@ -194,6 +195,30 @@ pub fn deposit_allowance(
     let accounts = vec![
         AccountMeta::new(*owner, true),
         AccountMeta::new(*admin, false),
+    ];
+    Ok(Instruction {
+        program_id: *program_id,
+        accounts,
+        data,
+    })
+}
+
+pub fn close_teleport_out_record(
+    program_id: &Pubkey,
+    config: &Pubkey,
+    admin: &Pubkey,
+    admin_auth: &Pubkey,
+    teleport_out_record: &Pubkey,
+    target: &Pubkey,
+) -> Result<Instruction, ProgramError> {
+    let init_data = TeleportInstruction::CloseTeleportOutRecord {};
+    let data = init_data.try_to_vec()?;
+    let accounts = vec![
+        AccountMeta::new_readonly(*config, false),
+        AccountMeta::new_readonly(*admin, false),
+        AccountMeta::new_readonly(*admin_auth, true),
+        AccountMeta::new(*teleport_out_record, false),
+        AccountMeta::new(*target, false),
     ];
     Ok(Instruction {
         program_id: *program_id,

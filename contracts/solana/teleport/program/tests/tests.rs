@@ -496,3 +496,85 @@ async fn test_inin_teleport_out_record() {
     let record = get_teleport_out_record(&mut banks_client, &record.pubkey()).await;
     assert_eq!(record.is_init, true);
 }
+
+async fn create_teleport_out_record(
+    banks_client: &mut BanksClient,
+    payer: &Keypair,
+    recent_blockhash: &Hash,
+) -> Pubkey {
+    let rent = banks_client.get_rent().await.unwrap();
+    let record_account_len = blt_teleport::state::TeleportOutRecord::LEN;
+    let account_rent = rent.minimum_balance(record_account_len);
+
+    let record = Keypair::new();
+
+    let mut transaction = Transaction::new_with_payer(
+        &[
+            system_instruction::create_account(
+                &payer.pubkey(),
+                &record.pubkey(),
+                account_rent,
+                record_account_len as u64,
+                &blt_teleport::id(),
+            ),
+            blt_teleport::instruction::init_teleport_out_record(
+                &blt_teleport::id(),
+                &record.pubkey(),
+            )
+            .unwrap(),
+        ],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer, &record], *recent_blockhash);
+    banks_client.process_transaction(transaction).await.unwrap();
+
+    record.pubkey()
+}
+
+#[tokio::test]
+async fn test_close_teleport_out_record() {
+    let (mut banks_client, payer, recent_blockhash) = program_test().start().await;
+
+    let auth = Keypair::new();
+    let admin_pubkey = create_admin(
+        &mut banks_client,
+        &payer,
+        &recent_blockhash,
+        &auth.pubkey(),
+        1000,
+    )
+    .await;
+
+    let config_pubkey = create_config(
+        &mut banks_client,
+        &payer,
+        &recent_blockhash,
+        &[admin_pubkey],
+    )
+    .await;
+
+    let record_pubkey =
+        create_teleport_out_record(&mut banks_client, &payer, &recent_blockhash).await;
+
+    let rent = banks_client.get_rent().await.unwrap();
+    let record_account_len = blt_teleport::state::TeleportOutRecord::LEN;
+    let account_rent = rent.minimum_balance(record_account_len);
+
+    let mut transaction = Transaction::new_with_payer(
+        &[blt_teleport::instruction::close_teleport_out_record(
+            &blt_teleport::id(),
+            &config_pubkey,
+            &admin_pubkey,
+            &auth.pubkey(),
+            &record_pubkey,
+            &auth.pubkey(),
+        )
+        .unwrap()],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer, &auth], recent_blockhash);
+    banks_client.process_transaction(transaction).await.unwrap();
+
+    assert_eq!(banks_client.get_balance(record_pubkey).await.unwrap(), 0);
+    assert_eq!(banks_client.get_balance(auth.pubkey()).await.unwrap(), account_rent);
+}

@@ -83,6 +83,10 @@ impl Processor {
                 msg!("Instruction: DepositAllowance");
                 Self::process_deposit_allowance(program_id, accounts, allowance)
             }
+            TeleportInstruction::CloseTeleportOutRecord {} => {
+                msg!("Instruction: TeleportInstruction");
+                Self::process_close_teleport_out_record(program_id, accounts)
+            }
         }
     }
 
@@ -525,6 +529,54 @@ impl Processor {
             .map_err(|e| e.into())
     }
 
+    pub fn process_close_teleport_out_record(
+        program_id: &Pubkey,
+        accounts: &[AccountInfo],
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+        let config_info = next_account_info(account_info_iter)?;
+        let admin_info = next_account_info(account_info_iter)?;
+        let admin_auth_info = next_account_info(account_info_iter)?;
+        let teleport_out_record_info = next_account_info(account_info_iter)?;
+        let target_info = next_account_info(account_info_iter)?;
+
+        // check config
+        let config = Self::get_config(program_id, config_info)?;
+        if config.is_frozen {
+            return Err(TeleportError::Freeze.into());
+        }
+
+        // check admin & auth
+        if !config.contain_admin(admin_info.key) {
+            msg!("config doesn't contain admin key");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+        let admin = state::Admin::try_from_slice(&admin_info.data.borrow())?;
+        if !admin.is_init {
+            return Err(TeleportError::UninitializedAccount.into());
+        }
+
+        if admin_auth_info.key != &admin.auth {
+            msg!("admin auth mismatch");
+            return Err(TeleportError::UnexpectedError.into());
+        }
+        if !admin_auth_info.is_signer {
+            return Err(TeleportError::MissingRequiredSignature.into());
+        }
+
+        // check teleport_out_record_info
+        Self::get_teleport_out_record(program_id, teleport_out_record_info)?;
+
+
+        let dest_starting_lamports = target_info.lamports();
+        **target_info.lamports.borrow_mut() = dest_starting_lamports
+            .checked_add(teleport_out_record_info.lamports())
+            .ok_or(ProgramError::InvalidAccountData)?;
+        **teleport_out_record_info.lamports.borrow_mut() = 0;
+
+        Ok(())
+    }
+
     fn only_owner(account_info: &AccountInfo) -> ProgramResult {
         if account_info.key != &state::OWNER {
             msg!("owner mismatch");
@@ -557,5 +609,25 @@ impl Processor {
         }
 
         return Ok(config);
+    }
+
+    fn get_teleport_out_record(
+        program_id: &Pubkey,
+        teleport_out_record_info: &AccountInfo,
+    ) -> Result<state::TeleportOutRecord, ProgramError> {
+        if teleport_out_record_info.owner != program_id {
+            return Err(TeleportError::IncorrectProgramAccount.into());
+        }
+
+        if teleport_out_record_info.data_len() != state::TeleportOutRecord::LEN {
+            return Err(TeleportError::IncorrectProgramAccount.into());
+        }
+
+        let teleport_out_record = state::TeleportOutRecord::try_from_slice(&teleport_out_record_info.data.borrow())?;
+        if !teleport_out_record.is_init {
+            return Err(TeleportError::UninitializedAccount.into());
+        }
+
+        return Ok(teleport_out_record);
     }
 }
