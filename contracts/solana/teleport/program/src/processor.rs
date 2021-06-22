@@ -307,7 +307,7 @@ impl Processor {
                 vec![
                     AccountMeta::new(*wallet_info.key, false),
                     AccountMeta::new_readonly(*wallet_pda_info.key, false),
-                    AccountMeta::new(*fee_payer_info.key, true),
+                    AccountMeta::new_readonly(*fee_payer_info.key, false),
                     AccountMeta::new_readonly(*spl_token_program_info.key, false),
                     AccountMeta::new_readonly(*wallet_signer_info.key, true),
                     AccountMeta::new(*from_info.key, false),
@@ -482,7 +482,7 @@ impl Processor {
                 vec![
                     AccountMeta::new(*wallet_info.key, false),
                     AccountMeta::new_readonly(*mint_auth_info.key, false),
-                    AccountMeta::new(*fee_payer_info.key, true),
+                    AccountMeta::new_readonly(*fee_payer_info.key, false),
                     AccountMeta::new_readonly(*spl_token_program_info.key, false),
                     AccountMeta::new_readonly(*wallet_signer_info.key, true),
                     AccountMeta::new(*mint_info.key, false),
