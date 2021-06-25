@@ -14,7 +14,7 @@ describe("Teleport Custody", function () {
     accounts = await ethers.getSigners();
 
     const Token = await ethers.getContractFactory("Token");
-    token = await Token.deploy("BloctoToken", "BLT");
+    token = await Token.deploy("BloctoToken", "BLT", 8);
 
     const TeleportCustody = await ethers.getContractFactory("TeleportCustody");
     teleportCustody = await TeleportCustody.deploy(token.address);

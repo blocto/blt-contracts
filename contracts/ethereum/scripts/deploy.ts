@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 async function main() {
   const Token = await ethers.getContractFactory("Token");
-  const token = await Token.deploy("BloctoToken", "BLT");
+  const token = await Token.deploy("BloctoToken", "BLT", 8);
   await token.deployed();
   console.log(`token address: ${token.address}`);
 

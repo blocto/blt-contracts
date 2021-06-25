@@ -53,7 +53,7 @@ etherscan: {
 2. verify token
 
 ```js
-npx hardhat verify --network rinkeby TOKEN_ADDRESS "BloctoToken" "BLT"
+npx hardhat verify --network rinkeby TOKEN_ADDRESS "BloctoToken" "BLT" 8
 ```
 
 3. verify teleportCustody
