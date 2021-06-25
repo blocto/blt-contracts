@@ -19,11 +19,13 @@ const (
 	bpMiningGetCriterasPath             = projectRootPath + "/scripts/mining/getCriterias.cdc"
 	bpMiningGetCurrentRoundPath         = projectRootPath + "/scripts/mining/getCurrentRound.cdc"
 	bpMiningGetCurrentTotalRewardPath   = projectRootPath + "/scripts/mining/getCurrentTotalReward.cdc"
+	bpMiningGetMiningRewardPath         = projectRootPath + "/scripts/mining/getMiningReward.cdc"
 	bpMiningGetMiningStatePath          = projectRootPath + "/scripts/mining/getMiningState.cdc"
 	bpMiningGetRewardCapPath            = projectRootPath + "/scripts/mining/getRewardCap.cdc"
 	bpMiningGetRewardLockPeriodPath     = projectRootPath + "/scripts/mining/getRewardLockPeriod.cdc"
 	bpMiningGetRewardLockRatioPath      = projectRootPath + "/scripts/mining/getRewardLockRatio.cdc"
 	bpMiningGetRewardsDistributedPath   = projectRootPath + "/scripts/mining/getRewardsDistributed.cdc"
+	bpMiningGetUnlockMiningRewardPath   = projectRootPath + "/scripts/mining/getUnlockMiningReward.cdc"
 	bpMiningGetUserRewardsPath          = projectRootPath + "/scripts/mining/getUserRewards.cdc"
 	bpMiningGetUserRewardsCollectedPath = projectRootPath + "/scripts/mining/getUserRewardsCollected.cdc"
 	bpMiningCollectDataPath             = projectRootPath + "/transactions/mining/collectData.cdc"
@@ -38,6 +40,7 @@ const (
 	bpMiningUpdateRewardCapPath         = projectRootPath + "/transactions/mining/updateRewardCap.cdc"
 	bpMiningUpdateRewardLockPeriodPath  = projectRootPath + "/transactions/mining/updateRewardLockPeriod.cdc"
 	bpMiningUpdateRewardLockRatioPath   = projectRootPath + "/transactions/mining/updateRewardLockRatio.cdc"
+	bpMiningSetupMiningRewardPath       = projectRootPath + "/transactions/mining/setupMiningReward.cdc"
 )
 
 type TestBloctoTokenMiningContractsInfo struct {
@@ -85,6 +88,24 @@ func BloctoTokenMiningDeployContract(b *emulator.Blockchain, t *testing.T) TestB
 		BPMiningAddr:    bloctoTokenMiningAddr,
 		BPMiningSigner:  bloctoTokenMiningSigner,
 	}
+}
+
+func BloctoTokenMiningSetupMiningReward(
+	t *testing.T, b *emulator.Blockchain, btMiningInfo TestBloctoTokenMiningContractsInfo,
+	userAddr flow.Address, userSigner crypto.Signer) {
+	tx := flow.NewTransaction().
+		SetScript(btMiningSetupMiningRewardTransaction(btMiningInfo.BPMiningAddr)).
+		SetGasLimit(100).
+		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
+		SetPayer(b.ServiceKey().Address).
+		AddAuthorizer(userAddr)
+
+	signAndSubmit(
+		t, b, tx,
+		[]flow.Address{b.ServiceKey().Address, userAddr},
+		[]crypto.Signer{b.ServiceKey().Signer(), userSigner},
+		false,
+	)
 }
 
 func TestBPMiningDeployment(t *testing.T) {
@@ -469,6 +490,7 @@ func TestBPMiningOneRound(t *testing.T) {
 	assert.NoError(t, err)
 	// Add Blocto Pass
 	MintNewBloctoPass(t, b, btMiningInfo.NFTAddr, user1Addr, user1Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
+	BloctoTokenMiningSetupMiningReward(t, b, btMiningInfo, user1Addr, user1Signer)
 
 	user2AccountKey, user2Signer := accountKeys.NewWithSigner()
 	user2Addr, err := b.CreateAccount(
@@ -479,6 +501,7 @@ func TestBPMiningOneRound(t *testing.T) {
 	// Add Blocto Pass
 	MintNewBloctoPass(t, b, btMiningInfo.NFTAddr, user2Addr, user2Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
 	// TODO: user2 has BloctoPass on VIP tier 1
+	BloctoTokenMiningSetupMiningReward(t, b, btMiningInfo, user2Addr, user2Signer)
 
 	var user1AddrBytes, user2AddrBytes [8]byte
 	copy(user1AddrBytes[:], user1Addr.Bytes())
@@ -715,10 +738,12 @@ func TestBPMiningOneRound(t *testing.T) {
 		)
 
 		reward := executeScriptAndCheck(t, b,
-			bpGetBloctoPassVaultBalanceScript(btMiningInfo.BPAddr, btMiningInfo.NFTAddr),
+			btMiningGetPropertyScript(bpMiningGetMiningRewardPath, btMiningInfo.BPMiningAddr),
 			[][]byte{json.MustEncode(cadence.Address(user1Addr))})
-		rewardExpected, _ := cadence.NewUFix64("22.0")
-		assert.Equal(t, rewardExpected, reward)
+		rewardExpected := make(map[interface{}]interface{})
+		rewardExpected[uint64(1)] = CadenceUFix64("11.0").ToGoValue()
+		rewardExpected[uint64(5)] = CadenceUFix64("11.0").ToGoValue()
+		assert.Equal(t, rewardExpected, reward.ToGoValue())
 
 		rewardDistributed := executeScriptAndCheck(t, b,
 			btMiningGetPropertyScript(bpMiningGetRewardsDistributedPath, btMiningInfo.BPMiningAddr), nil)
@@ -765,10 +790,12 @@ func TestBPMiningOneRound(t *testing.T) {
 		)
 
 		reward := executeScriptAndCheck(t, b,
-			bpGetBloctoPassVaultBalanceScript(btMiningInfo.BPAddr, btMiningInfo.NFTAddr),
+			btMiningGetPropertyScript(bpMiningGetMiningRewardPath, btMiningInfo.BPMiningAddr),
 			[][]byte{json.MustEncode(cadence.Address(user2Addr))})
-		rewardExpected, _ := cadence.NewUFix64("32.0")
-		assert.Equal(t, rewardExpected, reward)
+		rewardExpected := make(map[interface{}]interface{})
+		rewardExpected[uint64(1)] = CadenceUFix64("16.0").ToGoValue()
+		rewardExpected[uint64(5)] = CadenceUFix64("16.0").ToGoValue()
+		assert.Equal(t, rewardExpected, reward.ToGoValue())
 
 		rewardDistributed := executeScriptAndCheck(t, b,
 			btMiningGetPropertyScript(bpMiningGetRewardsDistributedPath, btMiningInfo.BPMiningAddr), nil)
@@ -840,6 +867,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 	assert.NoError(t, err)
 	// Add Blocto Pass
 	MintNewBloctoPass(t, b, btMiningInfo.NFTAddr, user1Addr, user1Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
+	BloctoTokenMiningSetupMiningReward(t, b, btMiningInfo, user1Addr, user1Signer)
 
 	user2AccountKey, user2Signer := accountKeys.NewWithSigner()
 	user2Addr, err := b.CreateAccount(
@@ -850,6 +878,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 	// Add Blocto Pass
 	MintNewBloctoPass(t, b, btMiningInfo.NFTAddr, user2Addr, user2Signer, btMiningInfo.BPAddr, btMiningInfo.BPSigner)
 	// TODO: user2 has BloctoPass on VIP tier 1
+	BloctoTokenMiningSetupMiningReward(t, b, btMiningInfo, user2Addr, user2Signer)
 
 	var user1AddrBytes, user2AddrBytes [8]byte
 	copy(user1AddrBytes[:], user1Addr.Bytes())
@@ -1051,7 +1080,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 		assert.Equal(t, expected, miningState.(cadence.Enum).Fields)
 	})
 
-	t.Run("Should be able to distribute rewards correctly", func(t *testing.T) {
+	t.Run("Should be able to distribute rewards correctly for user 1", func(t *testing.T) {
 		tx := flow.NewTransaction().
 			SetScript(btMiningDistributeRewardTransaction(btMiningInfo.BPMiningAddr, btMiningInfo.BTAddr)).
 			SetGasLimit(150).
@@ -1070,10 +1099,12 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 		)
 
 		reward := executeScriptAndCheck(t, b,
-			bpGetBloctoPassVaultBalanceScript(btMiningInfo.BPAddr, btMiningInfo.NFTAddr),
+			btMiningGetPropertyScript(bpMiningGetMiningRewardPath, btMiningInfo.BPMiningAddr),
 			[][]byte{json.MustEncode(cadence.Address(user1Addr))})
-		rewardExpected, _ := cadence.NewUFix64("4.12422592")
-		assert.Equal(t, rewardExpected, reward)
+		rewardExpected := make(map[interface{}]interface{})
+		rewardExpected[uint64(1)] = CadenceUFix64("2.06211296").ToGoValue()
+		rewardExpected[uint64(5)] = CadenceUFix64("2.06211296").ToGoValue()
+		assert.Equal(t, rewardExpected, reward.ToGoValue())
 
 		rewardDistributed := executeScriptAndCheck(t, b,
 			btMiningGetPropertyScript(bpMiningGetRewardsDistributedPath, btMiningInfo.BPMiningAddr), nil)
@@ -1101,10 +1132,12 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 		)
 
 		reward := executeScriptAndCheck(t, b,
-			bpGetBloctoPassVaultBalanceScript(btMiningInfo.BPAddr, btMiningInfo.NFTAddr),
+			btMiningGetPropertyScript(bpMiningGetMiningRewardPath, btMiningInfo.BPMiningAddr),
 			[][]byte{json.MustEncode(cadence.Address(user2Addr))})
-		rewardExpected, _ := cadence.NewUFix64("5.99887407")
-		assert.Equal(t, rewardExpected, reward)
+		rewardExpected := make(map[interface{}]interface{})
+		rewardExpected[uint64(1)] = CadenceUFix64("2.99943704").ToGoValue()
+		rewardExpected[uint64(5)] = CadenceUFix64("2.99943703").ToGoValue()
+		assert.Equal(t, rewardExpected, reward.ToGoValue())
 
 		rewardDistributed := executeScriptAndCheck(t, b,
 			btMiningGetPropertyScript(bpMiningGetRewardsDistributedPath, btMiningInfo.BPMiningAddr), nil)
@@ -1273,6 +1306,14 @@ func btMiningUpdateRewardLockPeriodTransaction(btMiningAddr flow.Address) []byte
 func btMiningUpdateRewardLockRatioTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningUpdateRewardLockRatioPath)),
+		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
+		"0x"+btMiningAddr.String(),
+	))
+}
+
+func btMiningSetupMiningRewardTransaction(btMiningAddr flow.Address) []byte {
+	return []byte(strings.ReplaceAll(
+		string(readFile(bpMiningSetupMiningRewardPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
 		"0x"+btMiningAddr.String(),
 	))
