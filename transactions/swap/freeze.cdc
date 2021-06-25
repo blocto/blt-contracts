@@ -1,9 +1,9 @@
 import BltUsdtSwapPair from "../../contracts/flow/swap/BltUsdtSwapPair.cdc"
 
 transaction() {
-  prepare(fspAdmin: AuthAccount) {
+  prepare(swapPairAdmin: AuthAccount) {
 
-    let adminRef = fspAdmin.borrow<&BltUsdtSwapPair.Admin>(from: /storage/bltUsdtPairAdmin)
+    let adminRef = swapPairAdmin.borrow<&BltUsdtSwapPair.Admin>(from: /storage/bltUsdtPairAdmin)
         ?? panic("Could not borrow a reference to Admin")
 
     adminRef.freeze()

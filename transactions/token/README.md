@@ -32,3 +32,11 @@ flow transactions send ./transactions/token/mintBloctoPass.cdc \
   --signer blt-admin-testnet \
   --gas-limit 1000
 ```
+
+### Setup tUSDT Vault
+```
+flow transactions send ./transactions/token/setupTeleportedTetherTokenVault.cdc \
+  --network testnet \
+  --signer blt-user-testnet \
+  --gas-limit 1000
+```

@@ -11,6 +11,7 @@
     "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
     "BloctoTokenSale": "./contracts/flow/sale/BloctoTokenSale.cdc",
     "BloctoTokenStaking": "./contracts/flow/staking/BloctoTokenStaking.cdc",
+    "BltUsdtSwapPair": "./contracts/flow/swap/BltUsdtSwapPair.cdc",
     "FungibleToken": {
       "source": "./contracts/flow/token/FungibleToken.cdc",
       "aliases": {
@@ -101,6 +102,21 @@
       ],
       "chain": "flow-testnet"
     },
+    "blt-swap-testnet": {
+      "address": "c59604d4e65f14b3",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 0,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "6d2d903526ce75051c074a50c008ad38b179bae55c045ac3d57bf267b16c7c66"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
+    },
     "blt-user-testnet": {
       "address": "03d1e02a48354e2b",
       "keys": [
@@ -135,6 +151,9 @@
         "BloctoToken",
         "BloctoTokenMining",
         "BloctoTokenStaking"
+      ],
+      "blt-swap-testnet": [
+        "BltUsdtSwapPair"
       ],
       "blt-teleport-testnet": [
         "TeleportCustody",
