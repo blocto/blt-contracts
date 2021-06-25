@@ -21,6 +21,8 @@ const (
 	bpMiningGetCurrentTotalRewardPath   = projectRootPath + "/scripts/mining/getCurrentTotalReward.cdc"
 	bpMiningGetMiningStatePath          = projectRootPath + "/scripts/mining/getMiningState.cdc"
 	bpMiningGetRewardCapPath            = projectRootPath + "/scripts/mining/getRewardCap.cdc"
+	bpMiningGetRewardLockPeriodPath     = projectRootPath + "/scripts/mining/getRewardLockPeriod.cdc"
+	bpMiningGetRewardLockRatioPath      = projectRootPath + "/scripts/mining/getRewardLockRatio.cdc"
 	bpMiningGetRewardsDistributedPath   = projectRootPath + "/scripts/mining/getRewardsDistributed.cdc"
 	bpMiningGetUserRewardsPath          = projectRootPath + "/scripts/mining/getUserRewards.cdc"
 	bpMiningGetUserRewardsCollectedPath = projectRootPath + "/scripts/mining/getUserRewardsCollected.cdc"
@@ -34,6 +36,8 @@ const (
 	bpMiningAddDefaultCriteriaPath      = projectRootPath + "/transactions/mining/addDefaultCriteria.cdc"
 	bpMiningRemoveCriteriaPath          = projectRootPath + "/transactions/mining/removeCriteria.cdc"
 	bpMiningUpdateRewardCapPath         = projectRootPath + "/transactions/mining/updateRewardCap.cdc"
+	bpMiningUpdateRewardLockPeriodPath  = projectRootPath + "/transactions/mining/updateRewardLockPeriod.cdc"
+	bpMiningUpdateRewardLockRatioPath   = projectRootPath + "/transactions/mining/updateRewardLockRatio.cdc"
 )
 
 type TestBloctoTokenMiningContractsInfo struct {
@@ -123,6 +127,21 @@ func TestBPMiningDeployment(t *testing.T) {
 			btMiningGetPropertyScript(bpMiningGetCapMultiplierPath, btMiningInfo.BPMiningAddr), nil)
 		expected := cadence.NewUInt64(3)
 		assert.Equal(t, expected, capMultiplier.(cadence.UInt64))
+	})
+
+	t.Run("Should have initialized reward lock period correctly", func(t *testing.T) {
+		rewardLockPeriod := executeScriptAndCheck(t, b,
+			btMiningGetPropertyScript(bpMiningGetRewardLockPeriodPath, btMiningInfo.BPMiningAddr), nil)
+		expected := cadence.NewUInt64(4)
+		assert.Equal(t, expected, rewardLockPeriod.(cadence.UInt64))
+	})
+
+	t.Run("Should have initialized reward lock ratio correctly", func(t *testing.T) {
+		rewardLockRatio := executeScriptAndCheck(t, b,
+			btMiningGetPropertyScript(bpMiningGetRewardLockRatioPath, btMiningInfo.BPMiningAddr), nil)
+		expected, err := cadence.NewUFix64("0.5")
+		assert.NoError(t, err)
+		assert.Equal(t, expected, rewardLockRatio.(cadence.UFix64))
 	})
 }
 
@@ -344,6 +363,88 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 		_ = tx.AddArgument(CadenceUFix64("2.3"))
 		_ = tx.AddArgument(CadenceUFix64("100.0"))
 		_ = tx.AddArgument(cadence.NewUInt64(123))
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{b.ServiceKey().Address, btMiningInfo.BPMiningAddr},
+			[]crypto.Signer{b.ServiceKey().Signer(), btMiningInfo.BPMiningSigner},
+			true,
+		)
+	})
+}
+
+func TestBPMiningUpdateRewardLockPeriod(t *testing.T) {
+	b := newEmulator()
+
+	btMiningInfo := BloctoTokenMiningDeployContract(b, t)
+
+	t.Run("Should update reward lock period correctly", func(t *testing.T) {
+		tx := flow.NewTransaction().
+			SetScript(btMiningUpdateRewardLockPeriodTransaction(btMiningInfo.BPMiningAddr)).
+			SetGasLimit(100).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(btMiningInfo.BPMiningAddr)
+
+		_ = tx.AddArgument(cadence.NewUInt64(123))
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{b.ServiceKey().Address, btMiningInfo.BPMiningAddr},
+			[]crypto.Signer{b.ServiceKey().Signer(), btMiningInfo.BPMiningSigner},
+			false,
+		)
+
+		rewardLockPeriod := executeScriptAndCheck(t, b,
+			btMiningGetPropertyScript(bpMiningGetRewardLockPeriodPath, btMiningInfo.BPMiningAddr), nil)
+
+		expected := cadence.NewUInt64(123)
+		assert.Equal(t, expected, rewardLockPeriod.(cadence.UInt64))
+	})
+}
+
+func TestBPMiningUpdateRewardRatioPeriod(t *testing.T) {
+	b := newEmulator()
+
+	btMiningInfo := BloctoTokenMiningDeployContract(b, t)
+
+	t.Run("Should update reward lock ratio correctly", func(t *testing.T) {
+		expected, err := cadence.NewUFix64("0.99")
+		assert.NoError(t, err)
+
+		tx := flow.NewTransaction().
+			SetScript(btMiningUpdateRewardLockRatioTransaction(btMiningInfo.BPMiningAddr)).
+			SetGasLimit(100).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(btMiningInfo.BPMiningAddr)
+
+		_ = tx.AddArgument(expected)
+
+		signAndSubmit(
+			t, b, tx,
+			[]flow.Address{b.ServiceKey().Address, btMiningInfo.BPMiningAddr},
+			[]crypto.Signer{b.ServiceKey().Signer(), btMiningInfo.BPMiningSigner},
+			false,
+		)
+
+		rewardLockRatio := executeScriptAndCheck(t, b,
+			btMiningGetPropertyScript(bpMiningGetRewardLockRatioPath, btMiningInfo.BPMiningAddr), nil)
+		assert.Equal(t, expected, rewardLockRatio.(cadence.UFix64))
+	})
+
+	t.Run("Should NOT update reward lock ratio with value > 1", func(t *testing.T) {
+		expected, err := cadence.NewUFix64("1.01")
+		assert.NoError(t, err)
+
+		tx := flow.NewTransaction().
+			SetScript(btMiningUpdateRewardLockRatioTransaction(btMiningInfo.BPMiningAddr)).
+			SetGasLimit(100).
+			SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
+			SetPayer(b.ServiceKey().Address).
+			AddAuthorizer(btMiningInfo.BPMiningAddr)
+
+		_ = tx.AddArgument(expected)
 
 		signAndSubmit(
 			t, b, tx,
@@ -1156,6 +1257,22 @@ func btMiningRemoveCriteriaTransaction(btMiningAddr flow.Address) []byte {
 func btMiningUpdateRewardCapTransaction(btMiningAddr flow.Address) []byte {
 	return []byte(strings.ReplaceAll(
 		string(readFile(bpMiningUpdateRewardCapPath)),
+		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
+		"0x"+btMiningAddr.String(),
+	))
+}
+
+func btMiningUpdateRewardLockPeriodTransaction(btMiningAddr flow.Address) []byte {
+	return []byte(strings.ReplaceAll(
+		string(readFile(bpMiningUpdateRewardLockPeriodPath)),
+		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
+		"0x"+btMiningAddr.String(),
+	))
+}
+
+func btMiningUpdateRewardLockRatioTransaction(btMiningAddr flow.Address) []byte {
+	return []byte(strings.ReplaceAll(
+		string(readFile(bpMiningUpdateRewardLockRatioPath)),
 		"\"../../contracts/flow/mining/BloctoTokenMining.cdc\"",
 		"0x"+btMiningAddr.String(),
 	))
