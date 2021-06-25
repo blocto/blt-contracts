@@ -191,9 +191,10 @@ pub contract BloctoTokenMining {
             emit RewardLockPeriodUpdated(rewardLockPeriod: rewardLockPeriod)
         }
 
-        pub fun updateRewardLockRatio(rewardLockRatio: UFix64) {
+        pub fun updateRewardLockRatio(_ rewardLockRatio: UFix64) {
             pre {
                 BloctoTokenMining.miningState != MiningState.collected: "Should NOT be collected"
+                rewardLockRatio <= 1.0: "ratio should be less than or equal to 1"
             }
             BloctoTokenMining.rewardLockRatio = rewardLockRatio
 
