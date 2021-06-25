@@ -117,4 +117,12 @@ contract TeleportCustody is Ownable {
         _token.burnFrom(msg.sender, amount);
         emit TeleportIn(amount, flowAddress);
     }
+
+    /**
+     * @dev Overrides the inherited method from Ownable.
+     * Disable ownership resounce.
+     */
+    function renounceOwnership() public override view onlyOwner {
+        revert("ownership cannot be renounced");
+    }
 }

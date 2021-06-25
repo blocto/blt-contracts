@@ -192,4 +192,16 @@ describe("Teleport Custody", function () {
     const flowAddr = "0xe03daebed8ca0615";
     expect(teleportCustody.connect(accounts[1]).teleportIn(100, ethers.utils.arrayify(flowAddr))).to.be.reverted;
   });
+
+  it("should failed when calling renounceOwnership by others", async function () {
+    expect(teleportCustody.connect(accounts[1]).renounceOwnership()).to.be.revertedWith(
+      "Ownable: caller is not the owner"
+    );
+  });
+
+  it("should failed when calling renounceOwnership by owner", async function () {
+    expect(teleportCustody.connect(accounts[0]).renounceOwnership()).to.be.revertedWith(
+      "ownership cannot be renounced"
+    );
+  });
 });
