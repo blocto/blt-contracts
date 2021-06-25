@@ -5,6 +5,12 @@ import BloctoPass from "../token/BloctoPass.cdc"
 
 pub contract BloctoTokenMining {
 
+    // Defines mining reward storage path
+    pub let MiningRewardStoragePath: StoragePath
+
+    // Defines mining reward public balance path
+    pub let MiningRewardPublicPath: PublicPath
+
     // Define mining state
     pub var miningState: MiningState
 
@@ -23,6 +29,12 @@ pub contract BloctoTokenMining {
     // Define mining criterias
     // criteria name => Criteria
     pub var criterias: {String: Criteria}
+
+    // Define reward lock period
+    pub var rewardLockPeriod: UInt64
+
+    // Define reward lock ratio
+    pub var rewardLockRatio: UFix64
 
     // Define if user reward is collected
     // Address => round
@@ -51,11 +63,20 @@ pub contract BloctoTokenMining {
     // Event that is emitted when new criteria is updated
     pub event CriteriaUpdated(name: String, criteria: Criteria?)
 
+    // Event that is emitted when reward lock period is updated
+    pub event RewardLockPeriodUpdated(rewardLockPeriod: UInt64)
+
+    // Event that is emitted when reward lock ratio is updated
+    pub event RewardLockRatioUpdated(rewardLockRatio: UFix64)
+
     // Event that is emitted when mining raw data is collected
     pub event DataCollected(data: {String: UFix64}, address: Address, reward: UFix64, replacedReward: UFix64?)
 
     // Event that is emitted when reward is distributed
     pub event RewardDistributed(reward: UFix64, address: Address)
+
+    // Event that is emiited when reward is withdrawn
+    pub event RewardWithdrawn(amount: UFix64, from: Address?)
 
     // Criteria
     //
@@ -161,12 +182,36 @@ pub contract BloctoTokenMining {
             emit CriteriaUpdated(name: name, criteria: criteria)
         }
 
+        pub fun updateRewardLockPeriod(_ rewardLockPeriod: UInt64) {
+            pre {
+                BloctoTokenMining.miningState != MiningState.collected: "Should NOT be collected"
+            }
+            BloctoTokenMining.rewardLockPeriod = rewardLockPeriod
+
+            emit RewardLockPeriodUpdated(rewardLockPeriod: rewardLockPeriod)
+        }
+
+        pub fun updateRewardLockRatio(_ rewardLockRatio: UFix64) {
+            pre {
+                BloctoTokenMining.miningState != MiningState.collected: "Should NOT be collected"
+                rewardLockRatio <= 1.0: "ratio should be less than or equal to 1"
+            }
+            BloctoTokenMining.rewardLockRatio = rewardLockRatio
+
+            emit RewardLockRatioUpdated(rewardLockRatio: rewardLockRatio)
+        }
+
         // Collect raw data
         // data: {criteria name: raw data}
         pub fun collectData(_ data: {String: UFix64}, address: Address) {
             pre {
                 BloctoTokenMining.miningState == MiningState.collecting: "Should start collecting"
             }
+
+            // Check if the address has MiningRewardPublicPath
+            let miningRewardRef = getAccount(address).getCapability(BloctoTokenMining.MiningRewardPublicPath)
+                .borrow<&{BloctoTokenMining.MiningRewardPublic}>()
+                ?? panic("Could not borrow mining reward public reference")
 
             let isVIP = BloctoTokenMining.isAddressVIP(address: address)
             let round = BloctoTokenMining.userRewardsCollected[address] ?? (0 as UInt64)
@@ -211,17 +256,19 @@ pub contract BloctoTokenMining {
                 panic("The balance of reward vault must be the same as reward")
             }
 
-            let bloctoPass = self.getHighestTierBloctoPass(address: address)
-                ?? panic("Could not find blocto pass")
-            let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
-                .borrow<&{BloctoPass.CollectionPublic}>()
-                ?? panic("Could not borrow blocto pass collection public reference")
-            let amount = rewardVault.balance
-            collectionRef.depositBloctoToken(from: <- (rewardVault as @FungibleToken.Vault), id: bloctoPass.id)
+            let lockReward = reward * BloctoTokenMining.rewardLockRatio
+            let lockRewardVault <- rewardVault.withdraw(amount: lockReward) as! @BloctoToken.Vault
+            let lockRound = BloctoTokenMining.currentRound + BloctoTokenMining.rewardLockPeriod
+            
+            let miningRewardRef = getAccount(address).getCapability(BloctoTokenMining.MiningRewardPublicPath)
+                .borrow<&{BloctoTokenMining.MiningRewardPublic}>()
+                ?? panic("Could not borrow mining reward public reference")
+            miningRewardRef.deposit(reward: <- lockRewardVault, lockRound: lockRound)
+            miningRewardRef.deposit(reward: <- rewardVault, lockRound: BloctoTokenMining.currentRound)
 
             BloctoTokenMining.rewardsDistributed[address] = BloctoTokenMining.currentRound
 
-            emit RewardDistributed(reward: amount, address: address)
+            emit RewardDistributed(reward: reward, address: address)
         }
 
         access(self) fun getHighestTierBloctoPass(address: Address): &BloctoPass.NFT{NonFungibleToken.INFT}? {
@@ -246,6 +293,60 @@ pub contract BloctoTokenMining {
             }
             return highestBloctoPass
         }
+    }
+
+    pub resource interface MiningRewardPublic {
+        pub var rewardsLocked: {UInt64: UFix64}
+        pub fun computeUnlocked(): UFix64
+        access(contract) fun deposit(reward: @BloctoToken.Vault, lockRound: UInt64)
+    }
+
+    pub resource MiningReward: MiningRewardPublic {
+
+        // round => reward
+        pub var rewardsLocked: {UInt64: UFix64}
+
+        // Define reward lock vault
+        access(contract) let reward: @BloctoToken.Vault
+
+        pub fun computeUnlocked(): UFix64 {
+            var amount: UFix64 = 0.0
+            for round in self.rewardsLocked.keys {
+                if round < BloctoTokenMining.currentRound {
+                    amount = amount + self.rewardsLocked[round]!
+                }
+            }
+            return amount
+        }
+
+        access(contract) fun deposit(reward: @BloctoToken.Vault, lockRound: UInt64) {
+            self.rewardsLocked[lockRound] = (self.rewardsLocked[lockRound] ?? 0.0) + reward.balance
+            self.reward.deposit(from: <- reward)
+        }
+
+        pub fun withdraw(): @BloctoToken.Vault {
+            var amount: UFix64 = 0.0
+            for round in self.rewardsLocked.keys {
+                if round < BloctoTokenMining.currentRound {
+                    amount = amount + self.rewardsLocked.remove(key: round)!
+                }
+            }
+            emit RewardWithdrawn(amount: amount, from: self.owner?.address)
+            return <- (self.reward.withdraw(amount: amount) as! @BloctoToken.Vault)
+        }
+
+        init() {
+            self.rewardsLocked = {}
+            self.reward <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
+        }
+
+        destroy() {
+            destroy self.reward
+        }
+    }
+
+    pub fun createEmptyMiningReward(): @MiningReward {
+        return <- create MiningReward()
     }
 
     // Chceck if the address is VIP
@@ -294,12 +395,16 @@ pub contract BloctoTokenMining {
     }
 
     init() {
+        self.MiningRewardStoragePath = /storage/bloctoTokenMiningReward
+        self.MiningRewardPublicPath = /public/bloctoTokenMiningReward
         self.miningState = MiningState.initial
         self.currentRound = 0
         self.currentTotalReward = 0.0
         self.rewardCap = 625_000_000.0 / 4.0 / 52.0
         self.capMultiplier = 3
         self.criterias = {}
+        self.rewardLockPeriod = 4
+        self.rewardLockRatio = 0.5
         self.userRewardsCollected = {}
         self.userRewards = {}
         self.rewardsDistributed = {}

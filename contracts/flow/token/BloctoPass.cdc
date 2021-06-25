@@ -180,7 +180,6 @@ pub contract BloctoPass: NonFungibleToken {
     // access the public fields and methods for our BloctoPass Collection
     pub resource interface CollectionPublic {
         pub fun borrowBloctoPassPublic(id: UInt64): &BloctoPass.NFT{BloctoPass.BloctoPassPublic, FungibleToken.Receiver, NonFungibleToken.INFT}
-        pub fun depositBloctoToken(from: @FungibleToken.Vault, id: UInt64)
     }
 
     pub resource interface CollectionPrivate {
@@ -255,12 +254,6 @@ pub contract BloctoPass: NonFungibleToken {
             let bloctoPassRef = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
 
             return bloctoPassRef as! &BloctoPass.NFT
-        }
-
-        // depositBloctoToken deposits BloctoToken to a vault of BloctoPass.NFT
-        pub fun depositBloctoToken(from: @FungibleToken.Vault, id: UInt64) {
-            let bloctoPassRef = self.borrowBloctoPassPublic(id: id)
-            bloctoPassRef.deposit(from: <- from)
         }
 
         destroy() {
