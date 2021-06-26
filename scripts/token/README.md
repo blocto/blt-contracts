@@ -3,13 +3,40 @@
 ```
 flow scripts execute ./scripts/token/getBloctoTokenBalance.cdc \
   --network testnet \
-  --arg Address:0x03d1e02a48354e2b
+  --arg Address:0x457df669b4f4d1a4
 ```
 
-### Get Blocto Token Balance in Blocto Pass
+### Get Idle Blocto Token Balance in BloctoPass
 ```
 flow scripts execute ./scripts/token/getBloctoPassVaultBalance.cdc \
   --network testnet \
-  --arg Address:0x03d1e02a48354e2b
+  --arg Address:0x457df669b4f4d1a4
 ```
 
+### Get Total Blocto Token Balance in BloctoPass
+```
+flow scripts execute ./scripts/token/getBloctoPassTotalBalance.cdc \
+  --network testnet \
+  --arg Address:0x457df669b4f4d1a4
+```
+
+### Get Blocto Token Lockup Schedule in BloctoPass
+```
+flow scripts execute ./scripts/token/getBloctoPassLockupSchedule.cdc \
+  --network testnet \
+  --arg Address:0x457df669b4f4d1a4
+```
+
+### Get Blocto Token Lockup Amount in BloctoPass
+```
+flow scripts execute ./scripts/token/getBloctoPassLockupAmount.cdc \
+  --network testnet \
+  --arg Address:0x457df669b4f4d1a4
+```
+
+### Get Metadata from BloctoPass
+```
+flow scripts execute ./scripts/token/getBloctoPassMetadata.cdc \
+  --network testnet \
+  --arg Address:0x457df669b4f4d1a4
+```
