@@ -5,8 +5,8 @@
     "build": "hardhat compile",
     "test": "hardhat test",
     "emulator": "hardhat node",
-    "depoly-local": "hardhat run --network localhost scripts/deploy.ts",
-    "depoly-rinkeby": "hardhat run --network rinkeby scripts/deploy.ts"
+    "deploy-local": "hardhat run --network localhost scripts/deploy.ts",
+    "deploy-rinkeby": "hardhat run --network rinkeby scripts/deploy.ts"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",

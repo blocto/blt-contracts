@@ -12,7 +12,7 @@ npm run test
 
 ```sh
 npm run emulator
-npm run depoly-local
+npm run deploy-local
 ```
 
 ### Rinkeby
@@ -35,7 +35,7 @@ networks: {
 2. run command
 
 ```sh
-npm run depoly-rinkeby
+npm run deploy-rinkeby
 ```
 
 ## Verify
@@ -53,7 +53,7 @@ etherscan: {
 2. verify token
 
 ```js
-npx hardhat verify --network rinkeby TOKEN_ADDRESS "BloctoToken" "BLT"
+npx hardhat verify --network rinkeby TOKEN_ADDRESS "BloctoToken" "BLT" 8
 ```
 
 3. verify teleportCustody

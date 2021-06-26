@@ -12,11 +12,15 @@ describe("Token", function () {
   beforeEach(async function () {
     accounts = await ethers.getSigners();
     const Token = await ethers.getContractFactory("Token");
-    token = await Token.deploy("token", "BLT");
+    token = await Token.deploy("token", "BLT", 8);
   });
 
   it("init supply should be 0", async function () {
     expect(await token.totalSupply()).to.equal(0);
+  });
+
+  it("token decimals", async function () {
+    expect(await token.decimals()).to.equal(8);
   });
 
   it("mint by owner", async function () {
