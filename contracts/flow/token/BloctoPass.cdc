@@ -22,6 +22,7 @@ pub contract BloctoPass: NonFungibleToken {
         pub fun unstakeAll()
         pub fun withdrawUnstakedTokens(amount: UFix64)
         pub fun withdrawRewardedTokens(amount: UFix64)
+        pub fun withdrawAllUnlockedTokens(): @FungibleToken.Vault
     }
 
     pub resource interface BloctoPassPublic {
@@ -29,6 +30,7 @@ pub contract BloctoPass: NonFungibleToken {
         pub fun getStakingInfo(): BloctoTokenStaking.StakerInfo
         pub fun getLockupSchedule(): {UFix64: UFix64}
         pub fun getLockupAmountAtTimestamp(timestamp: UFix64): UFix64
+        pub fun getLockupAmount(): UFix64
         pub fun getIdleBalance(): UFix64
         pub fun getTotalBalance(): UFix64
         pub fun getMetadata(): {String: String}
@@ -58,6 +60,8 @@ pub contract BloctoPass: NonFungibleToken {
         pub var history: {String: String}
 
         // Defines how much BloctoToken must remain in the BloctoPass on different dates
+        // key: timestamp
+        // value: amount of BLT that must remain in the BloctoPass at this timestamp
         pub let lockupSchedule: {UFix64: UFix64}
 
         init(
@@ -76,8 +80,7 @@ pub contract BloctoPass: NonFungibleToken {
 
         pub fun withdraw(amount: UFix64): @FungibleToken.Vault {
             post {
-                self.getTotalBalance() >= self.getLockupAmountAtTimestamp(timestamp: getCurrentBlock().timestamp):
-                    "Cannot withdraw locked-up BLTs"
+                self.getTotalBalance() >= self.getLockupAmount(): "Cannot withdraw locked-up BLTs"
             }
 
             return <- self.vault.withdraw(amount: amount)
@@ -98,9 +101,11 @@ pub contract BloctoPass: NonFungibleToken {
         pub fun getVipTier(): UInt64 {
             let stakedAmount = self.getStakingInfo().tokensStaked
             
-            if stakedAmount >= 1000.0 {
-                return 1
-            }
+            // Disable VIP tier at launch
+
+            // if stakedAmount >= 1000.0 {
+            //     return 1
+            // }
             
             // TODO: add more tiers
             
@@ -117,18 +122,21 @@ pub contract BloctoPass: NonFungibleToken {
 
         pub fun getLockupAmountAtTimestamp(timestamp: UFix64): UFix64 {
             let keys = self.lockupSchedule.keys
-            let currentTimestamp = getCurrentBlock().timestamp
             var closestTimestamp = 0.0
             var lockupAmount = 0.0
 
             for key in keys {
-                if currentTimestamp >= key && key > closestTimestamp {
+                if timestamp >= key && key >= closestTimestamp {
                     lockupAmount = self.lockupSchedule[key]!
                     closestTimestamp = key
                 }
             }
 
             return lockupAmount
+        }
+
+        pub fun getLockupAmount(): UFix64 {
+            return self.getLockupAmountAtTimestamp(timestamp: getCurrentBlock().timestamp)
         }
 
         pub fun getIdleBalance(): UFix64 {
@@ -170,6 +178,12 @@ pub contract BloctoPass: NonFungibleToken {
             self.vault.deposit(from: <- vault)
         }
 
+        pub fun withdrawAllUnlockedTokens(): @FungibleToken.Vault {
+            let unlockedAmount = self.getTotalBalance() - self.getLockupAmount()
+            let withdrawAmount = unlockedAmount < self.getIdleBalance() ? unlockedAmount : self.getIdleBalance()
+            return <- self.vault.withdraw(amount: withdrawAmount)
+        }
+
         destroy() {
             destroy self.vault
             destroy self.staker
@@ -190,7 +204,8 @@ pub contract BloctoPass: NonFungibleToken {
         NonFungibleToken.Provider,
         NonFungibleToken.Receiver,
         NonFungibleToken.CollectionPublic,
-        CollectionPublic
+        CollectionPublic,
+        CollectionPrivate
     {
         // dictionary of NFT conforming tokens
         // NFT is a resource type with an `UInt64` ID field

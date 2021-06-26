@@ -29,7 +29,27 @@ flow transactions send ./transactions/token/setupBloctoPassCollection.cdc \
 ```
 flow transactions send ./transactions/token/mintBloctoPass.cdc \
   --network testnet \
-  --signer blt-admin-testnet \
+  --arg Address:0x457df669b4f4d1a4 \
+  --signer blt-mining-testnet \
+  --gas-limit 1000
+```
+
+### Mint BloctoPass NFT with Lockup BLT
+```
+flow transactions send ./transactions/token/mintBloctoPassWithLockupBLT.cdc \
+  --network testnet \
+  --arg Address:0x457df669b4f4d1a4 \
+  --arg UFix64:500.0 \
+  --arg UFix64:1624699800.0 \
+  --signer blt-mining-testnet \
+  --gas-limit 1000
+```
+
+### Withdraw All Unlocked Tokens from BloctoPass
+```
+flow transactions send ./transactions/token/withdrawAllFromBloctoPass.cdc \
+  --network testnet \
+  --signer blt-user-testnet \
   --gas-limit 1000
 ```
 

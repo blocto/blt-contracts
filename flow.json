@@ -82,6 +82,21 @@
       ],
       "chain": "flow-testnet"
     },
+    "blt-mining-testnet": {
+      "address": "4e57c4f07871af8d",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 0,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "40c790cc76e75c397a6f972b6018222698ae3ae32cf44c27b5c8814bf3528c21"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
+    },
     "blt-teleport-testnet": {
       "address": "967a0fb3c949cbc5",
       "keys": "4d90e59b86fb7cede90f764eb3593b56fe4fe02205e315828d5d62e117dba575",
@@ -118,7 +133,7 @@
       "chain": "flow-testnet"
     },
     "blt-user-testnet": {
-      "address": "03d1e02a48354e2b",
+      "address": "457df669b4f4d1a4",
       "keys": [
         {
           "type": "hex",
@@ -126,7 +141,7 @@
           "signatureAlgorithm": "ECDSA_secp256k1",
           "hashAlgorithm": "SHA3_256",
           "context": {
-            "privateKey": "838a1a9db78377b0a9bf4de6069752a739398667cb468bfb2e1eea4358438aed"
+            "privateKey": "595ba8e69cfbbf1656606da55bd54efa4dda01a6cb49f35e3aa6ae21fc630ec5"
           }
         }
       ],
@@ -147,10 +162,12 @@
     },
     "testnet": {
       "blt-admin-testnet": [
+        "BloctoToken"
+      ],
+      "blt-mining-testnet": [
         "BloctoPass",
-        "BloctoToken",
-        "BloctoTokenMining",
-        "BloctoTokenStaking"
+        "BloctoTokenStaking",
+        "BloctoTokenMining"
       ],
       "blt-swap-testnet": [
         "BltUsdtSwapPair"
