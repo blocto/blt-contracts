@@ -20,7 +20,7 @@ transaction(address: Address, amount: UFix64, unlockTime: UFix64) {
         let bltVault <- bltVaultRef.withdraw(amount: amount)
 
         let metadata: {String: String} = {
-            "Origin": "Private Sale"
+            "origin": "Private Sale"
         }
 
         let lockupSchedule: {UFix64: UFix64} = {

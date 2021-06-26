@@ -127,12 +127,31 @@ pub contract BloctoTokenSale {
             let bltVault <- BloctoTokenSale.bltVault.withdraw(amount: bltAmount)
 
             let metadata = {
-                "type": "Blocto Community Sale"
+                "origin": "Community Sale"
             }
 
-            // TODO: Setup proper lockup schedule
+            let months = 30.0 * 24.0 * 60.0 * 60.0 // seconds
             let lockupSchedule = {
-                0.0: 0.0
+                0.0                                      : bltAmount,
+                BloctoTokenSale.saleDate                 : bltAmount,
+                BloctoTokenSale.saleDate + 6.0 * months  : bltAmount * 17.0 / 18.0,
+                BloctoTokenSale.saleDate + 7.0 * months  : bltAmount * 16.0 / 18.0,
+                BloctoTokenSale.saleDate + 8.0 * months  : bltAmount * 15.0 / 18.0,
+                BloctoTokenSale.saleDate + 9.0 * months  : bltAmount * 14.0 / 18.0,
+                BloctoTokenSale.saleDate + 10.0 * months : bltAmount * 13.0 / 18.0,
+                BloctoTokenSale.saleDate + 11.0 * months : bltAmount * 12.0 / 18.0,
+                BloctoTokenSale.saleDate + 12.0 * months : bltAmount * 11.0 / 18.0,
+                BloctoTokenSale.saleDate + 13.0 * months : bltAmount * 10.0 / 18.0,
+                BloctoTokenSale.saleDate + 14.0 * months : bltAmount * 9.0 / 18.0,
+                BloctoTokenSale.saleDate + 15.0 * months : bltAmount * 8.0 / 18.0,
+                BloctoTokenSale.saleDate + 16.0 * months : bltAmount * 7.0 / 18.0,
+                BloctoTokenSale.saleDate + 17.0 * months : bltAmount * 6.0 / 18.0,
+                BloctoTokenSale.saleDate + 18.0 * months : bltAmount * 5.0 / 18.0,
+                BloctoTokenSale.saleDate + 19.0 * months : bltAmount * 4.0 / 18.0,
+                BloctoTokenSale.saleDate + 20.0 * months : bltAmount * 3.0 / 18.0,
+                BloctoTokenSale.saleDate + 21.0 * months : bltAmount * 2.0 / 18.0,
+                BloctoTokenSale.saleDate + 22.0 * months : bltAmount * 1.0 / 18.0,
+                BloctoTokenSale.saleDate + 23.0 * months : 0.0
             }
 
             minterRef.mintNFTWithLockup(

@@ -162,7 +162,8 @@
     },
     "testnet": {
       "blt-admin-testnet": [
-        "BloctoToken"
+        "BloctoToken",
+        "BloctoTokenSale"
       ],
       "blt-mining-testnet": [
         "BloctoPass",
