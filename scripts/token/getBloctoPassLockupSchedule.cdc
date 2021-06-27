@@ -7,7 +7,7 @@ pub fun main(address: Address): {UFix64: UFix64} {
         ?? panic("Could not borrow collection public reference")
 
     let ids = collectionRef.getIDs()
-    let bloctoPass = collectionRef.borrowBloctoPassPublic(id: ids[ids.length - 1])
+    let bloctoPass = collectionRef.borrowBloctoPassPublic(id: ids[0])
 
     return bloctoPass.getLockupSchedule()
 }
