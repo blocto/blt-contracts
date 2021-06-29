@@ -17,10 +17,19 @@ flow transactions send ./transactions/staking/stakeNewTokensFromBloctoPass.cdc \
   --gas-limit 1000
 ```
 
+### Set Epoch Token Payout
+```
+flow transactions send ./transactions/staking/setEpochTokenPayout.cdc \
+  --network testnet \
+  --arg UFix64:1000.0 \
+  --signer blt-mining-testnet \
+  --gas-limit 1000
+```
+
 ### Switch Epoch
 ```
 flow transactions send ./transactions/staking/switchEpoch.cdc \
   --network testnet \
-  --signer blt-admin-testnet \
+  --signer blt-mining-testnet \
   --gas-limit 1000
 ```

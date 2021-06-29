@@ -496,6 +496,11 @@ pub contract BloctoTokenStaking {
         return BloctoTokenStaking.stakers.keys
     }
 
+    /// Gets the token payout value for the current epoch
+    pub fun getEpochTokenPayout(): UFix64 {
+        return self.epochTokenPayout
+    }
+
     /// Gets the total number of FLOW that is currently staked
     /// by all of the staked nodes in the current epoch
     pub fun getTotalStaked(): UFix64 {
