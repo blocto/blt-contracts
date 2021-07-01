@@ -132,11 +132,11 @@ pub contract BltUsdtSwapPair: FungibleToken {
     }
 
     pub fun depositToken1(from: @BloctoToken.Vault) {
-      self.token1.deposit(from: <- (from as! @FungibleToken.Vault))
+      self.token1.deposit(from: <- from)
     }
 
     pub fun depositToken2(from: @TeleportedTetherToken.Vault) {
-      self.token2.deposit(from: <- (from as! @FungibleToken.Vault))
+      self.token2.deposit(from: <- from)
     }
 
     pub fun withdrawToken1(): @BloctoToken.Vault {

@@ -21,5 +21,6 @@ transaction {
         self.adminRef.endStakingAuction()
         self.adminRef.payRewards()
         self.adminRef.moveTokens()
+        self.adminRef.startStakingAuction()
     }
 }
