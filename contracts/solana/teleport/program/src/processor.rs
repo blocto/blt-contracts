@@ -253,7 +253,6 @@ impl Processor {
         let wallet_info = next_account_info(account_info_iter)?;
         let wallet_pda_info = next_account_info(account_info_iter)?;
         let wallet_signer_info = next_account_info(account_info_iter)?;
-        let fee_payer_info = next_account_info(account_info_iter)?;
         let wallet_program_info = next_account_info(account_info_iter)?;
         let from_info = next_account_info(account_info_iter)?;
         let mint_info = next_account_info(account_info_iter)?;
@@ -290,11 +289,11 @@ impl Processor {
 
         let mut data = vec![
             3, // u8, wallet program invoke instruction
-            3, // u8, invoke program idx
+            2, // u8, invoke program idx
             3, 0, // u16, total account, little endian
-            5, 1, // u8, u8, account idx, not signer writable
-            6, 1, // ..
-            7, 2,  // readonly singer
+            4, 1, // u8, u8, account idx, not signer writable
+            5, 1, // ..
+            6, 2,  // readonly singer
             15, // u8, mint instruction in token program
         ];
         data.extend(amount.to_le_bytes().iter().cloned());
@@ -307,7 +306,6 @@ impl Processor {
                 vec![
                     AccountMeta::new(*wallet_info.key, false),
                     AccountMeta::new_readonly(*wallet_pda_info.key, false),
-                    AccountMeta::new_readonly(*fee_payer_info.key, false),
                     AccountMeta::new_readonly(*spl_token_program_info.key, false),
                     AccountMeta::new_readonly(*wallet_signer_info.key, true),
                     AccountMeta::new(*from_info.key, false),
@@ -318,7 +316,6 @@ impl Processor {
             &[
                 wallet_info.clone(),
                 wallet_pda_info.clone(),
-                fee_payer_info.clone(),
                 spl_token_program_info.clone(),
                 wallet_signer_info.clone(),
                 wallet_program_info.clone(),
