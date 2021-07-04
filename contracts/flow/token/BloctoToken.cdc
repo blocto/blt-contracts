@@ -177,7 +177,10 @@ pub contract BloctoToken: FungibleToken {
 
     init() {
         // Total supply of BLT is 500M
-        self.totalSupply = 500_000_000.0
+        // 70% is created at genesis but locked up
+        // 30% will minted from staking and mining
+        self.totalSupply = 350_000_000.0
+
         self.TokenStoragePath = /storage/bloctoTokenVault
         self.TokenPublicReceiverPath = /public/bloctoTokenReceiver
         self.TokenPublicBalancePath = /public/bloctoTokenBalance
