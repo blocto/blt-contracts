@@ -99,10 +99,9 @@ pub contract BloctoPass: NonFungibleToken {
         }
 
         pub fun getVipTier(): UInt64 {
-            let stakedAmount = self.getStakingInfo().tokensStaked
-            
             // Disable VIP tier at launch
 
+            // let stakedAmount = self.getStakingInfo().tokensStaked
             // if stakedAmount >= 1000.0 {
             //     return 1
             // }
