@@ -7,7 +7,7 @@ transaction() {
             .borrow<&BloctoTokenMining.Administrator>(from: /storage/bloctoTokenMiningAdmin)
             ?? panic("Signer is not the admin")
 
-        let tx = BloctoTokenMining.Criteria(reward: 1.0, divisor: 1.0, capTimes: 5)
+        let tx = BloctoTokenMining.Criteria(reward: 1.0, divisor: 2.0, capTimes: 5)
         let referral = BloctoTokenMining.Criteria(reward: 5.0, divisor: 1.0, capTimes: 6)
         let assetInCirculation = BloctoTokenMining.Criteria(reward: 1.0, divisor: 100.0, capTimes: 10)
 

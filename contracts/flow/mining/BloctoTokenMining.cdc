@@ -400,7 +400,7 @@ pub contract BloctoTokenMining {
         self.miningState = MiningState.initial
         self.currentRound = 0
         self.currentTotalReward = 0.0
-        self.rewardCap = 625_000_000.0 / 4.0 / 52.0
+        self.rewardCap = 62_500_000.0 / 4.0 / 52.0
         self.capMultiplier = 3
         self.criterias = {}
         self.rewardLockPeriod = 4
