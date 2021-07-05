@@ -128,7 +128,7 @@ pub contract BloctoTokenSale {
             )
 
             let purchaseInfo = BloctoTokenSale.purchases[address]
-                ?? panic("Count not get purchase info")
+                ?? panic("Count not get purchase info for the address")
         
             let minterRef = BloctoTokenSale.account.borrow<&BloctoPass.NFTMinter>(from: /storage/bloctoPassMinter)
                 ?? panic("Could not borrow reference to the BloctoPass minter!")
@@ -189,9 +189,9 @@ pub contract BloctoTokenSale {
                 ?? panic("Could not borrow tUSDT vault receiver public reference")
 
             let purchaseInfo = BloctoTokenSale.purchases[address]
-                ?? panic("Count not get purchase info")
+                ?? panic("Count not get purchase info for the address")
 
-            let tusdtVault <- BloctoTokenSale.bltVault.withdraw(amount: purchaseInfo.amount)
+            let tusdtVault <- BloctoTokenSale.tusdtVault.withdraw(amount: purchaseInfo.amount)
 
             receiverRef.deposit(from: <- tusdtVault)
 

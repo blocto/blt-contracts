@@ -47,7 +47,7 @@ flow transactions send ./transactions/token/mintBloctoPassWithLockupBLT.cdc \
 
 ### Create Public Minter
 ```
-flow transactions send ./transactions/token/setupBloctoPassMinter.cdc \
+flow transactions send ./transactions/token/setupBloctoPassMinterPublic.cdc \
   --network testnet \
   --signer blt-mining-testnet \
   --gas-limit 1000

@@ -146,6 +146,21 @@
         }
       ],
       "chain": "flow-testnet"
+    },
+    "blt-user2-testnet": {
+      "address": "80db1142287cd376",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 0,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "f0cfa244910ff9522510f1c63369c02e49e6722096f491096a2dd524557deba6"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
     }
   },
   "deployments": {
@@ -162,11 +177,11 @@
     },
     "testnet": {
       "blt-admin-testnet": [
-        "BloctoToken",
-        "BloctoTokenSale"
+        "BloctoToken"
       ],
       "blt-mining-testnet": [
         "BloctoPass",
+        "BloctoTokenSale",
         "BloctoTokenStaking",
         "BloctoTokenMining"
       ],

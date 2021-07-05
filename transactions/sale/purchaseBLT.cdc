@@ -1,5 +1,6 @@
-import FungibleToken from "../../contracts/flow/token/FungibleToken.cdc"
+import NonFungibleToken from "../../contracts/flow/token/NonFungibleToken.cdc"
 import TeleportedTetherToken from "../../contracts/flow/token/TeleportedTetherToken.cdc"
+import BloctoPass from "../../contracts/flow/token/BloctoPass.cdc"
 import BloctoTokenSale from "../../contracts/flow/sale/BloctoTokenSale.cdc"
 
 transaction(amount: UFix64) {
@@ -21,6 +22,18 @@ transaction(amount: UFix64) {
 
         // Record the buyer address
         self.buyerAddress = account.address
+
+        // If user does not have BloctoPass collection yet, create one to receive
+        if account.borrow<&BloctoPass.Collection>(from: /storage/bloctoPassCollection) == nil {
+
+            let collection <- BloctoPass.createEmptyCollection() as! @BloctoPass.Collection
+
+            account.save(<-collection, to: /storage/bloctoPassCollection)
+
+            account.link<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>(
+                /public/bloctoPassCollection,
+                target: /storage/bloctoPassCollection)
+        }
     }
 
     execute {

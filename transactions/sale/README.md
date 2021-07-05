@@ -13,6 +13,24 @@ flow transactions send ./transactions/sale/purchaseBLT.cdc \
 flow transactions send ./transactions/sale/depositBLT.cdc \
   --network testnet \
   --arg UFix64:50000.0 \
-  --signer blt-admin-testnet \
+  --signer blt-mining-testnet \
+  --gas-limit 1000
+```
+
+### Distribute BLT to Purchaser
+```
+flow transactions send ./transactions/sale/distribute.cdc \
+  --network testnet \
+  --arg Address:0x457df669b4f4d1a4 \
+  --signer blt-mining-testnet \
+  --gas-limit 1000
+```
+
+### Refund tUSDT to Purchaser
+```
+flow transactions send ./transactions/sale/refund.cdc \
+  --network testnet \
+  --arg Address:0x457df669b4f4d1a4 \
+  --signer blt-mining-testnet \
   --gas-limit 1000
 ```
