@@ -72,9 +72,11 @@ pub contract BloctoTokenSale {
 
     // BLT purchase method
     // User pays tUSDT and get a BloctoPass NFT with lockup terms
+    // Note that "address" can potentially be faked, but there's no incentive doing so
     pub fun purchase(from: @TeleportedTetherToken.Vault, address: Address) {
         pre {
-            self.purchases[address] != nil: "Already purchased by the same account"
+            self.purchases[address] == nil: "Already purchased by the same account"
+            from.balance <= self.personalCap: "Purchase amount exceeds personal cap"
         }
 
         let amount = from.balance
@@ -98,6 +100,14 @@ pub contract BloctoTokenSale {
     // Get purchase record from an address
     pub fun getPurchase(address: Address): PurchaseInfo? {
         return self.purchases[address]
+    }
+
+    pub fun getBltVaultBalance(): UFix64 {
+        return self.bltVault.balance
+    }
+
+    pub fun getTusdtVaultBalance(): UFix64 {
+        return self.tusdtVault.balance
     }
 
     pub resource Admin {
@@ -218,6 +228,10 @@ pub contract BloctoTokenSale {
 
         pub fun depositBlt(from: @FungibleToken.Vault) {
             BloctoTokenSale.bltVault.deposit(from: <- from)
+        }
+
+        pub fun depositTusdt(from: @FungibleToken.Vault) {
+            BloctoTokenSale.tusdtVault.deposit(from: <- from)
         }
     }
 
