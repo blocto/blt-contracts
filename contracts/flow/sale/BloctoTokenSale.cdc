@@ -65,7 +65,7 @@ pub contract BloctoTokenSale {
         ) {
             self.address = address
             self.amount = amount
-            self.queuePosition = unsafeRandom()
+            self.queuePosition = unsafeRandom() % 1_000_000
             self.state = PurchaseState.initial
         }
     }
