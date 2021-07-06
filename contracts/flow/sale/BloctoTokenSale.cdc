@@ -79,6 +79,16 @@ pub contract BloctoTokenSale {
             from.balance <= self.personalCap: "Purchase amount exceeds personal cap"
         }
 
+        let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+            .borrow<&{NonFungibleToken.CollectionPublic}>()
+            ?? panic("Could not borrow blocto pass collection public reference")
+
+        // Make sure user does not already have a BloctoPass
+        assert (
+            collectionRef.getIDs().length == 0,
+            message: "User already has a BloctoPass"
+        )
+
         let amount = from.balance
         self.tusdtVault.deposit(from: <- from)
 
