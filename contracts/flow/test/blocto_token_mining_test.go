@@ -138,7 +138,7 @@ func TestBPMiningDeployment(t *testing.T) {
 	t.Run("Should have initialized reward cap correctly", func(t *testing.T) {
 		rewardCap := executeScriptAndCheck(t, b,
 			btMiningGetPropertyScript(bpMiningGetRewardCapPath, btMiningInfo.BPMiningAddr), nil)
-		expected, err := cadence.NewUFix64("3004807.69230769")
+		expected, err := cadence.NewUFix64("300480.76923076")
 		assert.NoError(t, err)
 		assert.Equal(t, expected, rewardCap.(cadence.UFix64))
 	})
@@ -528,7 +528,7 @@ func TestBPMiningOneRound(t *testing.T) {
 		expected := make(map[interface{}]interface{})
 		expected["tx"] = []interface{}{
 			uint64(100000000),
-			uint64(100000000),
+			uint64(200000000),
 			uint64(5),
 		}
 		expected["referral"] = []interface{}{
@@ -586,7 +586,7 @@ func TestBPMiningOneRound(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user1Addr))
-		_ = tx.AddArgument(CadenceUFix64("1.0"))
+		_ = tx.AddArgument(CadenceUFix64("2.0"))
 		_ = tx.AddArgument(CadenceUFix64("2.0"))
 		_ = tx.AddArgument(CadenceUFix64("300.0"))
 
@@ -626,7 +626,7 @@ func TestBPMiningOneRound(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user1Addr))
-		_ = tx.AddArgument(CadenceUFix64("2.0"))
+		_ = tx.AddArgument(CadenceUFix64("4.0"))
 		_ = tx.AddArgument(CadenceUFix64("3.0"))
 		_ = tx.AddArgument(CadenceUFix64("500.0"))
 
@@ -666,7 +666,7 @@ func TestBPMiningOneRound(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user2Addr))
-		_ = tx.AddArgument(CadenceUFix64("2.0"))
+		_ = tx.AddArgument(CadenceUFix64("4.0"))
 		_ = tx.AddArgument(CadenceUFix64("15.0"))
 		_ = tx.AddArgument(CadenceUFix64("50.0"))
 
@@ -905,7 +905,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 		expected := make(map[interface{}]interface{})
 		expected["tx"] = []interface{}{
 			uint64(100000000),
-			uint64(100000000),
+			uint64(200000000),
 			uint64(5),
 		}
 		expected["referral"] = []interface{}{
@@ -987,7 +987,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user1Addr))
-		_ = tx.AddArgument(CadenceUFix64("2.0"))
+		_ = tx.AddArgument(CadenceUFix64("4.0"))
 		_ = tx.AddArgument(CadenceUFix64("3.0"))
 		_ = tx.AddArgument(CadenceUFix64("500.0"))
 
@@ -1027,7 +1027,7 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 			AddAuthorizer(btMiningInfo.BPMiningAddr)
 
 		_ = tx.AddArgument(cadence.NewAddress(user2Addr))
-		_ = tx.AddArgument(CadenceUFix64("2.0"))
+		_ = tx.AddArgument(CadenceUFix64("5.0"))
 		_ = tx.AddArgument(CadenceUFix64("15.0"))
 		_ = tx.AddArgument(CadenceUFix64("50.0"))
 
