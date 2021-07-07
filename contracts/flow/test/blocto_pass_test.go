@@ -6,10 +6,10 @@ import (
 
 	"github.com/onflow/cadence"
 	emulator "github.com/onflow/flow-emulator"
-	"github.com/onflow/flow-go-sdk"
+	flow "github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/onflow/flow-go-sdk/templates"
-	"github.com/onflow/flow-go-sdk/test"
+	flowgo "github.com/onflow/flow-go/model/flow"
 	"github.com/stretchr/testify/assert"
 
 	nft_contracts "github.com/onflow/flow-nft/lib/go/contracts"
@@ -33,8 +33,6 @@ type TestBloctoPassContractsInfo struct {
 }
 
 func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPassContractsInfo {
-	accountKeys := test.AccountKeyGenerator()
-
 	// Should be able to deploy a contract as a new account with no keys.
 	nftCode := loadNonFungibleToken()
 	nftAddr, err := b.CreateAccount(
@@ -53,16 +51,28 @@ func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPa
 
 	btStakingInfo := BloctoTokenStakingDeployContract(b, t)
 
-	bloctoPassAccountKey, bloctoPassSigner := accountKeys.NewWithSigner()
 	bloctoPassCode := loadBloctoPass(btStakingInfo, nftAddr)
 
-	bloctoPassAddr, err := b.CreateAccount(
-		[]*flow.AccountKey{bloctoPassAccountKey},
-		[]templates.Contract{{
+	latestBlock, err := b.GetLatestBlock()
+	btStakingAccount, err := b.GetAccount(btStakingInfo.BTStakingAddr)
+
+	tx := templates.AddAccountContract(
+		btStakingInfo.BTStakingAddr,
+		templates.Contract{
 			Name:   "BloctoPass",
 			Source: string(bloctoPassCode),
-		}},
+		},
 	)
+
+	tx.SetGasLimit(flowgo.DefaultMaxTransactionGasLimit).
+		SetReferenceBlockID(flow.Identifier(latestBlock.ID())).
+		SetProposalKey(btStakingInfo.BTStakingAddr, btStakingAccount.Keys[0].Index, btStakingAccount.Keys[0].SequenceNumber).
+		SetPayer(btStakingInfo.BTStakingAddr)
+
+	err = tx.SignEnvelope(btStakingInfo.BTStakingAddr, btStakingAccount.Keys[0].Index, btStakingInfo.BTStakingSigner)
+	assert.NoError(t, err)
+
+	err = b.AddTransaction(*tx)
 	assert.NoError(t, err)
 
 	_, err = b.CommitBlock()
@@ -75,8 +85,8 @@ func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPa
 		BTSigner:        btStakingInfo.BTSigner,
 		BTStakingAddr:   btStakingInfo.BTStakingAddr,
 		BTStakingSigner: btStakingInfo.BTStakingSigner,
-		BPAddr:          bloctoPassAddr,
-		BPSigner:        bloctoPassSigner,
+		BPAddr:          btStakingInfo.BTStakingAddr,
+		BPSigner:        btStakingInfo.BTStakingSigner,
 	}
 }
 
