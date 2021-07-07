@@ -13,7 +13,7 @@ transaction(amount: UFix64) {
     prepare(account: AuthAccount) {
 
         // Get admin reference
-        self.adminRef = account.borrow<&BloctoTokenSale.Admin>(from: /storage/bloctoTokenSaleAdmin)
+        self.adminRef = account.borrow<&BloctoTokenSale.Admin>(from: BloctoTokenSale.SaleAdminStoragePath)
 			?? panic("Could not borrow reference to the admin!")
 
         // Get a reference to the signer's stored vault

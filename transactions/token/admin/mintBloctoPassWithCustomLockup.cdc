@@ -25,7 +25,11 @@ transaction(address: Address, amount: UFix64, unlockTime: UFix64) {
 
         let lockupSchedule: {UFix64: UFix64} = {
             0.0                : 1.0,
-            unlockTime - 300.0 : 0.5,
+            unlockTime - 300.0 : 1.0,
+            unlockTime - 240.0 : 0.8,
+            unlockTime - 180.0 : 0.6,
+            unlockTime - 120.0 : 0.4,
+            unlockTime - 60.0  : 0.2,
             unlockTime         : 0.0
         }
 
