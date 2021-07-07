@@ -5,6 +5,7 @@ import FungibleToken from "./FungibleToken.cdc"
 import NonFungibleToken from "./NonFungibleToken.cdc"
 import BloctoToken from "./BloctoToken.cdc"
 import BloctoTokenStaking from "../staking/BloctoTokenStaking.cdc"
+import BloctoPassStamp from "./BloctoPassStamp.cdc"
 
 pub contract BloctoPass: NonFungibleToken {
 
@@ -26,12 +27,13 @@ pub contract BloctoPass: NonFungibleToken {
         pub fun withdrawUnstakedTokens(amount: UFix64)
         pub fun withdrawRewardedTokens(amount: UFix64)
         pub fun withdrawAllUnlockedTokens(): @FungibleToken.Vault
+        pub fun stampBloctoPass(from: @BloctoPassStamp.NFT)
     }
 
     pub resource interface BloctoPassPublic {
         pub fun getOriginalOwner(): Address?
         pub fun getMetadata(): {String: String}
-        pub fun getHistory(): {String: String}
+        pub fun getStamps(): [String]
         pub fun getVipTier(): UInt64
         pub fun getStakingInfo(): BloctoTokenStaking.StakerInfo
         pub fun getLockupSchedule(): {UFix64: UFix64}
@@ -64,8 +66,8 @@ pub contract BloctoPass: NonFungibleToken {
         // BloctoPass metadata
         access(self) var metadata: {String: String}
 
-        // BloctoPass usage history, including voting records and special events
-        access(self) var history: {String: String}
+        // BloctoPass usage stamps, including voting records and special events
+        access(self) var stamps: [String]
 
         // Defines how much BloctoToken must remain in the BloctoPass on different dates
         // key: timestamp
@@ -82,7 +84,7 @@ pub contract BloctoPass: NonFungibleToken {
             self.id = initID
             self.originalOwner = originalOwner
             self.metadata = metadata
-            self.history = {}
+            self.stamps = []
             self.vault <- vault as! @BloctoToken.Vault
             self.staker <- BloctoTokenStaking.addStakerRecord(id: initID)
             self.lockupSchedule = lockupSchedule
@@ -108,8 +110,8 @@ pub contract BloctoPass: NonFungibleToken {
             return self.metadata
         }
 
-        pub fun getHistory(): {String: String} {
-            return self.history
+        pub fun getStamps(): [String] {
+            return self.stamps
         }
 
         pub fun getVipTier(): UInt64 {
@@ -195,6 +197,11 @@ pub contract BloctoPass: NonFungibleToken {
             let unlockedAmount = self.getTotalBalance() - self.getLockupAmount()
             let withdrawAmount = unlockedAmount < self.getIdleBalance() ? unlockedAmount : self.getIdleBalance()
             return <- self.vault.withdraw(amount: withdrawAmount)
+        }
+
+        pub fun stampBloctoPass(from: @BloctoPassStamp.NFT) {
+            self.stamps.append(from.getMessage())
+            destroy from
         }
 
         destroy() {
