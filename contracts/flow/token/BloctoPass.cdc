@@ -13,6 +13,7 @@ pub contract BloctoPass: NonFungibleToken {
     pub let CollectionStoragePath: StoragePath
     pub let CollectionPublicPath: PublicPath
     pub let MinterStoragePath: StoragePath
+    pub let MinterPublicPath: PublicPath
 
     // pre-defined lockup schedules
     // key: timestamp
@@ -429,6 +430,7 @@ pub contract BloctoPass: NonFungibleToken {
         self.CollectionStoragePath = /storage/bloctoPassCollection
         self.CollectionPublicPath = /public/bloctoPassCollection
         self.MinterStoragePath = /storage/bloctoPassMinter
+        self.MinterPublicPath = /public/bloctoPassMinter
 
         // Create a Collection resource and save it to storage
         let collection <- create Collection()
