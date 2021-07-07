@@ -382,9 +382,9 @@ pub contract BloctoTokenStaking {
         }
     }
 
-    /// Any staker can call this function to register a new Node
+    /// A staker record is created when a BloctoPass NFT is created
     /// It returns the resource for stakers that they can store in their account storage
-    pub fun addStakerRecord(id: UInt64): @Staker {
+    access(account) fun addStakerRecord(id: UInt64): @Staker {
         pre {
             BloctoTokenStaking.stakingEnabled: "Cannot register a staker operator if the staking auction isn't in progress"
         }
