@@ -16,6 +16,23 @@ import BloctoPass from "../token/BloctoPass.cdc"
 import TeleportedTetherToken from "../token/TeleportedTetherToken.cdc"
 
 pub contract BloctoTokenSale {
+
+    /****** Sale Events ******/
+
+    pub event Purchased(address: Address, amount: UFix64)
+
+    pub event Distributed(address: Address, tusdtAmount: UFix64, bltAmount: UFix64)
+
+    pub event Refunded(address: Address, amount: UFix64)
+
+    /****** Sale Enums ******/
+
+    pub enum PurchaseState: UInt8 {
+        pub case initial
+        pub case distributed
+        pub case refunded
+    }
+
     // BLT token price (tUSDT per BLT)
     pub var price: UFix64
 
@@ -36,18 +53,6 @@ pub contract BloctoTokenSale {
 
     /// Paths for storing sale resources
     pub let SaleAdminStoragePath: StoragePath
-
-    pub event Purchased(address: Address, amount: UFix64)
-
-    pub event Distributed(address: Address, tusdtAmount: UFix64, bltAmount: UFix64)
-
-    pub event Refunded(address: Address, amount: UFix64)
-
-    pub enum PurchaseState: UInt8 {
-        pub case initial
-        pub case distributed
-        pub case refunded
-    }
 
     pub struct PurchaseInfo {
         // Purchaser address
