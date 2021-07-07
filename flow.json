@@ -82,6 +82,21 @@
       ],
       "chain": "flow-testnet"
     },
+    "blt-admin-new-testnet": {
+      "address": "6e0797ac987005f5",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 0,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "2a7dff7b7e222213088682580b980e72b25c5a045324ce19a1f59a49b1512014"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
+    },
     "blt-mining-testnet": {
       "address": "4e57c4f07871af8d",
       "keys": [
