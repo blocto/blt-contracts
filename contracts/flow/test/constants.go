@@ -6,4 +6,5 @@ const (
 	bloctoTokenStakingPath = projectRootPath + "/contracts/flow/staking/BloctoTokenStaking.cdc"
 	bloctoTokenPath        = projectRootPath + "/contracts/flow/token/BloctoToken.cdc"
 	bloctoPassPath         = projectRootPath + "/contracts/flow/token/BloctoPass.cdc"
+	bloctoPassStampPath    = projectRootPath + "/contracts/flow/token/BloctoPassStamp.cdc"
 )
