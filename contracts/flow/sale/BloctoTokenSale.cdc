@@ -49,16 +49,16 @@ pub contract BloctoTokenSale {
     /****** Sale Variables ******/
 
     // BLT token price (tUSDT per BLT)
-    pub var price: UFix64
+    access(contract) var price: UFix64
 
     // BLT IEO/IDO date, used for lockup terms
-    pub var saleDate: UFix64
+    access(contract) var saleDate: UFix64
 
     // BLT communitu sale purchase cap (in tUSDT)
-    pub var personalCap: UFix64
+    access(contract) var personalCap: UFix64
 
     // All purchase records
-    pub var purchases: {Address: PurchaseInfo}
+    access(contract) var purchases: {Address: PurchaseInfo}
 
     pub struct PurchaseInfo {
         // Purchaser address
@@ -134,6 +134,18 @@ pub contract BloctoTokenSale {
         return self.tusdtVault.balance
     }
 
+    pub fun getPrice(): UFix64 {
+        return self.price
+    }
+
+    pub fun getSaleDate(): UFix64 {
+        return self.saleDate
+    }
+
+    pub fun getPersonalCap(): UFix64 {
+        return self.personalCap
+    }
+
     pub resource Admin {
         pub fun distribute(address: Address) {
             pre {
@@ -188,16 +200,16 @@ pub contract BloctoTokenSale {
                 BloctoTokenSale.saleDate + 23.0 * months : 0.0
             }
 
+            // Set the state of the purchase to DISTRIBUTED
+            purchaseInfo.state = PurchaseState.distributed
+            BloctoTokenSale.purchases[address] = purchaseInfo
+
             minterRef.mintNFTWithLockup(
                 recipient: collectionRef,
                 metadata: metadata,
                 vault: <- bltVault,
                 lockupSchedule: lockupSchedule
             )
-
-            // Set the state of the purchase to DISTRIBUTED
-            purchaseInfo.state = PurchaseState.distributed
-            BloctoTokenSale.purchases[address] = purchaseInfo
 
             emit Distributed(address: address, tusdtAmount: purchaseInfo.amount, bltAmount: bltAmount)
         }
@@ -217,11 +229,11 @@ pub contract BloctoTokenSale {
 
             let tusdtVault <- BloctoTokenSale.tusdtVault.withdraw(amount: purchaseInfo.amount)
 
-            receiverRef.deposit(from: <- tusdtVault)
-
             // Set the state of the purchase to REFUNDED
             purchaseInfo.state = PurchaseState.refunded
             BloctoTokenSale.purchases[address] = purchaseInfo
+
+            receiverRef.deposit(from: <- tusdtVault)
 
             emit Refunded(address: address, amount: purchaseInfo.amount)
         }
