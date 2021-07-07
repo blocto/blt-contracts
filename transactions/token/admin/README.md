@@ -22,7 +22,7 @@ flow transactions send ./transactions/token/admin/mintBloctoPassWithCustomLockup
   --network testnet \
   --arg Address:0x95d4f57daf2fb5ce \
   --arg UFix64:500.0 \
-  --arg UFix64:1624699800.0 \
+  --arg UFix64:1625654520.0 \
   --signer blt-admin-testnet \
   --gas-limit 1000
 ```
