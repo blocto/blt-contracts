@@ -1,4 +1,4 @@
-import BloctoPass from "../../contracts/flow/token/BloctoPass.cdc"
+import BloctoPass from "../../../contracts/flow/token/BloctoPass.cdc"
 
 transaction {
     prepare(signer: AuthAccount) {

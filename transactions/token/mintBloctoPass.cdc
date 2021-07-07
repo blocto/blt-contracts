@@ -5,10 +5,10 @@ transaction(address: Address) {
 
     prepare(signer: AuthAccount) {
         let minter = signer
-            .borrow<&BloctoPass.NFTMinter>(from: /storage/bloctoPassMinter)
+            .borrow<&BloctoPass.NFTMinter>(from: BloctoPass.MinterStoragePath)
             ?? panic("Signer is not the admin")
 
-        let nftCollectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+        let nftCollectionRef = getAccount(address).getCapability(BloctoPass.CollectionPublicPath)
             .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not borrow blocto pass collection public reference")
 

@@ -177,28 +177,28 @@ pub contract BloctoTokenSale {
                 "origin": "Community Sale"
             }
 
-            let months = 30.0 * 24.0 * 60.0 * 60.0 // seconds
+            // Lockup schedule for community sale:
             // let lockupSchedule = {
-            //     0.0                                      : 1.0,
-            //     BloctoTokenSale.saleDate                 : 1.0,
-            //     BloctoTokenSale.saleDate + 6.0 * months  : 1.0 * 17.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 7.0 * months  : 1.0 * 16.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 8.0 * months  : 1.0 * 15.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 9.0 * months  : 1.0 * 14.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 10.0 * months : 1.0 * 13.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 11.0 * months : 1.0 * 12.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 12.0 * months : 1.0 * 11.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 13.0 * months : 1.0 * 10.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 14.0 * months : 1.0 * 9.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 15.0 * months : 1.0 * 8.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 16.0 * months : 1.0 * 7.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 17.0 * months : 1.0 * 6.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 18.0 * months : 1.0 * 5.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 19.0 * months : 1.0 * 4.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 20.0 * months : 1.0 * 3.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 21.0 * months : 1.0 * 2.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 22.0 * months : 1.0 * 1.0 / 18.0,
-            //     BloctoTokenSale.saleDate + 23.0 * months : 0.0
+            //     0.0                      : 1.0,
+            //     saleDate                 : 1.0,
+            //     saleDate + 6.0 * months  : 17.0 / 18.0,
+            //     saleDate + 7.0 * months  : 16.0 / 18.0,
+            //     saleDate + 8.0 * months  : 15.0 / 18.0,
+            //     saleDate + 9.0 * months  : 14.0 / 18.0,
+            //     saleDate + 10.0 * months : 13.0 / 18.0,
+            //     saleDate + 11.0 * months : 12.0 / 18.0,
+            //     saleDate + 12.0 * months : 11.0 / 18.0,
+            //     saleDate + 13.0 * months : 10.0 / 18.0,
+            //     saleDate + 14.0 * months : 9.0 / 18.0,
+            //     saleDate + 15.0 * months : 8.0 / 18.0,
+            //     saleDate + 16.0 * months : 7.0 / 18.0,
+            //     saleDate + 17.0 * months : 6.0 / 18.0,
+            //     saleDate + 18.0 * months : 5.0 / 18.0,
+            //     saleDate + 19.0 * months : 4.0 / 18.0,
+            //     saleDate + 20.0 * months : 3.0 / 18.0,
+            //     saleDate + 21.0 * months : 2.0 / 18.0,
+            //     saleDate + 22.0 * months : 1.0 / 18.0,
+            //     saleDate + 23.0 * months : 0.0
             // }
 
             // Set the state of the purchase to DISTRIBUTED

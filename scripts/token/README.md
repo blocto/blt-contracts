@@ -1,6 +1,13 @@
 # Token
 ### Get Blocto Token Balance
 ```
+flow scripts execute ./scripts/token/getPredefinedLockupSchedule.cdc \
+  --network testnet \
+  --arg Int:0
+```
+
+### Get Blocto Token Balance
+```
 flow scripts execute ./scripts/token/getBloctoTokenBalance.cdc \
   --network testnet \
   --arg Address:0x457df669b4f4d1a4

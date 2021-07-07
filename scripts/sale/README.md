@@ -1,4 +1,10 @@
 # Sale
+### Get Lockup Schedule
+```
+flow scripts execute ./scripts/sale/getLockupSchedule.cdc \
+  --network testnet
+```
+
 ### Get Purchasers
 ```
 flow scripts execute ./scripts/sale/getPurchasers.cdc \
