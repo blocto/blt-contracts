@@ -11,6 +11,7 @@ pub contract BloctoPass: NonFungibleToken {
     pub var totalSupply: UInt64
     pub let CollectionStoragePath: StoragePath
     pub let CollectionPublicPath: PublicPath
+    pub let MinterStoragePath: StoragePath
 
     pub event ContractInitialized()
     pub event Withdraw(id: UInt64, from: Address?)
@@ -344,20 +345,21 @@ pub contract BloctoPass: NonFungibleToken {
 
         self.CollectionStoragePath = /storage/bloctoPassCollection
         self.CollectionPublicPath = /public/bloctoPassCollection
+        self.MinterStoragePath = /storage/bloctoPassMinter
 
         // Create a Collection resource and save it to storage
         let collection <- create Collection()
-        self.account.save(<-collection, to: /storage/bloctoPassCollection)
+        self.account.save(<-collection, to: self.CollectionStoragePath)
 
         // create a public capability for the collection
         self.account.link<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>(
-            /public/bloctoPassCollection,
-            target: /storage/bloctoPassCollection
+            self.CollectionPublicPath,
+            target: self.CollectionStoragePath
         )
 
         // Create a Minter resource and save it to storage
         let minter <- create NFTMinter()
-        self.account.save(<-minter, to: /storage/bloctoPassMinter)
+        self.account.save(<-minter, to: self.MinterStoragePath)
 
         emit ContractInitialized()
     }

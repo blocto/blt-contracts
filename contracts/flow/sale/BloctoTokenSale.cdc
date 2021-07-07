@@ -82,7 +82,7 @@ pub contract BloctoTokenSale {
             from.balance <= self.personalCap: "Purchase amount exceeds personal cap"
         }
 
-        let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+        let collectionRef = getAccount(address).getCapability(BloctoPass.CollectionPublicPath)
             .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not borrow blocto pass collection public reference")
 
@@ -130,7 +130,7 @@ pub contract BloctoTokenSale {
                 BloctoTokenSale.purchases[address]?.state == PurchaseState.initial: "Already distributed or refunded"
             }
 
-            let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+            let collectionRef = getAccount(address).getCapability(BloctoPass.CollectionPublicPath)
                 .borrow<&{NonFungibleToken.CollectionPublic}>()
                 ?? panic("Could not borrow blocto pass collection public reference")
 
@@ -143,7 +143,7 @@ pub contract BloctoTokenSale {
             let purchaseInfo = BloctoTokenSale.purchases[address]
                 ?? panic("Count not get purchase info for the address")
         
-            let minterRef = BloctoTokenSale.account.borrow<&BloctoPass.NFTMinter>(from: /storage/bloctoPassMinter)
+            let minterRef = BloctoTokenSale.account.borrow<&BloctoPass.NFTMinter>(from: BloctoPass.MinterStoragePath)
                 ?? panic("Could not borrow reference to the BloctoPass minter!")
 
             let bltAmount = purchaseInfo.amount / BloctoTokenSale.price

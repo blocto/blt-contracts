@@ -91,12 +91,12 @@ pub contract BloctoTokenStaking {
         }
 
         destroy() {
-            let BloctoTokenRef = BloctoTokenStaking.account.borrow<&BloctoToken.Vault>(from: /storage/BloctoTokenVault)!
+            let bloctoTokenRef = BloctoTokenStaking.account.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)!
             BloctoTokenStaking.totalTokensStaked = BloctoTokenStaking.totalTokensStaked - self.tokensStaked.balance
-            BloctoTokenRef.deposit(from: <-self.tokensStaked)
-            BloctoTokenRef.deposit(from: <-self.tokensCommitted)
-            BloctoTokenRef.deposit(from: <-self.tokensUnstaked)
-            BloctoTokenRef.deposit(from: <-self.tokensRewarded)
+            bloctoTokenRef.deposit(from: <-self.tokensStaked)
+            bloctoTokenRef.deposit(from: <-self.tokensCommitted)
+            bloctoTokenRef.deposit(from: <-self.tokensUnstaked)
+            bloctoTokenRef.deposit(from: <-self.tokensRewarded)
         }
 
         /// Utility Function that checks a staker's overall committed balance from its borrowed record
@@ -299,7 +299,7 @@ pub contract BloctoTokenStaking {
 
             let allstakerIDs = BloctoTokenStaking.getStakerIDs()
 
-            let BloctoTokenMinter = BloctoTokenStaking.account.borrow<&BloctoToken.Minter>(from: /storage/bloctoTokenMinter)
+            let BloctoTokenMinter = BloctoTokenStaking.account.borrow<&BloctoToken.Minter>(from: BloctoToken.TokenMinterStoragePath)
                 ?? panic("Could not borrow minter reference")
 
             // calculate the total number of tokens staked
