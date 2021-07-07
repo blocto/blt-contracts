@@ -366,7 +366,7 @@ pub contract BloctoPass: NonFungibleToken {
                 recipient: recipient,
                 metadata: metadata,
                 vault: <- BloctoToken.createEmptyVault(),
-                lockupSchedule: nil
+                lockupSchedule: {0.0: 0.0}
             )
         }
 
@@ -397,7 +397,7 @@ pub contract BloctoPass: NonFungibleToken {
             recipient: &{NonFungibleToken.CollectionPublic},
             metadata: {String: String},
             vault: @FungibleToken.Vault,
-            lockupSchedule: {UFix64: UFix64}?
+            lockupSchedule: {UFix64: UFix64}
         ) {
 
             // create a new NFT

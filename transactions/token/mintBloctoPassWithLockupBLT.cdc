@@ -29,7 +29,7 @@ transaction(address: Address, amount: UFix64, unlockTime: UFix64) {
             unlockTime: UFix64(0.0)
         }
 
-        minter.mintNFTWithLockup(
+        minter.mintNFTWithCustomLockup(
             recipient: nftCollectionRef,
             metadata: metadata,
             vault: <- bltVault,
