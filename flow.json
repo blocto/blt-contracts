@@ -7,6 +7,7 @@
   },
   "contracts": {
     "BloctoPass": "./contracts/flow/token/BloctoPass.cdc",
+    "BloctoPassStamp": "./contracts/flow/token/BloctoPassStamp.cdc",
     "BloctoToken": "./contracts/flow/token/BloctoToken.cdc",
     "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
     "BloctoTokenSale": "./contracts/flow/sale/BloctoTokenSale.cdc",
@@ -68,7 +69,7 @@
       "chain": "flow-emulator"
     },
     "blt-admin-testnet": {
-      "address": "ccc5c610f25031c9",
+      "address": "7a997e397250cb38",
       "keys": [
         {
           "type": "hex",
@@ -76,37 +77,7 @@
           "signatureAlgorithm": "ECDSA_secp256k1",
           "hashAlgorithm": "SHA3_256",
           "context": {
-            "privateKey": "1de30bc0ec3c4ead208ddef38fb98a6a78dae0efc8ec7a463805654091559a45"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-admin-new-testnet": {
-      "address": "6e0797ac987005f5",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "2a7dff7b7e222213088682580b980e72b25c5a045324ce19a1f59a49b1512014"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-mining-testnet": {
-      "address": "4e57c4f07871af8d",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "40c790cc76e75c397a6f972b6018222698ae3ae32cf44c27b5c8814bf3528c21"
+            "privateKey": "3a27bddd2e6d1e8d00621482b310ed4ee31a771a7216e067ef3fa74d2dfcc140"
           }
         }
       ],
@@ -148,7 +119,7 @@
       "chain": "flow-testnet"
     },
     "blt-user-testnet": {
-      "address": "457df669b4f4d1a4",
+      "address": "95d4f57daf2fb5ce",
       "keys": [
         {
           "type": "hex",
@@ -156,14 +127,14 @@
           "signatureAlgorithm": "ECDSA_secp256k1",
           "hashAlgorithm": "SHA3_256",
           "context": {
-            "privateKey": "595ba8e69cfbbf1656606da55bd54efa4dda01a6cb49f35e3aa6ae21fc630ec5"
+            "privateKey": "e13f12f47e593618b7d3be54f51eb35379b9ff7bc6dce5e7db00774363d3f5b1"
           }
         }
       ],
       "chain": "flow-testnet"
     },
     "blt-user2-testnet": {
-      "address": "80db1142287cd376",
+      "address": "67e7299327d1bf70",
       "keys": [
         {
           "type": "hex",
@@ -171,7 +142,7 @@
           "signatureAlgorithm": "ECDSA_secp256k1",
           "hashAlgorithm": "SHA3_256",
           "context": {
-            "privateKey": "f0cfa244910ff9522510f1c63369c02e49e6722096f491096a2dd524557deba6"
+            "privateKey": "34049030839cbab70e2038ec70a22affd888a1c7737a2deff9c42647db0ef5d7"
           }
         }
       ],
@@ -182,6 +153,7 @@
     "emulator": {
       "blt-admin-emulator": [
         "BloctoPass",
+        "BloctoPassStamp",
         "BloctoToken",
         "BloctoTokenMining",
         "BloctoTokenSale",
@@ -192,10 +164,9 @@
     },
     "testnet": {
       "blt-admin-testnet": [
-        "BloctoToken"
-      ],
-      "blt-mining-testnet": [
         "BloctoPass",
+        "BloctoPassStamp",
+        "BloctoToken",
         "BloctoTokenSale",
         "BloctoTokenStaking",
         "BloctoTokenMining"
