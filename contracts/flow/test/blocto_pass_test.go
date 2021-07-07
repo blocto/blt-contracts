@@ -54,7 +54,10 @@ func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPa
 	bloctoPassCode := loadBloctoPass(btStakingInfo, nftAddr)
 
 	latestBlock, err := b.GetLatestBlock()
+	assert.NoError(t, err)
+
 	btStakingAccount, err := b.GetAccount(btStakingInfo.BTStakingAddr)
+	assert.NoError(t, err)
 
 	tx := templates.AddAccountContract(
 		btStakingInfo.BTStakingAddr,
@@ -75,7 +78,7 @@ func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPa
 	err = b.AddTransaction(*tx)
 	assert.NoError(t, err)
 
-	_, err = b.CommitBlock()
+	_, _, err = b.ExecuteAndCommitBlock()
 	assert.NoError(t, err)
 
 	return TestBloctoPassContractsInfo{
