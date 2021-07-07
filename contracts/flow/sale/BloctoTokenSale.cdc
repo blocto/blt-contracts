@@ -23,7 +23,7 @@ pub contract BloctoTokenSale {
     pub event NewSaleDate(saleDate: UFix64)
     pub event NewPersonalCap(personalCap: UFix64)
 
-    pub event Purchased(address: Address, amount: UFix64)
+    pub event Purchased(address: Address, amount: UFix64, ticketId: UInt64)
     pub event Distributed(address: Address, tusdtAmount: UFix64, bltAmount: UFix64)
     pub event Refunded(address: Address, amount: UFix64)
 
@@ -67,8 +67,8 @@ pub contract BloctoTokenSale {
         // Purchase amount in tUSDT
         pub let amount: UFix64
 
-        // Random queue position
-        pub let queuePosition: UInt64
+        // Random ticked ID
+        pub let ticketId: UInt64
 
         // State of the purchase
         pub(set) var state: PurchaseState
@@ -79,7 +79,7 @@ pub contract BloctoTokenSale {
         ) {
             self.address = address
             self.amount = amount
-            self.queuePosition = unsafeRandom() % 1_000_000
+            self.ticketId = unsafeRandom() % 1_000_000_000
             self.state = PurchaseState.initial
         }
     }
@@ -106,9 +106,10 @@ pub contract BloctoTokenSale {
         let amount = from.balance
         self.tusdtVault.deposit(from: <- from)
 
-        self.purchases[address] = PurchaseInfo(address: address, amount: amount)
+        let purchaseInfo = PurchaseInfo(address: address, amount: amount)
+        self.purchases[address] = purchaseInfo
 
-        emit Purchased(address: address, amount: amount)
+        emit Purchased(address: address, amount: amount, ticketId: purchaseInfo.ticketId)
     }
 
     // Get all purchaser addresses
