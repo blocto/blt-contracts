@@ -34,6 +34,9 @@ pub contract BloctoTokenSale {
     // tUSDT holder vault
     access(contract) let tusdtVault: @TeleportedTetherToken.Vault
 
+    /// Paths for storing sale resources
+    pub let SaleAdminStoragePath: StoragePath
+
     pub event Purchased(address: Address, amount: UFix64)
 
     pub event Distributed(address: Address, tusdtAmount: UFix64, bltAmount: UFix64)
@@ -256,11 +259,12 @@ pub contract BloctoTokenSale {
         self.personalCap = 1000.0
 
         self.purchases = {}
+        self.SaleAdminStoragePath = /storage/bloctoTokenSaleAdmin
 
         self.bltVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
         self.tusdtVault <- TeleportedTetherToken.createEmptyVault() as! @TeleportedTetherToken.Vault
 
         let admin <- create Admin()
-        self.account.save(<- admin, to: /storage/bloctoTokenSaleAdmin)
+        self.account.save(<- admin, to: self.SaleAdminStoragePath)
     }
 }
