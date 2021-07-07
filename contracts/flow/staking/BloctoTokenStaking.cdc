@@ -281,6 +281,22 @@ pub contract BloctoTokenStaking {
     /// to stakers at the end of an epoch
     pub resource Admin {
 
+        /// A staker record is created when a BloctoPass NFT is created
+        /// It returns the resource for stakers that they can store in their account storage
+        pub fun addStakerRecord(id: UInt64): @Staker {
+            pre {
+                BloctoTokenStaking.stakingEnabled: "Cannot register a staker operator if the staking auction isn't in progress"
+            }
+
+            let newStakerRecord <- create StakerRecord(id: id)
+
+            // Insert the staker to the table
+            BloctoTokenStaking.stakers[id] <-! newStakerRecord
+
+            // return a new Staker object that the staker operator stores in their account
+            return <-create Staker(id: id)
+        }
+
         /// Starts the staking auction, the period when stakers and delegators
         /// are allowed to perform staking related operations
         pub fun startStakingAuction() {
@@ -380,22 +396,6 @@ pub contract BloctoTokenStaking {
 
             emit NewWeeklyPayout(newPayout: newPayout)
         }
-    }
-
-    /// A staker record is created when a BloctoPass NFT is created
-    /// It returns the resource for stakers that they can store in their account storage
-    access(account) fun addStakerRecord(id: UInt64): @Staker {
-        pre {
-            BloctoTokenStaking.stakingEnabled: "Cannot register a staker operator if the staking auction isn't in progress"
-        }
-
-        let newStakerRecord <- create StakerRecord(id: id)
-
-        // Insert the staker to the table
-        BloctoTokenStaking.stakers[id] <-! newStakerRecord
-
-        // return a new Staker object that the staker operator stores in their account
-        return <-create Staker(id: id)
     }
 
     /// borrow a reference to to one of the stakers in the record

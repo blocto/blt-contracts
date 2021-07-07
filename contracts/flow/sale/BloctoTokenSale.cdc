@@ -20,7 +20,7 @@ pub contract BloctoTokenSale {
     /****** Sale Events ******/
 
     pub event NewPrice(price: UFix64)
-    pub event NewSaleDate(saleDate: UFix64)
+    pub event NewLockupSchedule(lockupSchedule: {UFix64: UFix64})
     pub event NewPersonalCap(personalCap: UFix64)
 
     pub event Purchased(address: Address, amount: UFix64, ticketId: UInt64)
@@ -51,8 +51,8 @@ pub contract BloctoTokenSale {
     // BLT token price (tUSDT per BLT)
     access(contract) var price: UFix64
 
-    // BLT IEO/IDO date, used for lockup terms
-    access(contract) var saleDate: UFix64
+    // BLT lockup schedule, used for lockup terms
+    access(contract) var lockupScheduleId: Int
 
     // BLT communitu sale purchase cap (in tUSDT)
     access(contract) var personalCap: UFix64
@@ -139,8 +139,8 @@ pub contract BloctoTokenSale {
         return self.price
     }
 
-    pub fun getSaleDate(): UFix64 {
-        return self.saleDate
+    pub fun getLockupSchedule(): {UFix64: UFix64} {
+        return BloctoPass.getPredefinedLockupSchedule(id: self.lockupScheduleId)
     }
 
     pub fun getPersonalCap(): UFix64 {
@@ -178,38 +178,38 @@ pub contract BloctoTokenSale {
             }
 
             let months = 30.0 * 24.0 * 60.0 * 60.0 // seconds
-            let lockupSchedule = {
-                0.0                                      : bltAmount,
-                BloctoTokenSale.saleDate                 : bltAmount,
-                BloctoTokenSale.saleDate + 6.0 * months  : bltAmount * 17.0 / 18.0,
-                BloctoTokenSale.saleDate + 7.0 * months  : bltAmount * 16.0 / 18.0,
-                BloctoTokenSale.saleDate + 8.0 * months  : bltAmount * 15.0 / 18.0,
-                BloctoTokenSale.saleDate + 9.0 * months  : bltAmount * 14.0 / 18.0,
-                BloctoTokenSale.saleDate + 10.0 * months : bltAmount * 13.0 / 18.0,
-                BloctoTokenSale.saleDate + 11.0 * months : bltAmount * 12.0 / 18.0,
-                BloctoTokenSale.saleDate + 12.0 * months : bltAmount * 11.0 / 18.0,
-                BloctoTokenSale.saleDate + 13.0 * months : bltAmount * 10.0 / 18.0,
-                BloctoTokenSale.saleDate + 14.0 * months : bltAmount * 9.0 / 18.0,
-                BloctoTokenSale.saleDate + 15.0 * months : bltAmount * 8.0 / 18.0,
-                BloctoTokenSale.saleDate + 16.0 * months : bltAmount * 7.0 / 18.0,
-                BloctoTokenSale.saleDate + 17.0 * months : bltAmount * 6.0 / 18.0,
-                BloctoTokenSale.saleDate + 18.0 * months : bltAmount * 5.0 / 18.0,
-                BloctoTokenSale.saleDate + 19.0 * months : bltAmount * 4.0 / 18.0,
-                BloctoTokenSale.saleDate + 20.0 * months : bltAmount * 3.0 / 18.0,
-                BloctoTokenSale.saleDate + 21.0 * months : bltAmount * 2.0 / 18.0,
-                BloctoTokenSale.saleDate + 22.0 * months : bltAmount * 1.0 / 18.0,
-                BloctoTokenSale.saleDate + 23.0 * months : 0.0
-            }
+            // let lockupSchedule = {
+            //     0.0                                      : 1.0,
+            //     BloctoTokenSale.saleDate                 : 1.0,
+            //     BloctoTokenSale.saleDate + 6.0 * months  : 1.0 * 17.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 7.0 * months  : 1.0 * 16.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 8.0 * months  : 1.0 * 15.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 9.0 * months  : 1.0 * 14.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 10.0 * months : 1.0 * 13.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 11.0 * months : 1.0 * 12.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 12.0 * months : 1.0 * 11.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 13.0 * months : 1.0 * 10.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 14.0 * months : 1.0 * 9.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 15.0 * months : 1.0 * 8.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 16.0 * months : 1.0 * 7.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 17.0 * months : 1.0 * 6.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 18.0 * months : 1.0 * 5.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 19.0 * months : 1.0 * 4.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 20.0 * months : 1.0 * 3.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 21.0 * months : 1.0 * 2.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 22.0 * months : 1.0 * 1.0 / 18.0,
+            //     BloctoTokenSale.saleDate + 23.0 * months : 0.0
+            // }
 
             // Set the state of the purchase to DISTRIBUTED
             purchaseInfo.state = PurchaseState.distributed
             BloctoTokenSale.purchases[address] = purchaseInfo
 
-            minterRef.mintNFTWithLockup(
+            minterRef.mintNFTWithPredefinedLockup(
                 recipient: collectionRef,
                 metadata: metadata,
                 vault: <- bltVault,
-                lockupSchedule: lockupSchedule
+                lockupScheduleId: BloctoTokenSale.lockupScheduleId
             )
 
             emit Distributed(address: address, tusdtAmount: purchaseInfo.amount, bltAmount: bltAmount)
@@ -248,9 +248,9 @@ pub contract BloctoTokenSale {
             emit NewPrice(price: price)
         }
 
-        pub fun updateSaleDate(date: UFix64) {
-            BloctoTokenSale.saleDate = date
-            emit NewSaleDate(saleDate: date)
+        pub fun updateLockupScheduleId(lockupScheduleId: Int) {
+            BloctoTokenSale.lockupScheduleId = lockupScheduleId
+            emit NewLockupSchedule(lockupSchedule: BloctoPass.getPredefinedLockupSchedule(id: lockupScheduleId))
         }
 
         pub fun updatePersonalCap(personalCap: UFix64) {
@@ -279,8 +279,8 @@ pub contract BloctoTokenSale {
         // 1 BLT = 0.1 tUSDT
         self.price = 0.1
 
-        // Thursday, July 15, 2021 8:00:00 AM GMT
-        self.saleDate = 1626336000.0
+        // Refer to BloctoPass contract
+        self.lockupScheduleId = 0
 
         // Each user can purchase at most 1000 tUSDT worth of BLT
         self.personalCap = 1000.0
