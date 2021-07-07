@@ -31,7 +31,7 @@ transaction(amount: UFix64) {
 
     execute {
         // Deposit BLT balance into BloctoPass first
-        self.bloctoPassRef.vault.deposit(from: <- self.sentVault)
+        self.bloctoPassRef.deposit(from: <- self.sentVault)
 
         // Perform staking action
         self.bloctoPassRef.stakeNewTokens(amount: amount)

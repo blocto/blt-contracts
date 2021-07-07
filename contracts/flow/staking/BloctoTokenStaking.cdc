@@ -43,6 +43,9 @@ pub contract BloctoTokenStaking {
     /// could be manually changed by the admin resource
     access(contract) var epochTokenPayout: UFix64
 
+    /// Indicates if the staking auction is currently enabled
+    access(contract) var stakingEnabled: Bool
+
     /// Paths for storing staking resources
     pub let StakingAdminStoragePath: StoragePath
 
@@ -148,7 +151,7 @@ pub contract BloctoTokenStaking {
         /// Add new tokens to the system to stake during the next epoch
         pub fun stakeNewTokens(_ tokens: @FungibleToken.Vault) {
             pre {
-                BloctoTokenStaking.stakingEnabled(): "Cannot stake if the staking auction isn't in progress"
+                BloctoTokenStaking.stakingEnabled: "Cannot stake if the staking auction isn't in progress"
             }
 
             // Borrow the staker's record from the staking contract
@@ -163,7 +166,7 @@ pub contract BloctoTokenStaking {
         /// Stake tokens that are in the tokensUnstaked bucket
         pub fun stakeUnstakedTokens(amount: UFix64) {
             pre {
-                BloctoTokenStaking.stakingEnabled(): "Cannot stake if the staking auction isn't in progress"
+                BloctoTokenStaking.stakingEnabled: "Cannot stake if the staking auction isn't in progress"
             }
 
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
@@ -189,7 +192,7 @@ pub contract BloctoTokenStaking {
         /// Stake tokens that are in the tokensRewarded bucket
         pub fun stakeRewardedTokens(amount: UFix64) {
             pre {
-                BloctoTokenStaking.stakingEnabled(): "Cannot stake if the staking auction isn't in progress"
+                BloctoTokenStaking.stakingEnabled: "Cannot stake if the staking auction isn't in progress"
             }
 
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
@@ -202,7 +205,7 @@ pub contract BloctoTokenStaking {
         /// Request amount tokens to be removed from staking at the end of the next epoch
         pub fun requestUnstaking(amount: UFix64) {
             pre {
-                BloctoTokenStaking.stakingEnabled(): "Cannot unstake if the staking auction isn't in progress"
+                BloctoTokenStaking.stakingEnabled: "Cannot unstake if the staking auction isn't in progress"
             }
 
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
@@ -240,7 +243,7 @@ pub contract BloctoTokenStaking {
         /// as well as all the staked and committed tokens of all of their delegators
         pub fun unstakeAll() {
             pre {
-                BloctoTokenStaking.stakingEnabled(): "Cannot unstake if the staking auction isn't in progress"
+                BloctoTokenStaking.stakingEnabled: "Cannot unstake if the staking auction isn't in progress"
             }
 
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
@@ -281,15 +284,13 @@ pub contract BloctoTokenStaking {
         /// Starts the staking auction, the period when stakers and delegators
         /// are allowed to perform staking related operations
         pub fun startStakingAuction() {
-            BloctoTokenStaking.account.load<Bool>(from: /storage/stakingEnabled)
-            BloctoTokenStaking.account.save(true, to: /storage/stakingEnabled)
+            BloctoTokenStaking.stakingEnabled = true
         }
 
         /// Ends the staking Auction by removing any unapproved stakers
         /// and setting stakingEnabled to false
         pub fun endStakingAuction() {
-            BloctoTokenStaking.account.load<Bool>(from: /storage/stakingEnabled)
-            BloctoTokenStaking.account.save(false, to: /storage/stakingEnabled)
+            BloctoTokenStaking.stakingEnabled = false
         }
 
         /// Called at the end of the epoch to pay rewards to staker operators
@@ -340,7 +341,7 @@ pub contract BloctoTokenStaking {
         /// Unstaking requests are filled by moving those tokens from staked to unstaking
         pub fun moveTokens() {
             pre {
-                !BloctoTokenStaking.stakingEnabled(): "Cannot move tokens if the staking auction is still in progress"
+                !BloctoTokenStaking.stakingEnabled: "Cannot move tokens if the staking auction is still in progress"
             }
             
             let allstakerIDs = BloctoTokenStaking.getStakerIDs()
@@ -385,7 +386,7 @@ pub contract BloctoTokenStaking {
     /// It returns the resource for stakers that they can store in their account storage
     pub fun addStakerRecord(id: UInt64): @Staker {
         pre {
-            BloctoTokenStaking.stakingEnabled(): "Cannot register a staker operator if the staking auction isn't in progress"
+            BloctoTokenStaking.stakingEnabled: "Cannot register a staker operator if the staking auction isn't in progress"
         }
 
         let newStakerRecord <- create StakerRecord(id: id)
@@ -404,11 +405,6 @@ pub contract BloctoTokenStaking {
                 "Specified staker ID does not exist in the record"
         }
         return &BloctoTokenStaking.stakers[stakerID] as! &StakerRecord
-    }
-
-    /// Indicates if the staking auction is currently enabled
-    pub fun stakingEnabled(): Bool {
-        return self.account.copy<Bool>(from: /storage/stakingEnabled) ?? false
     }
 
     /// Gets an array of all the stakerIDs that are staked.
@@ -439,6 +435,10 @@ pub contract BloctoTokenStaking {
         return self.epochTokenPayout
     }
 
+    pub fun getStakingEnabled(): Bool {
+        return self.stakingEnabled
+    }
+
     /// Gets the total number of BLT that is currently staked
     /// by all of the staked stakers in the current epoch
     pub fun getTotalStaked(): UFix64 {
@@ -446,7 +446,7 @@ pub contract BloctoTokenStaking {
     }
 
     init() {
-        self.account.save(true, to: /storage/stakingEnabled)
+        self.stakingEnabled = true
 
         self.stakers <- {}
 
