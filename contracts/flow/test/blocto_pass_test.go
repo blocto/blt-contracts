@@ -51,7 +51,7 @@ func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPa
 
 	btStakingInfo := BloctoTokenStakingDeployContract(b, t)
 
-	bloctoPassCode := loadBloctoPass(btStakingInfo, nftAddr)
+	bloctoPassStampCode := loadBloctoPassStamp(nftAddr)
 
 	latestBlock, err := b.GetLatestBlock()
 	assert.NoError(t, err)
@@ -60,6 +60,36 @@ func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPa
 	assert.NoError(t, err)
 
 	tx := templates.AddAccountContract(
+		btStakingInfo.BTStakingAddr,
+		templates.Contract{
+			Name:   "BloctoPassStamp",
+			Source: string(bloctoPassStampCode),
+		},
+	)
+
+	tx.SetGasLimit(flowgo.DefaultMaxTransactionGasLimit).
+		SetReferenceBlockID(flow.Identifier(latestBlock.ID())).
+		SetProposalKey(btStakingInfo.BTStakingAddr, btStakingAccount.Keys[0].Index, btStakingAccount.Keys[0].SequenceNumber).
+		SetPayer(btStakingInfo.BTStakingAddr)
+
+	err = tx.SignEnvelope(btStakingInfo.BTStakingAddr, btStakingAccount.Keys[0].Index, btStakingInfo.BTStakingSigner)
+	assert.NoError(t, err)
+
+	err = b.AddTransaction(*tx)
+	assert.NoError(t, err)
+
+	_, _, err = b.ExecuteAndCommitBlock()
+	assert.NoError(t, err)
+
+	bloctoPassCode := loadBloctoPass(btStakingInfo, nftAddr)
+
+	latestBlock, err = b.GetLatestBlock()
+	assert.NoError(t, err)
+
+	btStakingAccount, err = b.GetAccount(btStakingInfo.BTStakingAddr)
+	assert.NoError(t, err)
+
+	tx = templates.AddAccountContract(
 		btStakingInfo.BTStakingAddr,
 		templates.Contract{
 			Name:   "BloctoPass",
@@ -91,6 +121,14 @@ func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPa
 		BPAddr:          btStakingInfo.BTStakingAddr,
 		BPSigner:        btStakingInfo.BTStakingSigner,
 	}
+}
+
+func loadBloctoPassStamp(nftAddr flow.Address) []byte {
+	code := string(readFile(bloctoPassStampPath))
+
+	code = strings.ReplaceAll(code, "\"./NonFungibleToken.cdc\"", "0x"+nftAddr.String())
+
+	return []byte(code)
 }
 
 func loadBloctoPass(btStakingInfo TestBloctoTokenStakingContractsInfo, nftAddr flow.Address) []byte {
