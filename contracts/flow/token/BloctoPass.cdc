@@ -14,9 +14,15 @@ pub contract BloctoPass: NonFungibleToken {
     pub let CollectionPublicPath: PublicPath
     pub let MinterStoragePath: StoragePath
 
+    // pre-defined lockup schedules
+    // key: timestamp
+    // value: amount of BLT that must remain in the BloctoPass at this timestamp
+    access(contract) var predefinedLockupSchedules: [{UFix64: UFix64}]
+
     pub event ContractInitialized()
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
+    pub event LockupScheduleDefined(id: Int, lockupSchedule: {UFix64: UFix64})
 
     pub resource interface BloctoPassPrivate {
         pub fun stakeNewTokens(amount: UFix64)
@@ -69,6 +75,10 @@ pub contract BloctoPass: NonFungibleToken {
         // BloctoPass usage stamps, including voting records and special events
         access(self) var stamps: [String]
 
+        // ID of predefined lockup schedule
+        // If lockupScheduleId == nil, use custom lockup schedule instead
+        pub let lockupScheduleId: Int?
+
         // Defines how much BloctoToken must remain in the BloctoPass on different dates
         // key: timestamp
         // value: amount of BLT that must remain in the BloctoPass at this timestamp
@@ -79,6 +89,7 @@ pub contract BloctoPass: NonFungibleToken {
             originalOwner: Address?,
             metadata: {String: String},
             vault: @FungibleToken.Vault,
+            lockupScheduleId: Int?,
             lockupSchedule: {UFix64: UFix64}
         ) {
             self.id = initID
@@ -87,6 +98,7 @@ pub contract BloctoPass: NonFungibleToken {
             self.stamps = []
             self.vault <- vault as! @BloctoToken.Vault
             self.staker <- BloctoTokenStaking.addStakerRecord(id: initID)
+            self.lockupScheduleId = lockupScheduleId
             self.lockupSchedule = lockupSchedule
         }
 
@@ -128,7 +140,11 @@ pub contract BloctoPass: NonFungibleToken {
         }
 
         pub fun getLockupSchedule(): {UFix64: UFix64} {
-            return self.lockupSchedule
+            if self.lockupScheduleId == nil {
+                return self.lockupSchedule
+            }
+
+            return BloctoPass.predefinedLockupSchedules[self.lockupScheduleId!]
         }
 
         pub fun getStakingInfo(): BloctoTokenStaking.StakerInfo {
@@ -136,13 +152,15 @@ pub contract BloctoPass: NonFungibleToken {
         }
 
         pub fun getLockupAmountAtTimestamp(timestamp: UFix64): UFix64 {
-            let keys = self.lockupSchedule.keys
+            let lockupSchedule = self.getLockupSchedule()
+
+            let keys = lockupSchedule.keys
             var closestTimestamp = 0.0
             var lockupAmount = 0.0
 
             for key in keys {
                 if timestamp >= key && key >= closestTimestamp {
-                    lockupAmount = self.lockupSchedule[key]!
+                    lockupAmount = lockupSchedule[key]!
                     closestTimestamp = key
                 }
             }
@@ -307,6 +325,13 @@ pub contract BloctoPass: NonFungibleToken {
     //
     pub resource NFTMinter: MinterPublic {
 
+        // setupPredefinedLockupSchedule adds a new predefined lockup schedule
+        pub fun setupPredefinedLockupSchedule(lockupSchedule: {UFix64: UFix64}) {
+            BloctoPass.predefinedLockupSchedules.append(lockupSchedule)
+
+            emit LockupScheduleDefined(id: BloctoPass.predefinedLockupSchedules.length, lockupSchedule: lockupSchedule)
+        }
+
         // mintBasicNFT mints a new NFT without any special metadata or lockups
         pub fun mintBasicNFT(recipient: &{NonFungibleToken.CollectionPublic}) {
             self.mintNFT(recipient: recipient, metadata: {})
@@ -349,6 +374,7 @@ pub contract BloctoPass: NonFungibleToken {
     init() {
         // Initialize the total supply
         self.totalSupply = 0
+        self.predefinedLockupSchedules = []
 
         self.CollectionStoragePath = /storage/bloctoPassCollection
         self.CollectionPublicPath = /public/bloctoPassCollection
