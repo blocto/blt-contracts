@@ -47,24 +47,24 @@ pub contract BloctoPass: NonFungibleToken {
         BloctoPassPublic
     {
         // BLT holder vault
-        pub let vault: @BloctoToken.Vault
+        access(self) let vault: @BloctoToken.Vault
 
         // BLT staker handle
-        pub let staker: @BloctoTokenStaking.Staker
+        access(self) let staker: @BloctoTokenStaking.Staker
 
         // BloctoPass ID
         pub let id: UInt64
 
         // BloctoPass metadata
-        pub var metadata: {String: String}
+        access(self) var metadata: {String: String}
 
         // BloctoPass usage history, including voting records and special events
-        pub var history: {String: String}
+        access(self) var history: {String: String}
 
         // Defines how much BloctoToken must remain in the BloctoPass on different dates
         // key: timestamp
         // value: amount of BLT that must remain in the BloctoPass at this timestamp
-        pub let lockupSchedule: {UFix64: UFix64}
+        access(self) let lockupSchedule: {UFix64: UFix64}
 
         init(
             initID: UInt64,
