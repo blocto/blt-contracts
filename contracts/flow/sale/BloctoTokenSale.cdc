@@ -19,10 +19,12 @@ pub contract BloctoTokenSale {
 
     /****** Sale Events ******/
 
+    pub event NewPrice(price: UFix64)
+    pub event NewSaleDate(saleDate: UFix64)
+    pub event NewPersonalCap(personalCap: UFix64)
+
     pub event Purchased(address: Address, amount: UFix64)
-
     pub event Distributed(address: Address, tusdtAmount: UFix64, bltAmount: UFix64)
-
     pub event Refunded(address: Address, amount: UFix64)
 
     /****** Sale Enums ******/
@@ -32,6 +34,19 @@ pub contract BloctoTokenSale {
         pub case distributed
         pub case refunded
     }
+
+    /****** Sale Resources ******/
+
+    // BLT holder vault
+    access(contract) let bltVault: @BloctoToken.Vault
+
+    // tUSDT holder vault
+    access(contract) let tusdtVault: @TeleportedTetherToken.Vault
+
+    /// Paths for storing sale resources
+    pub let SaleAdminStoragePath: StoragePath
+    
+    /****** Sale Variables ******/
 
     // BLT token price (tUSDT per BLT)
     pub var price: UFix64
@@ -44,15 +59,6 @@ pub contract BloctoTokenSale {
 
     // All purchase records
     pub var purchases: {Address: PurchaseInfo}
-
-    // BLT holder vault
-    access(contract) let bltVault: @BloctoToken.Vault
-
-    // tUSDT holder vault
-    access(contract) let tusdtVault: @TeleportedTetherToken.Vault
-
-    /// Paths for storing sale resources
-    pub let SaleAdminStoragePath: StoragePath
 
     pub struct PurchaseInfo {
         // Purchaser address
@@ -226,14 +232,17 @@ pub contract BloctoTokenSale {
             }
 
             BloctoTokenSale.price = price
+            emit NewPrice(price: price)
         }
 
         pub fun updateSaleDate(date: UFix64) {
             BloctoTokenSale.saleDate = date
+            emit NewSaleDate(saleDate: date)
         }
 
         pub fun updatePersonalCap(personalCap: UFix64) {
             BloctoTokenSale.personalCap = personalCap
+            emit NewPersonalCap(personalCap: personalCap)
         }
 
         pub fun withdrawBlt(amount: UFix64): @FungibleToken.Vault {
