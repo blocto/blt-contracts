@@ -138,6 +138,7 @@ func loadBloctoPass(btStakingInfo TestBloctoTokenStakingContractsInfo, nftAddr f
 	code = strings.ReplaceAll(code, "\"./NonFungibleToken.cdc\"", "0x"+nftAddr.String())
 	code = strings.ReplaceAll(code, "\"./BloctoToken.cdc\"", "0x"+btStakingInfo.BTAddr.String())
 	code = strings.ReplaceAll(code, "\"../staking/BloctoTokenStaking.cdc\"", "0x"+btStakingInfo.BTStakingAddr.String())
+	code = strings.ReplaceAll(code, "\"./BloctoPassStamp.cdc\"", "0x"+btStakingInfo.BTStakingAddr.String())
 
 	return []byte(code)
 }
