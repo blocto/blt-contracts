@@ -28,6 +28,9 @@ pub contract BloctoPass: NonFungibleToken {
     }
 
     pub resource interface BloctoPassPublic {
+        pub fun getOriginalOwner(): Address?
+        pub fun getMetadata(): {String: String}
+        pub fun getHistory(): {String: String}
         pub fun getVipTier(): UInt64
         pub fun getStakingInfo(): BloctoTokenStaking.StakerInfo
         pub fun getLockupSchedule(): {UFix64: UFix64}
@@ -35,8 +38,6 @@ pub contract BloctoPass: NonFungibleToken {
         pub fun getLockupAmount(): UFix64
         pub fun getIdleBalance(): UFix64
         pub fun getTotalBalance(): UFix64
-        pub fun getMetadata(): {String: String}
-        pub fun getHistory(): {String: String}
     }
 
     pub resource NFT:
@@ -55,6 +56,10 @@ pub contract BloctoPass: NonFungibleToken {
         // BloctoPass ID
         pub let id: UInt64
 
+        // BloctoPass owner address
+        // If the pass is transferred to another user, some perks will be disabled
+        pub let originalOwner: Address?
+
         // BloctoPass metadata
         access(self) var metadata: {String: String}
 
@@ -68,11 +73,13 @@ pub contract BloctoPass: NonFungibleToken {
 
         init(
             initID: UInt64,
+            originalOwner: Address?,
             metadata: {String: String},
             vault: @FungibleToken.Vault,
             lockupSchedule: {UFix64: UFix64}
         ) {
             self.id = initID
+            self.originalOwner = originalOwner
             self.metadata = metadata
             self.history = {}
             self.vault <- vault as! @BloctoToken.Vault
@@ -90,6 +97,10 @@ pub contract BloctoPass: NonFungibleToken {
 
         pub fun deposit(from: @FungibleToken.Vault) {
             self.vault.deposit(from: <- from)
+        }
+
+        pub fun getOriginalOwner(): Address? {
+            return self.originalOwner
         }
 
         pub fun getMetadata(): {String: String} {
@@ -219,14 +230,11 @@ pub contract BloctoPass: NonFungibleToken {
         // withdraw removes an NFT from the collection and moves it to the caller
         // withdrawal is disabled during lockup period
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
-            // Reject all calls for now
-            panic("BloctoPass NFT withdrawal is disabled")
+            let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
-            // let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
+            emit Withdraw(id: token.id, from: self.owner?.address)
 
-            // emit Withdraw(id: token.id, from: self.owner?.address)
-
-            // return <-token
+            return <-token
         }
 
         // deposit takes a NFT and adds it to the collections dictionary
@@ -317,6 +325,7 @@ pub contract BloctoPass: NonFungibleToken {
             // create a new NFT
             var newNFT <- create NFT(
                 initID: BloctoPass.totalSupply,
+                originalOwner: recipient.owner?.address,
                 metadata: metadata,
                 vault: <- vault,
                 lockupSchedule: lockupSchedule
