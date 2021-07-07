@@ -48,6 +48,8 @@ pub contract BloctoTokenSale {
     
     /****** Sale Variables ******/
 
+    access(contract) var isSaleActive: Bool
+
     // BLT token price (tUSDT per BLT)
     access(contract) var price: UFix64
 
@@ -89,6 +91,7 @@ pub contract BloctoTokenSale {
     // Note that "address" can potentially be faked, but there's no incentive doing so
     pub fun purchase(from: @TeleportedTetherToken.Vault, address: Address) {
         pre {
+            self.isSaleActive: "Token sale is not active"
             self.purchases[address] == nil: "Already purchased by the same account"
             from.balance <= self.personalCap: "Purchase amount exceeds personal cap"
         }
@@ -110,6 +113,10 @@ pub contract BloctoTokenSale {
         self.purchases[address] = purchaseInfo
 
         emit Purchased(address: address, amount: amount, ticketId: purchaseInfo.ticketId)
+    }
+
+    pub fun getIsSaleActive(): Bool {
+        return self.isSaleActive
     }
 
     // Get all purchaser addresses
@@ -148,6 +155,14 @@ pub contract BloctoTokenSale {
     }
 
     pub resource Admin {
+        pub fun unfreeze() {
+            BloctoTokenSale.isSaleActive = true
+        }
+
+        pub fun freeze() {
+            BloctoTokenSale.isSaleActive = false
+        }
+
         pub fun distribute(address: Address) {
             pre {
                 BloctoTokenSale.purchases[address] != nil: "Cannot find purchase record for the address"
@@ -276,6 +291,9 @@ pub contract BloctoTokenSale {
     }
 
     init() {
+        // Needs Admin to start manually
+        self.isSaleActive = false
+
         // 1 BLT = 0.1 tUSDT
         self.price = 0.1
 
