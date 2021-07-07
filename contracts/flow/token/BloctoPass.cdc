@@ -9,6 +9,8 @@ import BloctoTokenStaking from "../staking/BloctoTokenStaking.cdc"
 pub contract BloctoPass: NonFungibleToken {
 
     pub var totalSupply: UInt64
+    pub let CollectionStoragePath: StoragePath
+    pub let CollectionPublicPath: PublicPath
 
     pub event ContractInitialized()
     pub event Withdraw(id: UInt64, from: Address?)
@@ -330,6 +332,9 @@ pub contract BloctoPass: NonFungibleToken {
     init() {
         // Initialize the total supply
         self.totalSupply = 0
+
+        self.CollectionStoragePath = /storage/bloctoPassCollection
+        self.CollectionPublicPath = /public/bloctoPassCollection
 
         // Create a Collection resource and save it to storage
         let collection <- create Collection()
