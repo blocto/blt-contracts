@@ -5,5 +5,5 @@ pub fun main(address: Address): {UInt64: UFix64} {
         .borrow<&{BloctoTokenMining.MiningRewardPublic}>()
         ?? panic("Could not borrow mining reward public reference")
 
-    return miningRewardRef.rewardsLocked
+    return miningRewardRef.getRewardsLocked()
 }
