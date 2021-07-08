@@ -12,41 +12,41 @@ pub contract BloctoTokenMining {
     pub let MiningRewardPublicPath: PublicPath
 
     // Define mining state
-    pub var miningState: MiningState
+    access(contract) var miningState: MiningState
 
     // Define current round
-    pub var currentRound: UInt64
+    access(contract) var currentRound: UInt64
 
     // Define current total reward computed by users' raw data
-    pub var currentTotalReward: UFix64
+    access(contract) var currentTotalReward: UFix64
 
     // Define reward cap
-    pub var rewardCap: UFix64
+    access(contract) var rewardCap: UFix64
 
     // Define cap multipier for VIP-tier users
-    pub var capMultiplier: UInt64
+    access(contract) var capMultiplier: UInt64
 
     // Define mining criterias
     // criteria name => Criteria
-    pub var criterias: {String: Criteria}
+    access(contract) var criterias: {String: Criteria}
 
     // Define reward lock period
-    pub var rewardLockPeriod: UInt64
+    access(contract) var rewardLockPeriod: UInt64
 
     // Define reward lock ratio
-    pub var rewardLockRatio: UFix64
+    access(contract) var rewardLockRatio: UFix64
 
     // Define if user reward is collected
     // Address => round
-    pub var userRewardsCollected: {Address: UInt64}
+    access(contract) var userRewardsCollected: {Address: UInt64}
 
     // Define user rewards in current round
     // This doesn't consider reward cap
-    pub var userRewards: {Address: UFix64}
+    access(contract) var userRewards: {Address: UFix64}
 
     // Define if reward is distributed
     // Address => round
-    pub var rewardsDistributed: {Address: UInt64}
+    access(contract) var rewardsDistributed: {Address: UInt64}
 
     // Event that is emitted when mining state is updated
     pub event MiningStateUpdated(state: UInt8)
@@ -296,7 +296,7 @@ pub contract BloctoTokenMining {
     }
 
     pub resource interface MiningRewardPublic {
-        pub var rewardsLocked: {UInt64: UFix64}
+        pub fun getRewardsLocked(): {UInt64: UFix64}
         pub fun computeUnlocked(): UFix64
         access(contract) fun deposit(reward: @BloctoToken.Vault, lockRound: UInt64)
     }
@@ -304,10 +304,14 @@ pub contract BloctoTokenMining {
     pub resource MiningReward: MiningRewardPublic {
 
         // round => reward
-        pub var rewardsLocked: {UInt64: UFix64}
+        access(self) var rewardsLocked: {UInt64: UFix64}
 
         // Define reward lock vault
-        access(contract) let reward: @BloctoToken.Vault
+        access(self) let reward: @BloctoToken.Vault
+
+        pub fun getRewardsLocked(): {UInt64: UFix64} {
+            return self.rewardsLocked
+        }
 
         pub fun computeUnlocked(): UFix64 {
             var amount: UFix64 = 0.0
@@ -347,6 +351,50 @@ pub contract BloctoTokenMining {
 
     pub fun createEmptyMiningReward(): @MiningReward {
         return <- create MiningReward()
+    }
+
+    pub fun getMiningState(): MiningState {
+        return self.miningState
+    }
+
+    pub fun getCurrentRound(): UInt64 {
+        return self.currentRound
+    }
+
+    pub fun getCurrentTotalReward(): UFix64 {
+        return self.currentTotalReward
+    }
+
+    pub fun getRewardCap(): UFix64 {
+        return self.rewardCap
+    }
+
+    pub fun getCapMultiplier(): UInt64 {
+        return self.capMultiplier
+    }
+
+    pub fun getCriterias(): {String: Criteria} {
+        return self.criterias
+    }
+
+    pub fun getRewardLockPeriod(): UInt64 {
+        return self.rewardLockPeriod
+    }
+
+    pub fun getRewardLockRatio(): UFix64 {
+        return self.rewardLockRatio
+    }
+
+    pub fun getUserRewardsCollected(): {Address: UInt64} {
+        return self.userRewardsCollected
+    }
+
+    pub fun getUserRewards(): {Address: UFix64} {
+        return self.userRewards
+    }
+
+    pub fun getRewardsDistributed(): {Address: UInt64} {
+        return self.rewardsDistributed
     }
 
     // Chceck if the address is VIP

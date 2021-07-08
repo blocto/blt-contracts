@@ -14,7 +14,7 @@ transaction(address: Address) {
 
         let reward = BloctoTokenMining.computeFinalReward(
             address: address,
-            totalReward: BloctoTokenMining.currentTotalReward)
+            totalReward: BloctoTokenMining.getCurrentTotalReward())
         let rewardVault <- vault.withdraw(amount: reward) as! @BloctoToken.Vault
 
         admin.distributeReward(address: address, rewardVault: <- rewardVault)
