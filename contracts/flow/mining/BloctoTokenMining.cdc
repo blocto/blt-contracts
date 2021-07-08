@@ -272,7 +272,7 @@ pub contract BloctoTokenMining {
         }
 
         access(self) fun getHighestTierBloctoPass(address: Address): &BloctoPass.NFT{NonFungibleToken.INFT}? {
-            let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+            let collectionRef = getAccount(address).getCapability(BloctoPass.CollectionPublicPath)
                 .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
                 ?? panic("Could not borrow collection public reference")
 
@@ -351,7 +351,7 @@ pub contract BloctoTokenMining {
 
     // Chceck if the address is VIP
     pub fun isAddressVIP(address: Address): Bool {
-        let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+        let collectionRef = getAccount(address).getCapability(BloctoPass.CollectionPublicPath)
             .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
             ?? panic("Could not borrow collection public reference")
 
