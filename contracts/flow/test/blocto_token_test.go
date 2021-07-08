@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/onflow/cadence"
 	emulator "github.com/onflow/flow-emulator"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
@@ -12,6 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	ft_contracts "github.com/onflow/flow-ft/lib/go/contracts"
+)
+
+const (
+	btSetupBloctoTokenMinterForStakingPath = projectRootPath + "/transactions/token/admin/setupBloctoTokenMinterForStaking.cdc"
 )
 
 func BloctoTokenDeployContract(b *emulator.Blockchain, t *testing.T) (flow.Address, flow.Address, crypto.Signer) {
@@ -59,4 +64,37 @@ func loadBloctoToken(fungibleAddr flow.Address) []byte {
 		"\"./FungibleToken.cdc\"",
 		"0x"+fungibleAddr.String(),
 	))
+}
+
+func btSetupBloctoTokenMinterForStakingTransaction(btAddr flow.Address, ftAddr flow.Address) []byte {
+	code := string(readFile(btSetupBloctoTokenMinterForStakingPath))
+
+	code = strings.ReplaceAll(code, "\"../../../contracts/flow/token/FungibleToken.cdc\"", "0x"+ftAddr.String())
+	code = strings.ReplaceAll(code, "\"../../../contracts/flow/token/BloctoToken.cdc\"", "0x"+btAddr.String())
+
+	return []byte(code)
+}
+
+func SetupBloctoTokenMinterForStaking(
+	t *testing.T, b *emulator.Blockchain,
+	ftAddr flow.Address, amount cadence.Value,
+	btAddr flow.Address, btSigner crypto.Signer,
+	minterAddr flow.Address, minterSigner crypto.Signer) {
+
+	tx := flow.NewTransaction().
+		SetScript(btSetupBloctoTokenMinterForStakingTransaction(btAddr, ftAddr)).
+		SetGasLimit(100).
+		SetProposalKey(b.ServiceKey().Address, b.ServiceKey().Index, b.ServiceKey().SequenceNumber).
+		SetPayer(b.ServiceKey().Address).
+		AddAuthorizer(btAddr).
+		AddAuthorizer(minterAddr)
+
+	_ = tx.AddArgument(amount)
+
+	signAndSubmit(
+		t, b, tx,
+		[]flow.Address{b.ServiceKey().Address, btAddr, minterAddr},
+		[]crypto.Signer{b.ServiceKey().Signer(), btSigner, minterSigner},
+		false,
+	)
 }
