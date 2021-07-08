@@ -238,7 +238,7 @@ pub contract BloctoTokenMining {
         }
 
         // Distribute reward by address
-        pub fun distributeReward(address: Address, rewardVault: @BloctoToken.Vault) {
+        pub fun distributeReward(address: Address) {
             pre {
                 BloctoTokenMining.miningState == MiningState.collected: "Should stop collecting"
                 BloctoTokenMining.rewardsDistributed[address] ?? (0 as UInt64) < BloctoTokenMining.currentRound:
@@ -252,9 +252,9 @@ pub contract BloctoTokenMining {
             let reward = BloctoTokenMining.computeFinalReward(
                 address: address,
                 totalReward: BloctoTokenMining.currentTotalReward)
-            if rewardVault.balance != reward {
-                panic("The balance of reward vault must be the same as reward")
-            }
+            let bloctoTokenMinter = BloctoTokenMining.account.borrow<&BloctoToken.Minter>(from: BloctoToken.TokenMinterStoragePath)
+                ?? panic("Could not borrow minter reference")
+            let rewardVault <- bloctoTokenMinter.mintTokens(amount: reward)
 
             let lockReward = reward * BloctoTokenMining.rewardLockRatio
             let lockRewardVault <- rewardVault.withdraw(amount: lockReward) as! @BloctoToken.Vault
