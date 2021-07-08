@@ -5,49 +5,6 @@ import BloctoPass from "../token/BloctoPass.cdc"
 
 pub contract BloctoTokenMining {
 
-    // Defines mining reward storage path
-    pub let MiningRewardStoragePath: StoragePath
-
-    // Defines mining reward public balance path
-    pub let MiningRewardPublicPath: PublicPath
-
-    // Define mining state
-    access(contract) var miningState: MiningState
-
-    // Define current round
-    access(contract) var currentRound: UInt64
-
-    // Define current total reward computed by users' raw data
-    access(contract) var currentTotalReward: UFix64
-
-    // Define reward cap
-    access(contract) var rewardCap: UFix64
-
-    // Define cap multipier for VIP-tier users
-    access(contract) var capMultiplier: UInt64
-
-    // Define mining criterias
-    // criteria name => Criteria
-    access(contract) var criterias: {String: Criteria}
-
-    // Define reward lock period
-    access(contract) var rewardLockPeriod: UInt64
-
-    // Define reward lock ratio
-    access(contract) var rewardLockRatio: UFix64
-
-    // Define if user reward is collected
-    // Address => round
-    access(contract) var userRewardsCollected: {Address: UInt64}
-
-    // Define user rewards in current round
-    // This doesn't consider reward cap
-    access(contract) var userRewards: {Address: UFix64}
-
-    // Define if reward is distributed
-    // Address => round
-    access(contract) var rewardsDistributed: {Address: UInt64}
-
     // Event that is emitted when mining state is updated
     pub event MiningStateUpdated(state: UInt8)
 
@@ -110,6 +67,49 @@ pub contract BloctoTokenMining {
         pub case collected
         pub case distributed
     }
+
+    // Defines mining reward storage path
+    pub let MiningRewardStoragePath: StoragePath
+
+    // Defines mining reward public balance path
+    pub let MiningRewardPublicPath: PublicPath
+
+    // Define mining state
+    access(contract) var miningState: MiningState
+
+    // Define current round
+    access(contract) var currentRound: UInt64
+
+    // Define current total reward computed by users' raw data
+    access(contract) var currentTotalReward: UFix64
+
+    // Define reward cap
+    access(contract) var rewardCap: UFix64
+
+    // Define cap multipier for VIP-tier users
+    access(contract) var capMultiplier: UInt64
+
+    // Define mining criterias
+    // criteria name => Criteria
+    access(contract) var criterias: {String: Criteria}
+
+    // Define reward lock period
+    access(contract) var rewardLockPeriod: UInt64
+
+    // Define reward lock ratio
+    access(contract) var rewardLockRatio: UFix64
+
+    // Define if user reward is collected
+    // Address => round
+    access(contract) var userRewardsCollected: {Address: UInt64}
+
+    // Define user rewards in current round
+    // This doesn't consider reward cap
+    access(contract) var userRewards: {Address: UFix64}
+
+    // Define if reward is distributed
+    // Address => round
+    access(contract) var rewardsDistributed: {Address: UInt64}
 
     // Administrator
     //
@@ -349,10 +349,6 @@ pub contract BloctoTokenMining {
         }
     }
 
-    pub fun createEmptyMiningReward(): @MiningReward {
-        return <- create MiningReward()
-    }
-
     pub fun getMiningState(): MiningState {
         return self.miningState
     }
@@ -440,6 +436,10 @@ pub contract BloctoTokenMining {
             reward = reward * self.rewardCap / totalReward
         }
         return reward
+    }
+
+    pub fun createEmptyMiningReward(): @MiningReward {
+        return <- create MiningReward()
     }
 
     init() {
