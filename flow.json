@@ -7,6 +7,7 @@
   },
   "contracts": {
     "BloctoPass": "./contracts/flow/token/BloctoPass.cdc",
+    "BloctoPassStamp": "./contracts/flow/token/BloctoPassStamp.cdc",
     "BloctoToken": "./contracts/flow/token/BloctoToken.cdc",
     "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
     "BloctoTokenSale": "./contracts/flow/sale/BloctoTokenSale.cdc",
@@ -182,6 +183,7 @@
     "emulator": {
       "blt-admin-emulator": [
         "BloctoPass",
+        "BloctoPassStamp",
         "BloctoToken",
         "BloctoTokenMining",
         "BloctoTokenSale",
