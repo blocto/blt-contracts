@@ -17,7 +17,7 @@ import (
 
 const (
 	bpGetBloctoPassVaultBalancePath = projectRootPath + "/scripts/token/getBloctoPassVaultBalance.cdc"
-	bpMintBloctoPassPath            = projectRootPath + "/transactions/token/mintBloctoPass.cdc"
+	bpMintBloctoPassPath            = projectRootPath + "/transactions/token/admin/mintBloctoPass.cdc"
 	bpSetupBloctoPassCollectionPath = projectRootPath + "/transactions/token/setupBloctoPassCollection.cdc"
 )
 
@@ -185,8 +185,8 @@ func loadNonFungibleToken() []byte {
 func bpMintBloctoPassTransaction(bpAddr flow.Address, nftAddr flow.Address) []byte {
 	code := string(readFile(bpMintBloctoPassPath))
 
-	code = strings.ReplaceAll(code, "\"../../contracts/flow/token/NonFungibleToken.cdc\"", "0x"+nftAddr.String())
-	code = strings.ReplaceAll(code, "\"../../contracts/flow/token/BloctoPass.cdc\"", "0x"+bpAddr.String())
+	code = strings.ReplaceAll(code, "\"../../../contracts/flow/token/NonFungibleToken.cdc\"", "0x"+nftAddr.String())
+	code = strings.ReplaceAll(code, "\"../../../contracts/flow/token/BloctoPass.cdc\"", "0x"+bpAddr.String())
 
 	return []byte(code)
 }
