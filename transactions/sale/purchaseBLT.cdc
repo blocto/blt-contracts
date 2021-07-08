@@ -24,15 +24,15 @@ transaction(amount: UFix64) {
         self.buyerAddress = account.address
 
         // If user does not have BloctoPass collection yet, create one to receive
-        if account.borrow<&BloctoPass.Collection>(from: /storage/bloctoPassCollection) == nil {
+        if account.borrow<&BloctoPass.Collection>(from: BloctoPass.CollectionStoragePath) == nil {
 
             let collection <- BloctoPass.createEmptyCollection() as! @BloctoPass.Collection
 
-            account.save(<-collection, to: /storage/bloctoPassCollection)
+            account.save(<-collection, to: BloctoPass.CollectionStoragePath)
 
             account.link<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>(
-                /public/bloctoPassCollection,
-                target: /storage/bloctoPassCollection)
+                BloctoPass.CollectionPublicPath,
+                target: BloctoPass.CollectionStoragePath)
         }
     }
 

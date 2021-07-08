@@ -16,17 +16,26 @@ import BloctoPass from "../token/BloctoPass.cdc"
 import TeleportedTetherToken from "../token/TeleportedTetherToken.cdc"
 
 pub contract BloctoTokenSale {
-    // BLT token price (tUSDT per BLT)
-    pub var price: UFix64
 
-    // BLT IEO/IDO date, used for lockup terms
-    pub var saleDate: UFix64
+    /****** Sale Events ******/
 
-    // BLT communitu sale purchase cap (in tUSDT)
-    pub var personalCap: UFix64
+    pub event NewPrice(price: UFix64)
+    pub event NewLockupSchedule(lockupSchedule: {UFix64: UFix64})
+    pub event NewPersonalCap(personalCap: UFix64)
 
-    // All purchase records
-    pub var purchases: {Address: PurchaseInfo}
+    pub event Purchased(address: Address, amount: UFix64, ticketId: UInt64)
+    pub event Distributed(address: Address, tusdtAmount: UFix64, bltAmount: UFix64)
+    pub event Refunded(address: Address, amount: UFix64)
+
+    /****** Sale Enums ******/
+
+    pub enum PurchaseState: UInt8 {
+        pub case initial
+        pub case distributed
+        pub case refunded
+    }
+
+    /****** Sale Resources ******/
 
     // BLT holder vault
     access(contract) let bltVault: @BloctoToken.Vault
@@ -34,17 +43,24 @@ pub contract BloctoTokenSale {
     // tUSDT holder vault
     access(contract) let tusdtVault: @TeleportedTetherToken.Vault
 
-    pub event Purchased(address: Address, amount: UFix64)
+    /// Paths for storing sale resources
+    pub let SaleAdminStoragePath: StoragePath
+    
+    /****** Sale Variables ******/
 
-    pub event Distributed(address: Address, tusdtAmount: UFix64, bltAmount: UFix64)
+    access(contract) var isSaleActive: Bool
 
-    pub event Refunded(address: Address, amount: UFix64)
+    // BLT token price (tUSDT per BLT)
+    access(contract) var price: UFix64
 
-    pub enum PurchaseState: UInt8 {
-        pub case initial
-        pub case distributed
-        pub case refunded
-    }
+    // BLT lockup schedule, used for lockup terms
+    access(contract) var lockupScheduleId: Int
+
+    // BLT communitu sale purchase cap (in tUSDT)
+    access(contract) var personalCap: UFix64
+
+    // All purchase records
+    access(contract) var purchases: {Address: PurchaseInfo}
 
     pub struct PurchaseInfo {
         // Purchaser address
@@ -53,8 +69,8 @@ pub contract BloctoTokenSale {
         // Purchase amount in tUSDT
         pub let amount: UFix64
 
-        // Random queue position
-        pub let queuePosition: UInt64
+        // Random ticked ID
+        pub let ticketId: UInt64
 
         // State of the purchase
         pub(set) var state: PurchaseState
@@ -65,7 +81,7 @@ pub contract BloctoTokenSale {
         ) {
             self.address = address
             self.amount = amount
-            self.queuePosition = unsafeRandom() % 1_000_000
+            self.ticketId = unsafeRandom() % 1_000_000_000
             self.state = PurchaseState.initial
         }
     }
@@ -75,11 +91,12 @@ pub contract BloctoTokenSale {
     // Note that "address" can potentially be faked, but there's no incentive doing so
     pub fun purchase(from: @TeleportedTetherToken.Vault, address: Address) {
         pre {
+            self.isSaleActive: "Token sale is not active"
             self.purchases[address] == nil: "Already purchased by the same account"
             from.balance <= self.personalCap: "Purchase amount exceeds personal cap"
         }
 
-        let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+        let collectionRef = getAccount(address).getCapability(BloctoPass.CollectionPublicPath)
             .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not borrow blocto pass collection public reference")
 
@@ -92,9 +109,14 @@ pub contract BloctoTokenSale {
         let amount = from.balance
         self.tusdtVault.deposit(from: <- from)
 
-        self.purchases[address] = PurchaseInfo(address: address, amount: amount)
+        let purchaseInfo = PurchaseInfo(address: address, amount: amount)
+        self.purchases[address] = purchaseInfo
 
-        emit Purchased(address: address, amount: amount)
+        emit Purchased(address: address, amount: amount, ticketId: purchaseInfo.ticketId)
+    }
+
+    pub fun getIsSaleActive(): Bool {
+        return self.isSaleActive
     }
 
     // Get all purchaser addresses
@@ -120,14 +142,34 @@ pub contract BloctoTokenSale {
         return self.tusdtVault.balance
     }
 
+    pub fun getPrice(): UFix64 {
+        return self.price
+    }
+
+    pub fun getLockupSchedule(): {UFix64: UFix64} {
+        return BloctoPass.getPredefinedLockupSchedule(id: self.lockupScheduleId)
+    }
+
+    pub fun getPersonalCap(): UFix64 {
+        return self.personalCap
+    }
+
     pub resource Admin {
+        pub fun unfreeze() {
+            BloctoTokenSale.isSaleActive = true
+        }
+
+        pub fun freeze() {
+            BloctoTokenSale.isSaleActive = false
+        }
+
         pub fun distribute(address: Address) {
             pre {
                 BloctoTokenSale.purchases[address] != nil: "Cannot find purchase record for the address"
                 BloctoTokenSale.purchases[address]?.state == PurchaseState.initial: "Already distributed or refunded"
             }
 
-            let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
+            let collectionRef = getAccount(address).getCapability(BloctoPass.CollectionPublicPath)
                 .borrow<&{NonFungibleToken.CollectionPublic}>()
                 ?? panic("Could not borrow blocto pass collection public reference")
 
@@ -140,7 +182,7 @@ pub contract BloctoTokenSale {
             let purchaseInfo = BloctoTokenSale.purchases[address]
                 ?? panic("Count not get purchase info for the address")
         
-            let minterRef = BloctoTokenSale.account.borrow<&BloctoPass.NFTMinter>(from: /storage/bloctoPassMinter)
+            let minterRef = BloctoTokenSale.account.borrow<&BloctoPass.NFTMinter>(from: BloctoPass.MinterStoragePath)
                 ?? panic("Could not borrow reference to the BloctoPass minter!")
 
             let bltAmount = purchaseInfo.amount / BloctoTokenSale.price
@@ -150,40 +192,40 @@ pub contract BloctoTokenSale {
                 "origin": "Community Sale"
             }
 
-            let months = 30.0 * 24.0 * 60.0 * 60.0 // seconds
-            let lockupSchedule = {
-                0.0                                      : bltAmount,
-                BloctoTokenSale.saleDate                 : bltAmount,
-                BloctoTokenSale.saleDate + 6.0 * months  : bltAmount * 17.0 / 18.0,
-                BloctoTokenSale.saleDate + 7.0 * months  : bltAmount * 16.0 / 18.0,
-                BloctoTokenSale.saleDate + 8.0 * months  : bltAmount * 15.0 / 18.0,
-                BloctoTokenSale.saleDate + 9.0 * months  : bltAmount * 14.0 / 18.0,
-                BloctoTokenSale.saleDate + 10.0 * months : bltAmount * 13.0 / 18.0,
-                BloctoTokenSale.saleDate + 11.0 * months : bltAmount * 12.0 / 18.0,
-                BloctoTokenSale.saleDate + 12.0 * months : bltAmount * 11.0 / 18.0,
-                BloctoTokenSale.saleDate + 13.0 * months : bltAmount * 10.0 / 18.0,
-                BloctoTokenSale.saleDate + 14.0 * months : bltAmount * 9.0 / 18.0,
-                BloctoTokenSale.saleDate + 15.0 * months : bltAmount * 8.0 / 18.0,
-                BloctoTokenSale.saleDate + 16.0 * months : bltAmount * 7.0 / 18.0,
-                BloctoTokenSale.saleDate + 17.0 * months : bltAmount * 6.0 / 18.0,
-                BloctoTokenSale.saleDate + 18.0 * months : bltAmount * 5.0 / 18.0,
-                BloctoTokenSale.saleDate + 19.0 * months : bltAmount * 4.0 / 18.0,
-                BloctoTokenSale.saleDate + 20.0 * months : bltAmount * 3.0 / 18.0,
-                BloctoTokenSale.saleDate + 21.0 * months : bltAmount * 2.0 / 18.0,
-                BloctoTokenSale.saleDate + 22.0 * months : bltAmount * 1.0 / 18.0,
-                BloctoTokenSale.saleDate + 23.0 * months : 0.0
-            }
-
-            minterRef.mintNFTWithLockup(
-                recipient: collectionRef,
-                metadata: metadata,
-                vault: <- bltVault,
-                lockupSchedule: lockupSchedule
-            )
+            // Lockup schedule for community sale:
+            // let lockupSchedule = {
+            //     0.0                      : 1.0,
+            //     saleDate                 : 1.0,
+            //     saleDate + 6.0 * months  : 17.0 / 18.0,
+            //     saleDate + 7.0 * months  : 16.0 / 18.0,
+            //     saleDate + 8.0 * months  : 15.0 / 18.0,
+            //     saleDate + 9.0 * months  : 14.0 / 18.0,
+            //     saleDate + 10.0 * months : 13.0 / 18.0,
+            //     saleDate + 11.0 * months : 12.0 / 18.0,
+            //     saleDate + 12.0 * months : 11.0 / 18.0,
+            //     saleDate + 13.0 * months : 10.0 / 18.0,
+            //     saleDate + 14.0 * months : 9.0 / 18.0,
+            //     saleDate + 15.0 * months : 8.0 / 18.0,
+            //     saleDate + 16.0 * months : 7.0 / 18.0,
+            //     saleDate + 17.0 * months : 6.0 / 18.0,
+            //     saleDate + 18.0 * months : 5.0 / 18.0,
+            //     saleDate + 19.0 * months : 4.0 / 18.0,
+            //     saleDate + 20.0 * months : 3.0 / 18.0,
+            //     saleDate + 21.0 * months : 2.0 / 18.0,
+            //     saleDate + 22.0 * months : 1.0 / 18.0,
+            //     saleDate + 23.0 * months : 0.0
+            // }
 
             // Set the state of the purchase to DISTRIBUTED
             purchaseInfo.state = PurchaseState.distributed
             BloctoTokenSale.purchases[address] = purchaseInfo
+
+            minterRef.mintNFTWithPredefinedLockup(
+                recipient: collectionRef,
+                metadata: metadata,
+                vault: <- bltVault,
+                lockupScheduleId: BloctoTokenSale.lockupScheduleId
+            )
 
             emit Distributed(address: address, tusdtAmount: purchaseInfo.amount, bltAmount: bltAmount)
         }
@@ -203,11 +245,11 @@ pub contract BloctoTokenSale {
 
             let tusdtVault <- BloctoTokenSale.tusdtVault.withdraw(amount: purchaseInfo.amount)
 
-            receiverRef.deposit(from: <- tusdtVault)
-
             // Set the state of the purchase to REFUNDED
             purchaseInfo.state = PurchaseState.refunded
             BloctoTokenSale.purchases[address] = purchaseInfo
+
+            receiverRef.deposit(from: <- tusdtVault)
 
             emit Refunded(address: address, amount: purchaseInfo.amount)
         }
@@ -218,14 +260,17 @@ pub contract BloctoTokenSale {
             }
 
             BloctoTokenSale.price = price
+            emit NewPrice(price: price)
         }
 
-        pub fun updateSaleDate(date: UFix64) {
-            BloctoTokenSale.saleDate = date
+        pub fun updateLockupScheduleId(lockupScheduleId: Int) {
+            BloctoTokenSale.lockupScheduleId = lockupScheduleId
+            emit NewLockupSchedule(lockupSchedule: BloctoPass.getPredefinedLockupSchedule(id: lockupScheduleId))
         }
 
         pub fun updatePersonalCap(personalCap: UFix64) {
             BloctoTokenSale.personalCap = personalCap
+            emit NewPersonalCap(personalCap: personalCap)
         }
 
         pub fun withdrawBlt(amount: UFix64): @FungibleToken.Vault {
@@ -246,21 +291,25 @@ pub contract BloctoTokenSale {
     }
 
     init() {
+        // Needs Admin to start manually
+        self.isSaleActive = false
+
         // 1 BLT = 0.1 tUSDT
         self.price = 0.1
 
-        // Thursday, July 15, 2021 8:00:00 AM GMT
-        self.saleDate = 1626336000.0
+        // Refer to BloctoPass contract
+        self.lockupScheduleId = 0
 
         // Each user can purchase at most 1000 tUSDT worth of BLT
         self.personalCap = 1000.0
 
         self.purchases = {}
+        self.SaleAdminStoragePath = /storage/bloctoTokenSaleAdmin
 
         self.bltVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
         self.tusdtVault <- TeleportedTetherToken.createEmptyVault() as! @TeleportedTetherToken.Vault
 
         let admin <- create Admin()
-        self.account.save(<- admin, to: /storage/bloctoTokenSaleAdmin)
+        self.account.save(<- admin, to: self.SaleAdminStoragePath)
     }
 }

@@ -15,6 +15,9 @@ pub contract BloctoToken: FungibleToken {
     // Defines token vault public receiver path
     pub let TokenPublicReceiverPath: PublicPath
 
+    // Defines token minter storage path
+    pub let TokenMinterStoragePath: StoragePath
+
     // Event that is emitted when the contract is created
     pub event TokensInitialized(initialSupply: UFix64)
 
@@ -184,6 +187,7 @@ pub contract BloctoToken: FungibleToken {
         self.TokenStoragePath = /storage/bloctoTokenVault
         self.TokenPublicReceiverPath = /public/bloctoTokenReceiver
         self.TokenPublicBalancePath = /public/bloctoTokenBalance
+        self.TokenMinterStoragePath = /storage/bloctoTokenMinter
 
         // Create the Vault with the total supply of tokens and save it in storage
         let vault <- create Vault(balance: self.totalSupply)

@@ -6,10 +6,10 @@ import (
 
 	"github.com/onflow/cadence"
 	emulator "github.com/onflow/flow-emulator"
-	"github.com/onflow/flow-go-sdk"
+	flow "github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/onflow/flow-go-sdk/templates"
-	"github.com/onflow/flow-go-sdk/test"
+	flowgo "github.com/onflow/flow-go/model/flow"
 	"github.com/stretchr/testify/assert"
 
 	nft_contracts "github.com/onflow/flow-nft/lib/go/contracts"
@@ -33,8 +33,6 @@ type TestBloctoPassContractsInfo struct {
 }
 
 func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPassContractsInfo {
-	accountKeys := test.AccountKeyGenerator()
-
 	// Should be able to deploy a contract as a new account with no keys.
 	nftCode := loadNonFungibleToken()
 	nftAddr, err := b.CreateAccount(
@@ -53,19 +51,64 @@ func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPa
 
 	btStakingInfo := BloctoTokenStakingDeployContract(b, t)
 
-	bloctoPassAccountKey, bloctoPassSigner := accountKeys.NewWithSigner()
-	bloctoPassCode := loadBloctoPass(btStakingInfo, nftAddr)
+	bloctoPassStampCode := loadBloctoPassStamp(nftAddr)
 
-	bloctoPassAddr, err := b.CreateAccount(
-		[]*flow.AccountKey{bloctoPassAccountKey},
-		[]templates.Contract{{
-			Name:   "BloctoPass",
-			Source: string(bloctoPassCode),
-		}},
-	)
+	latestBlock, err := b.GetLatestBlock()
 	assert.NoError(t, err)
 
-	_, err = b.CommitBlock()
+	btStakingAccount, err := b.GetAccount(btStakingInfo.BTStakingAddr)
+	assert.NoError(t, err)
+
+	tx := templates.AddAccountContract(
+		btStakingInfo.BTStakingAddr,
+		templates.Contract{
+			Name:   "BloctoPassStamp",
+			Source: string(bloctoPassStampCode),
+		},
+	)
+
+	tx.SetGasLimit(flowgo.DefaultMaxTransactionGasLimit).
+		SetReferenceBlockID(flow.Identifier(latestBlock.ID())).
+		SetProposalKey(btStakingInfo.BTStakingAddr, btStakingAccount.Keys[0].Index, btStakingAccount.Keys[0].SequenceNumber).
+		SetPayer(btStakingInfo.BTStakingAddr)
+
+	err = tx.SignEnvelope(btStakingInfo.BTStakingAddr, btStakingAccount.Keys[0].Index, btStakingInfo.BTStakingSigner)
+	assert.NoError(t, err)
+
+	err = b.AddTransaction(*tx)
+	assert.NoError(t, err)
+
+	_, _, err = b.ExecuteAndCommitBlock()
+	assert.NoError(t, err)
+
+	bloctoPassCode := loadBloctoPass(btStakingInfo, nftAddr)
+
+	latestBlock, err = b.GetLatestBlock()
+	assert.NoError(t, err)
+
+	btStakingAccount, err = b.GetAccount(btStakingInfo.BTStakingAddr)
+	assert.NoError(t, err)
+
+	tx = templates.AddAccountContract(
+		btStakingInfo.BTStakingAddr,
+		templates.Contract{
+			Name:   "BloctoPass",
+			Source: string(bloctoPassCode),
+		},
+	)
+
+	tx.SetGasLimit(flowgo.DefaultMaxTransactionGasLimit).
+		SetReferenceBlockID(flow.Identifier(latestBlock.ID())).
+		SetProposalKey(btStakingInfo.BTStakingAddr, btStakingAccount.Keys[0].Index, btStakingAccount.Keys[0].SequenceNumber).
+		SetPayer(btStakingInfo.BTStakingAddr)
+
+	err = tx.SignEnvelope(btStakingInfo.BTStakingAddr, btStakingAccount.Keys[0].Index, btStakingInfo.BTStakingSigner)
+	assert.NoError(t, err)
+
+	err = b.AddTransaction(*tx)
+	assert.NoError(t, err)
+
+	_, _, err = b.ExecuteAndCommitBlock()
 	assert.NoError(t, err)
 
 	return TestBloctoPassContractsInfo{
@@ -75,9 +118,17 @@ func BloctoPassDeployContract(b *emulator.Blockchain, t *testing.T) TestBloctoPa
 		BTSigner:        btStakingInfo.BTSigner,
 		BTStakingAddr:   btStakingInfo.BTStakingAddr,
 		BTStakingSigner: btStakingInfo.BTStakingSigner,
-		BPAddr:          bloctoPassAddr,
-		BPSigner:        bloctoPassSigner,
+		BPAddr:          btStakingInfo.BTStakingAddr,
+		BPSigner:        btStakingInfo.BTStakingSigner,
 	}
+}
+
+func loadBloctoPassStamp(nftAddr flow.Address) []byte {
+	code := string(readFile(bloctoPassStampPath))
+
+	code = strings.ReplaceAll(code, "\"./NonFungibleToken.cdc\"", "0x"+nftAddr.String())
+
+	return []byte(code)
 }
 
 func loadBloctoPass(btStakingInfo TestBloctoTokenStakingContractsInfo, nftAddr flow.Address) []byte {
@@ -87,6 +138,7 @@ func loadBloctoPass(btStakingInfo TestBloctoTokenStakingContractsInfo, nftAddr f
 	code = strings.ReplaceAll(code, "\"./NonFungibleToken.cdc\"", "0x"+nftAddr.String())
 	code = strings.ReplaceAll(code, "\"./BloctoToken.cdc\"", "0x"+btStakingInfo.BTAddr.String())
 	code = strings.ReplaceAll(code, "\"../staking/BloctoTokenStaking.cdc\"", "0x"+btStakingInfo.BTStakingAddr.String())
+	code = strings.ReplaceAll(code, "\"./BloctoPassStamp.cdc\"", "0x"+btStakingInfo.BTStakingAddr.String())
 
 	return []byte(code)
 }

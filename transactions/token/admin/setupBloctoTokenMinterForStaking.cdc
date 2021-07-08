@@ -1,5 +1,5 @@
-import FungibleToken from "../../contracts/flow/token/FungibleToken.cdc"
-import BloctoToken from "../../contracts/flow/token/BloctoToken.cdc"
+import FungibleToken from "../../../contracts/flow/token/FungibleToken.cdc"
+import BloctoToken from "../../../contracts/flow/token/BloctoToken.cdc"
 
 transaction(allowedAmount: UFix64) {
 
@@ -10,6 +10,6 @@ transaction(allowedAmount: UFix64) {
 
         let minterResource <- admin.createNewMinter(allowedAmount: allowedAmount)
 
-        minter.save(<-minterResource, to: /storage/bloctoTokenMinter)
+        minter.save(<-minterResource, to: BloctoToken.TokenMinterStoragePath)
     }
 }
