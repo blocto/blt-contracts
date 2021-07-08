@@ -1,5 +1,5 @@
-import NonFungibleToken from "../../contracts/flow/token/NonFungibleToken.cdc"
-import BloctoPass from "../../contracts/flow/token/BloctoPass.cdc"
+import NonFungibleToken from "../../../contracts/flow/token/NonFungibleToken.cdc"
+import BloctoPass from "../../../contracts/flow/token/BloctoPass.cdc"
 
 transaction(address: Address) {
 
