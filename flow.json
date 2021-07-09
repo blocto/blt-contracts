@@ -6,12 +6,37 @@
     }
   },
   "contracts": {
-    "BloctoPass": "./contracts/flow/token/BloctoPass.cdc",
-    "BloctoPassStamp": "./contracts/flow/token/BloctoPassStamp.cdc",
-    "BloctoToken": "./contracts/flow/token/BloctoToken.cdc",
+    "BloctoPass": {
+      "source": "./contracts/flow/token/BloctoPass.cdc",
+      "aliases": {
+        "mainnet": "0x0f9df91c9121c460"
+      }
+    },
+    "BloctoPassStamp": {
+      "source": "./contracts/flow/token/BloctoPassStamp.cdc",
+      "aliases": {
+        "mainnet": "0x0f9df91c9121c460"
+      }
+    },
+    "BloctoToken": {
+      "source": "./contracts/flow/token/BloctoToken.cdc",
+      "aliases": {
+        "mainnet": "0x0f9df91c9121c460"
+      }
+    },
     "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
-    "BloctoTokenSale": "./contracts/flow/sale/BloctoTokenSale.cdc",
-    "BloctoTokenStaking": "./contracts/flow/staking/BloctoTokenStaking.cdc",
+    "BloctoTokenSale": {
+      "source": "./contracts/flow/sale/BloctoTokenSale.cdc",
+      "aliases": {
+        "mainnet": "0x0f9df91c9121c460"
+      }
+    },
+    "BloctoTokenStaking": {
+      "source": "./contracts/flow/staking/BloctoTokenStaking.cdc",
+      "aliases": {
+        "mainnet": "0x0f9df91c9121c460"
+      }
+    },
     "BltUsdtSwapPair": "./contracts/flow/swap/BltUsdtSwapPair.cdc",
     "FungibleToken": {
       "source": "./contracts/flow/token/FungibleToken.cdc",
