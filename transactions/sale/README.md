@@ -1,4 +1,20 @@
 # Swap
+### Freeze Sale
+```
+flow transactions send ./transactions/sale/freeze.cdc \
+  --network testnet \
+  --signer blt-admin-testnet \
+  --gas-limit 1000
+```
+
+### Unfreeze Sale
+```
+flow transactions send ./transactions/sale/unfreeze.cdc \
+  --network testnet \
+  --signer blt-admin-testnet \
+  --gas-limit 1000
+```
+
 ### Deposit BLT by Admin
 ```
 flow transactions send ./transactions/sale/depositBLT.cdc \
