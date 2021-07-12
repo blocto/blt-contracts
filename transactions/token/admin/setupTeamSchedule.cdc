@@ -12,7 +12,7 @@ transaction() {
         let saleDate = 1626912000.0
         let months = 30.0 * 24.0 * 60.0 * 60.0 // seconds
 
-        // Lockup schedule for BLT community sale
+        // Lockup schedule for Blocto team
         let lockupSchedule = {
             0.0                      : 1.0,
             saleDate                 : 1.0,

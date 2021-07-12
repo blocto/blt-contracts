@@ -8,8 +8,8 @@ transaction() {
             .borrow<&BloctoPass.NFTMinter>(from: BloctoPass.MinterStoragePath)
             ?? panic("Signer is not the admin")
 
-        // Thursday, July 15, 2021 8:00:00 AM GMT
-        let saleDate = 1626336000.0
+        // July 22, 2021 00:00:00 AM GMT
+        let saleDate = 1626912000.0
         let months = 30.0 * 24.0 * 60.0 * 60.0 // seconds
 
         // Lockup schedule for BLT private sale
