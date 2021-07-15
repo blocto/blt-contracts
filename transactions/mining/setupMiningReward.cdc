@@ -3,7 +3,7 @@ import BloctoTokenMining from "../../contracts/flow/mining/BloctoTokenMining.cdc
 transaction {
 
     prepare(signer: AuthAccount) {
-        if signer.borrow<&BloctoTokenMining.MiningReward>(from: /storage/bloctoPassCollection) == nil {
+        if signer.borrow<&BloctoTokenMining.MiningReward>(from: BloctoTokenMining.MiningRewardStoragePath) == nil {
 
             let miningReward <- BloctoTokenMining.createEmptyMiningReward()
 
