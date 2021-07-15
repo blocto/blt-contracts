@@ -218,11 +218,11 @@
       ]
     },
     "testnet": {
-      "blt-admin-testnet": [
-        "BloctoToken"
-      ],
-      "blt-mining-testnet": [
+      "blt-admin-testnet": [],
+      "blt-admin-new-testnet": [
         "BloctoPass",
+        "BloctoPassStamp",
+        "BloctoToken",
         "BloctoTokenSale",
         "BloctoTokenStaking",
         "BloctoTokenMining"
