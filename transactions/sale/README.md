@@ -51,6 +51,15 @@ flow transactions send ./transactions/sale/distribute.cdc \
   --gas-limit 1000
 ```
 
+### Distribute Locked BLT to Purchaser in a Batch
+```
+flow transactions send ./transactions/sale/distributeBatch.cdc \
+  --network testnet \
+  --args-json "$(cat "./arguments/distribute.json")" \
+  --signer blt-admin-new-testnet \
+  --gas-limit 9999
+```
+
 ### Refund tUSDT to Purchaser
 ```
 flow transactions send ./transactions/sale/refund.cdc \
@@ -58,4 +67,13 @@ flow transactions send ./transactions/sale/refund.cdc \
   --arg Address:0x95d4f57daf2fb5ce \
   --signer blt-admin-testnet \
   --gas-limit 1000
+```
+
+### Refund tUSDT to Purchaser in a Batch
+```
+flow transactions send ./transactions/sale/refundBatch.cdc \
+  --network testnet \
+  --args-json "$(cat "./arguments/refund.json")" \
+  --signer blt-admin-new-testnet \
+  --gas-limit 9999
 ```

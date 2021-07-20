@@ -54,3 +54,10 @@ flow scripts execute ./scripts/token/getBloctoPassOriginalOwner.cdc \
   --network testnet \
   --arg Address:0x95d4f57daf2fb5ce
 ```
+
+### Get Original Ownder from BloctoPass
+```
+flow scripts execute ./scripts/token/getPredefinedLockupSchedule.cdc \
+  --network testnet \
+  --arg Int:0
+```
