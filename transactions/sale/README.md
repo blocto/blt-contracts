@@ -24,6 +24,16 @@ flow transactions send ./transactions/sale/depositBLT.cdc \
   --gas-limit 1000
 ```
 
+### Withdraw tUSDT by Admin
+```
+flow transactions send ./transactions/sale/withdrawTusdt.cdc \
+  --network testnet \
+  --arg UFix64:50000.0 \
+  --arg Address:0x03d1e02a48354e2b \
+  --signer blt-admin-testnet \
+  --gas-limit 1000
+```
+
 ### Update Lockup Schedule ID
 ```
 flow transactions send ./transactions/sale/updateLockupScheduleId.cdc \
