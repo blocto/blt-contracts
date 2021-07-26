@@ -3,7 +3,7 @@ import NonFungibleToken from "../../../contracts/flow/token/NonFungibleToken.cdc
 import BloctoToken from "../../../contracts/flow/token/BloctoToken.cdc"
 import BloctoPass from "../../../contracts/flow/token/BloctoPass.cdc"
 
-transaction(address: Address, amount: UFix64) {
+transaction(address: Address, amount: UFix64, startDate: UFix64) {
 
     prepare(signer: AuthAccount) {
         let minter = signer
@@ -27,14 +27,40 @@ transaction(address: Address, amount: UFix64) {
         let bltVault <- bltVaultRef.withdraw(amount: amount)
 
         let metadata: {String: String} = {
-            "origin": "Blocto Founders"
+            "origin": "Private Sale"
         }
 
-        minter.mintNFTWithPredefinedLockup(
+        let months = 30.0 * 24.0 * 60.0 * 60.0 // seconds
+
+        // Lockup schedule for advisor
+        let lockupSchedule = {
+            0.0                       : 1.0,
+            startDate                 : 1.0,
+            startDate + 6.0 * months  : 17.0 / 18.0,
+            startDate + 7.0 * months  : 16.0 / 18.0,
+            startDate + 8.0 * months  : 15.0 / 18.0,
+            startDate + 9.0 * months  : 14.0 / 18.0,
+            startDate + 10.0 * months : 13.0 / 18.0,
+            startDate + 11.0 * months : 12.0 / 18.0,
+            startDate + 12.0 * months : 11.0 / 18.0,
+            startDate + 13.0 * months : 10.0 / 18.0,
+            startDate + 14.0 * months : 9.0 / 18.0,
+            startDate + 15.0 * months : 8.0 / 18.0,
+            startDate + 16.0 * months : 7.0 / 18.0,
+            startDate + 17.0 * months : 6.0 / 18.0,
+            startDate + 18.0 * months : 5.0 / 18.0,
+            startDate + 19.0 * months : 4.0 / 18.0,
+            startDate + 20.0 * months : 3.0 / 18.0,
+            startDate + 21.0 * months : 2.0 / 18.0,
+            startDate + 22.0 * months : 1.0 / 18.0,
+            startDate + 23.0 * months : 0.0
+        }
+
+        minter.mintNFTWithCustomLockup(
             recipient: nftCollectionRef,
             metadata: metadata,
             vault: <- bltVault,
-            lockupScheduleId: 3
+            lockupSchedule: lockupSchedule
         )
 
         // Get a reference to the signer's stored vault

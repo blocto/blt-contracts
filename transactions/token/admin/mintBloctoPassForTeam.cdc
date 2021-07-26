@@ -14,6 +14,12 @@ transaction(address: Address, amount: UFix64) {
             .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
             ?? panic("Could not borrow blocto pass collection public reference")
 
+        // Make sure user does not already have a BloctoPass
+        assert (
+            nftCollectionRef.getIDs().length == 0,
+            message: "User already has a BloctoPass"
+        )
+
         let bltVaultRef = signer
             .borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)
             ?? panic("Cannot get BLT vault reference")
