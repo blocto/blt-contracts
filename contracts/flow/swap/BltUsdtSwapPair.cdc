@@ -6,29 +6,6 @@ import TeleportedTetherToken from "../token/TeleportedTetherToken.cdc"
 // Token1: BloctoToken
 // Token2: TeleportedTetherToken
 pub contract BltUsdtSwapPair: FungibleToken {
-  // Frozen flag controlled by Admin
-  pub var isFrozen: Bool
-  
-  // Total supply of BltUsdtSwapPair liquidity token in existence
-  pub var totalSupply: UFix64
-
-  // Fee charged when performing token swap
-  pub var feePercentage: UFix64
-
-  // Controls BloctoToken vault
-  access(contract) let token1Vault: @BloctoToken.Vault
-
-  // Controls TeleportedTetherToken vault
-  access(contract) let token2Vault: @TeleportedTetherToken.Vault
-
-  // Defines token vault storage path
-  pub let TokenStoragePath: StoragePath
-
-  // Defines token vault public balance path
-  pub let TokenPublicBalancePath: PublicPath
-
-  // Defines token vault public receiver path
-  pub let TokenPublicReceiverPath: PublicPath
 
   // Event that is emitted when the contract is created
   pub event TokensInitialized(initialSupply: UFix64)
@@ -52,6 +29,30 @@ pub contract BltUsdtSwapPair: FungibleToken {
   // Side 1: from token1 to token2
   // Side 2: from token2 to token1
   pub event Trade(token1Amount: UFix64, token2Amount: UFix64, side: UInt8)
+
+  // Defines token vault storage path
+  pub let TokenStoragePath: StoragePath
+
+  // Defines token vault public balance path
+  pub let TokenPublicBalancePath: PublicPath
+
+  // Defines token vault public receiver path
+  pub let TokenPublicReceiverPath: PublicPath
+
+  // Frozen flag controlled by Admin
+  pub var isFrozen: Bool
+  
+  // Total supply of BltUsdtSwapPair liquidity token in existence
+  pub var totalSupply: UFix64
+
+  // Fee charged when performing token swap
+  pub var feePercentage: UFix64
+
+  // Controls BloctoToken vault
+  access(contract) let token1Vault: @BloctoToken.Vault
+
+  // Controls TeleportedTetherToken vault
+  access(contract) let token2Vault: @TeleportedTetherToken.Vault
 
   // Vault
   //

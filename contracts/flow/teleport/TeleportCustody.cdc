@@ -2,29 +2,21 @@ import FungibleToken from "../token/FungibleToken.cdc"
 import BloctoToken from "../token/BloctoToken.cdc"
 
 pub contract TeleportCustody {
-  pub var isFrozen: Bool
-
-  pub let TeleportAdminStoragePath: StoragePath
-
-  pub let TeleportAdminTeleportUserPath: PublicPath
-
-  pub let TeleportAdminTeleportControlPath: PrivatePath
-
-  pub let teleportAddressLength: Int
-
-  pub let teleportTxHashLength: Int
-
-  access(contract) let lockVault: @BloctoToken.Vault
-
-  pub var unlocked: {String: Bool}
 
   pub event TeleportAdminCreated(allowedAmount: UFix64)
-
   pub event Locked(amount: UFix64, to: [UInt8])
-
   pub event Unlocked(amount: UFix64, from: [UInt8], txHash: String)
-
   pub event FeeCollected(amount: UFix64, type: UInt8)
+
+  pub let TeleportAdminStoragePath: StoragePath
+  pub let TeleportAdminTeleportUserPath: PublicPath
+  pub let TeleportAdminTeleportControlPath: PrivatePath
+  pub let teleportAddressLength: Int
+  pub let teleportTxHashLength: Int
+
+  pub var isFrozen: Bool
+  access(contract) var unlocked: {String: Bool}
+  access(contract) let lockVault: @BloctoToken.Vault
 
   pub resource Allowance {
     pub var balance: UFix64
@@ -166,14 +158,15 @@ pub contract TeleportCustody {
   }
 
   init(teleportAddressLength: Int, teleportTxHashLength: Int) {
-    self.isFrozen = false
     self.teleportAddressLength = teleportAddressLength
     self.teleportTxHashLength = teleportTxHashLength
-    self.lockVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
-    self.unlocked = {}
     self.TeleportAdminStoragePath = /storage/teleportCustodyTeleportAdmin
     self.TeleportAdminTeleportUserPath = /public/teleportCustodyTeleportUser
     self.TeleportAdminTeleportControlPath = /private/teleportCustodyTeleportControl
+
+    self.isFrozen = false
+    self.unlocked = {}
+    self.lockVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
 
     let admin <- create Administrator()
     self.account.save(<-admin, to: /storage/teleportCustodyAdmin)
