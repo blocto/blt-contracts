@@ -8,6 +8,7 @@ pub contract TeleportCustodySolana {
   pub event Unlocked(amount: UFix64, from: [UInt8], txHash: String)
   pub event FeeCollected(amount: UFix64, type: UInt8)
 
+  pub let AdminStoragePath: StoragePath
   pub let TeleportAdminStoragePath: StoragePath
   pub let TeleportAdminTeleportUserPath: PublicPath
   pub let TeleportAdminTeleportControlPath: PrivatePath
@@ -166,6 +167,7 @@ pub contract TeleportCustodySolana {
     // Solana tx hash length
     self.teleportTxHashLength = 128
 
+    self.AdminStoragePath = /storage/teleportCustodyAdmin
     self.TeleportAdminStoragePath = /storage/teleportCustodySolanaTeleportAdmin
     self.TeleportAdminTeleportUserPath = /public/teleportCustodySolanaTeleportUser
     self.TeleportAdminTeleportControlPath = /private/teleportCustodySolanaTeleportControl
@@ -175,6 +177,6 @@ pub contract TeleportCustodySolana {
     self.lockVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
 
     let admin <- create Administrator()
-    self.account.save(<-admin, to: /storage/teleportCustodySolanaAdmin)
+    self.account.save(<-admin, to: self.AdminStoragePath)
   }
 }

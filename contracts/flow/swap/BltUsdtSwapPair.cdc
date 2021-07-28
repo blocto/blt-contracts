@@ -30,6 +30,9 @@ pub contract BltUsdtSwapPair: FungibleToken {
   // Side 2: from token2 to token1
   pub event Trade(token1Amount: UFix64, token2Amount: UFix64, side: UInt8)
 
+  // Defines swap admin storage path
+  pub let AdminStoragePath: StoragePath
+
   // Defines token vault storage path
   pub let TokenStoragePath: StoragePath
 
@@ -425,6 +428,7 @@ pub contract BltUsdtSwapPair: FungibleToken {
     self.totalSupply = 0.0
     self.feePercentage = 0.003 // 0.3%
 
+    self.AdminStoragePath = /storage/bltUsdtPairAdmin
     self.TokenStoragePath = /storage/bltUsdtFspLpVault
     self.TokenPublicBalancePath = /public/bltUsdtFspLpBalance
     self.TokenPublicReceiverPath = /public/bltUsdtFspLpReceiver
@@ -436,7 +440,7 @@ pub contract BltUsdtSwapPair: FungibleToken {
     self.token2Vault <- TeleportedTetherToken.createEmptyVault() as! @TeleportedTetherToken.Vault
 
     let admin <- create Admin()
-    self.account.save(<-admin, to: /storage/bltUsdtPairAdmin)
+    self.account.save(<-admin, to: self.AdminStoragePath)
 
     // Emit an event that shows that the contract was initialized
     emit TokensInitialized(initialSupply: self.totalSupply)

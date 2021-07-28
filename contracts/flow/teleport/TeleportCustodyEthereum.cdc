@@ -8,6 +8,7 @@ pub contract TeleportCustodyEthereum {
   pub event Unlocked(amount: UFix64, from: [UInt8], txHash: String)
   pub event FeeCollected(amount: UFix64, type: UInt8)
 
+  pub let AdminStoragePath: StoragePath
   pub let TeleportAdminStoragePath: StoragePath
   pub let TeleportAdminTeleportUserPath: PublicPath
   pub let TeleportAdminTeleportControlPath: PrivatePath
@@ -160,6 +161,7 @@ pub contract TeleportCustodyEthereum {
   init() {
     self.teleportAddressLength = 20
     self.teleportTxHashLength = 64
+    self.AdminStoragePath = /storage/teleportCustodyAdmin
     self.TeleportAdminStoragePath = /storage/teleportCustodyEthereumTeleportAdmin
     self.TeleportAdminTeleportUserPath = /public/teleportCustodyEthereumTeleportUser
     self.TeleportAdminTeleportControlPath = /private/teleportCustodyEthereumTeleportControl
@@ -169,6 +171,6 @@ pub contract TeleportCustodyEthereum {
     self.lockVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
 
     let admin <- create Administrator()
-    self.account.save(<-admin, to: /storage/teleportCustodyEthereumAdmin)
+    self.account.save(<-admin, to: self.AdminStoragePath)
   }
 }

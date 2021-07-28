@@ -18,7 +18,7 @@ pub contract BloctoTokenMining {
     pub event CapMultiplierUpdated(capMultiplier: UInt64)
 
     // Event that is emitted when new criteria is updated
-    pub event CriteriaUpdated(name: String, criteria: Criteria?)
+    pub event CriteriaUpdated(name: String, criterion: Criterion?)
 
     // Event that is emitted when reward lock period is updated
     pub event RewardLockPeriodUpdated(rewardLockPeriod: UInt64)
@@ -35,11 +35,11 @@ pub contract BloctoTokenMining {
     // Event that is emiited when reward is withdrawn
     pub event RewardWithdrawn(amount: UFix64, from: Address?)
 
-    // Criteria
+    // Criterion
     //
-    // Define mining criteria
+    // Define mining criterion
     //
-    pub struct Criteria {
+    pub struct Criterion {
 
         // The reward a user can mine if achieving the goal
         pub var reward: UFix64
@@ -74,6 +74,9 @@ pub contract BloctoTokenMining {
     // Defines mining reward public balance path
     pub let MiningRewardPublicPath: PublicPath
 
+    // Defines mining admin storage path
+    pub let MiningAdminStoragePath: StoragePath
+
     // Define mining state
     access(contract) var miningState: MiningState
 
@@ -89,9 +92,9 @@ pub contract BloctoTokenMining {
     // Define cap multipier for VIP-tier users
     access(contract) var capMultiplier: UInt64
 
-    // Define mining criterias
+    // Define mining criteria
     // criteria name => Criteria
-    access(contract) var criterias: {String: Criteria}
+    access(contract) var criteria: {String: Criterion}
 
     // Define reward lock period
     access(contract) var rewardLockPeriod: UInt64
@@ -170,16 +173,16 @@ pub contract BloctoTokenMining {
             emit CapMultiplierUpdated(capMultiplier: capMultiplier)
         }
 
-        // Update criteria by name
-        pub fun updateCriteria(name: String, criteria: Criteria?) {
+        // Update criterion by name
+        pub fun updateCriterion(name: String, criterion: Criterion?) {
             pre {
                 BloctoTokenMining.miningState == MiningState.initial ||
                     BloctoTokenMining.miningState == MiningState.collected:
                     "Current round should be collected"
             }
-            BloctoTokenMining.criterias[name] = criteria
+            BloctoTokenMining.criteria[name] = criterion
 
-            emit CriteriaUpdated(name: name, criteria: criteria)
+            emit CriteriaUpdated(name: name, criterion: criterion)
         }
 
         pub fun updateRewardLockPeriod(_ rewardLockPeriod: UInt64) {
@@ -369,8 +372,8 @@ pub contract BloctoTokenMining {
         return self.capMultiplier
     }
 
-    pub fun getCriterias(): {String: Criteria} {
-        return self.criterias
+    pub fun getCriteria(): {String: Criterion} {
+        return self.criteria
     }
 
     pub fun getRewardLockPeriod(): UInt64 {
@@ -413,18 +416,18 @@ pub contract BloctoTokenMining {
         var reward: UFix64 = 0.0
         for name in data.keys {
             let value = data[name]!
-            let criteria = self.criterias[name]!
+            let criterion = self.criteria[name]!
 
-            var capTimes = criteria.capTimes
+            var capTimes = criterion.capTimes
             if isVIP {
-                capTimes = criteria.capTimes * self.capMultiplier
+                capTimes = criterion.capTimes * self.capMultiplier
             }
-            var times = UInt64(value / criteria.divisor)
+            var times = UInt64(value / criterion.divisor)
             if times > capTimes {
                 times = capTimes
             }
 
-            reward = reward + UFix64(times) * criteria.reward
+            reward = reward + UFix64(times) * criterion.reward
         }
         return reward
     }
@@ -445,12 +448,14 @@ pub contract BloctoTokenMining {
     init() {
         self.MiningRewardStoragePath = /storage/bloctoTokenMiningReward
         self.MiningRewardPublicPath = /public/bloctoTokenMiningReward
+        self.MiningAdminStoragePath = /storage/bloctoTokenMiningAdmin
+
         self.miningState = MiningState.initial
         self.currentRound = 0
         self.currentTotalReward = 0.0
         self.rewardCap = 62_500_000.0 / 4.0 / 52.0
         self.capMultiplier = 3
-        self.criterias = {}
+        self.criteria = {}
         self.rewardLockPeriod = 4
         self.rewardLockRatio = 0.5
         self.userRewardsCollected = {}
@@ -458,6 +463,6 @@ pub contract BloctoTokenMining {
         self.rewardsDistributed = {}
 
         let admin <- create Administrator()
-        self.account.save(<-admin, to: /storage/bloctoTokenMiningAdmin)
+        self.account.save(<-admin, to: self.MiningAdminStoragePath)
     }
 }
