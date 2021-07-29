@@ -7,6 +7,6 @@ transaction(name: String) {
             .borrow<&BloctoTokenMining.Administrator>(from: /storage/bloctoTokenMiningAdmin)
             ?? panic("Signer is not the admin")
 
-        admin.updateCriteria(name: name, criteria: nil)
+        admin.updateCriterion(name: name, criterion: nil)
     }
 }
