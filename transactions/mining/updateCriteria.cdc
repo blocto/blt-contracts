@@ -7,8 +7,8 @@ transaction(name: String, reward: UFix64, divisor: UFix64, capTimes: UInt64) {
             .borrow<&BloctoTokenMining.Administrator>(from: /storage/bloctoTokenMiningAdmin)
             ?? panic("Signer is not the admin")
 
-        let criteria = BloctoTokenMining.Criteria(reward: reward, divisor: divisor, capTimes: capTimes)
+        let criteria = BloctoTokenMining.Criterion(reward: reward, divisor: divisor, capTimes: capTimes)
 
-        admin.updateCriteria(name: name, criteria: criteria)
+        admin.updateCriterion(name: name, criterion: criteria)
     }
 }

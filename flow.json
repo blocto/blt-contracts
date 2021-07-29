@@ -232,6 +232,7 @@
       ],
       "blt-teleport-testnet": [
         "TeleportCustody",
+        "TeleportCustodyEthereum",
         "TeleportCustodySolana"
       ]
     }
