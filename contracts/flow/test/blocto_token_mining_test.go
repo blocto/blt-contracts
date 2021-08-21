@@ -746,9 +746,18 @@ func TestBPMiningOneRound(t *testing.T) {
 		reward := executeScriptAndCheck(t, b,
 			btMiningGetPropertyScript(bpMiningGetMiningRewardPath, btMiningInfo.BTMiningAddr),
 			[][]byte{json.MustEncode(cadence.Address(user1Addr))})
-		rewardExpected := make(map[interface{}]interface{})
-		rewardExpected[uint64(1)] = CadenceUFix64("11.0").ToGoValue()
-		rewardExpected[uint64(5)] = CadenceUFix64("11.0").ToGoValue()
+		rewardExpected := []interface{}{
+			[]interface{}{
+				uint64(1),
+				uint64(1),
+				CadenceUFix64("11.0").ToGoValue(),
+			},
+			[]interface{}{
+				uint64(1),
+				uint64(5),
+				CadenceUFix64("11.0").ToGoValue(),
+			},
+		}
 		assert.Equal(t, rewardExpected, reward.ToGoValue())
 
 		rewardDistributed := executeScriptAndCheck(t, b,
@@ -796,9 +805,18 @@ func TestBPMiningOneRound(t *testing.T) {
 		reward := executeScriptAndCheck(t, b,
 			btMiningGetPropertyScript(bpMiningGetMiningRewardPath, btMiningInfo.BTMiningAddr),
 			[][]byte{json.MustEncode(cadence.Address(user2Addr))})
-		rewardExpected := make(map[interface{}]interface{})
-		rewardExpected[uint64(1)] = CadenceUFix64("16.0").ToGoValue()
-		rewardExpected[uint64(5)] = CadenceUFix64("16.0").ToGoValue()
+		rewardExpected := []interface{}{
+			[]interface{}{
+				uint64(1),
+				uint64(1),
+				CadenceUFix64("16.0").ToGoValue(),
+			},
+			[]interface{}{
+				uint64(1),
+				uint64(5),
+				CadenceUFix64("16.0").ToGoValue(),
+			},
+		}
 		assert.Equal(t, rewardExpected, reward.ToGoValue())
 
 		rewardDistributed := executeScriptAndCheck(t, b,
@@ -1111,9 +1129,18 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 		reward := executeScriptAndCheck(t, b,
 			btMiningGetPropertyScript(bpMiningGetMiningRewardPath, btMiningInfo.BTMiningAddr),
 			[][]byte{json.MustEncode(cadence.Address(user1Addr))})
-		rewardExpected := make(map[interface{}]interface{})
-		rewardExpected[uint64(1)] = CadenceUFix64("2.06211296").ToGoValue()
-		rewardExpected[uint64(5)] = CadenceUFix64("2.06211296").ToGoValue()
+		rewardExpected := []interface{}{
+			[]interface{}{
+				uint64(1),
+				uint64(1),
+				CadenceUFix64("2.06211296").ToGoValue(),
+			},
+			[]interface{}{
+				uint64(1),
+				uint64(5),
+				CadenceUFix64("2.06211296").ToGoValue(),
+			},
+		}
 		assert.Equal(t, rewardExpected, reward.ToGoValue())
 
 		rewardDistributed := executeScriptAndCheck(t, b,
@@ -1143,9 +1170,18 @@ func TestBPMiningOneRoundOverRewardCap(t *testing.T) {
 		reward := executeScriptAndCheck(t, b,
 			btMiningGetPropertyScript(bpMiningGetMiningRewardPath, btMiningInfo.BTMiningAddr),
 			[][]byte{json.MustEncode(cadence.Address(user2Addr))})
-		rewardExpected := make(map[interface{}]interface{})
-		rewardExpected[uint64(1)] = CadenceUFix64("2.99943704").ToGoValue()
-		rewardExpected[uint64(5)] = CadenceUFix64("2.99943703").ToGoValue()
+		rewardExpected := []interface{}{
+			[]interface{}{
+				uint64(1),
+				uint64(1),
+				CadenceUFix64("2.99943704").ToGoValue(),
+			},
+			[]interface{}{
+				uint64(1),
+				uint64(5),
+				CadenceUFix64("2.99943703").ToGoValue(),
+			},
+		}
 		assert.Equal(t, rewardExpected, reward.ToGoValue())
 
 		rewardDistributed := executeScriptAndCheck(t, b,

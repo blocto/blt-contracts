@@ -54,6 +54,7 @@
       }
     },
     "TeleportCustody": "./contracts/flow/teleport/TeleportCustody.cdc",
+    "TeleportCustodyEthereum": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
     "TeleportCustodySolana": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
     "TeleportedTetherToken": {
       "source": "./contracts/flow/token/TeleportedTetherToken.cdc",
