@@ -313,7 +313,7 @@ pub contract BloctoPass: NonFungibleToken {
             return intermediateRef as &BloctoPass.NFT{BloctoPass.BloctoPassPublic, FungibleToken.Receiver, NonFungibleToken.INFT}
         }
 
-        // borrowBloctoPassPublic gets the public references to a BloctoPass NFT in the collection
+        // borrowBloctoPassPrivate gets the private references to a BloctoPass NFT in the collection
         // and returns it to the caller as a reference to the NFT
         pub fun borrowBloctoPassPrivate(id: UInt64): &BloctoPass.NFT {
             let bloctoPassRef = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
