@@ -57,6 +57,18 @@ pub contract BloctoTokenMining {
         }
     }
 
+    pub struct RewardLockInfo {
+        pub let fromRound: UInt64
+        pub let lockRound: UInt64
+        pub let amount: UFix64
+
+        init(fromRound: UInt64, lockRound: UInt64, amount: UFix64) {
+            self.fromRound = fromRound
+            self.lockRound = lockRound
+            self.amount = amount
+        }
+    }
+
     // MiningState
     //
     // Define mining state
@@ -266,8 +278,8 @@ pub contract BloctoTokenMining {
             let miningRewardRef = getAccount(address).getCapability(BloctoTokenMining.MiningRewardPublicPath)
                 .borrow<&{BloctoTokenMining.MiningRewardPublic}>()
                 ?? panic("Could not borrow mining reward public reference")
-            miningRewardRef.deposit(reward: <- lockRewardVault, lockRound: lockRound)
-            miningRewardRef.deposit(reward: <- rewardVault, lockRound: BloctoTokenMining.currentRound)
+            miningRewardRef.deposit(reward: <- rewardVault, lockRound: BloctoTokenMining.currentRound, fromRound: BloctoTokenMining.currentRound)
+            miningRewardRef.deposit(reward: <- lockRewardVault, lockRound: lockRound, fromRound: BloctoTokenMining.currentRound)
 
             BloctoTokenMining.rewardsDistributed[address] = BloctoTokenMining.currentRound
 
@@ -299,51 +311,56 @@ pub contract BloctoTokenMining {
     }
 
     pub resource interface MiningRewardPublic {
-        pub fun getRewardsLocked(): {UInt64: UFix64}
+        pub fun getRewardsLocked(): [RewardLockInfo]
         pub fun computeUnlocked(): UFix64
-        access(contract) fun deposit(reward: @BloctoToken.Vault, lockRound: UInt64)
+        access(contract) fun deposit(reward: @BloctoToken.Vault, lockRound: UInt64, fromRound: UInt64)
     }
 
     pub resource MiningReward: MiningRewardPublic {
 
-        // round => reward
-        access(self) var rewardsLocked: {UInt64: UFix64}
+        // Define reward lock info
+        access(self) var rewardsLocked: [RewardLockInfo]
 
         // Define reward lock vault
         access(self) let reward: @BloctoToken.Vault
 
-        pub fun getRewardsLocked(): {UInt64: UFix64} {
+        pub fun getRewardsLocked(): [RewardLockInfo] {
             return self.rewardsLocked
         }
 
         pub fun computeUnlocked(): UFix64 {
             var amount: UFix64 = 0.0
-            for round in self.rewardsLocked.keys {
-                if round < BloctoTokenMining.currentRound {
-                    amount = amount + self.rewardsLocked[round]!
+            for info in self.rewardsLocked {
+                if info.lockRound < BloctoTokenMining.currentRound {
+                    amount = amount + info.amount
                 }
             }
             return amount
         }
 
-        access(contract) fun deposit(reward: @BloctoToken.Vault, lockRound: UInt64) {
-            self.rewardsLocked[lockRound] = (self.rewardsLocked[lockRound] ?? 0.0) + reward.balance
+        access(contract) fun deposit(reward: @BloctoToken.Vault, lockRound: UInt64, fromRound: UInt64) {
+            let lockInfo = RewardLockInfo(fromRound: fromRound, lockRound: lockRound, amount: reward.balance)
+            self.rewardsLocked.append(lockInfo)
             self.reward.deposit(from: <- reward)
         }
 
         pub fun withdraw(): @BloctoToken.Vault {
             var amount: UFix64 = 0.0
-            for round in self.rewardsLocked.keys {
-                if round < BloctoTokenMining.currentRound {
-                    amount = amount + self.rewardsLocked.remove(key: round)!
+            var index = self.rewardsLocked.length - 1
+            while index >= 0 {
+                let info = self.rewardsLocked[index]
+                if info.lockRound < BloctoTokenMining.currentRound {
+                    amount = amount + info.amount
+                    self.rewardsLocked.remove(at: index)
                 }
+                index = index - 1
             }
             emit RewardWithdrawn(amount: amount, from: self.owner?.address)
             return <- (self.reward.withdraw(amount: amount) as! @BloctoToken.Vault)
         }
 
         init() {
-            self.rewardsLocked = {}
+            self.rewardsLocked = []
             self.reward <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
         }
 
