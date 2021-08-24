@@ -139,6 +139,11 @@
       ],
       "chain": "flow-testnet"
     },
+    "blt-mining2-testnet": {
+      "address": "475242ecdf13596e",
+      "keys": "aaed7f786971dc53104ed55b3de617aac4d987174eb691474a969e4c129ecea0",
+      "chain": "flow-testnet"
+    },
     "blt-teleport-testnet": {
       "address": "967a0fb3c949cbc5",
       "keys": "4d90e59b86fb7cede90f764eb3593b56fe4fe02205e315828d5d62e117dba575",
