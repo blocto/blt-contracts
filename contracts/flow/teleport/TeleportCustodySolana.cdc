@@ -167,7 +167,7 @@ pub contract TeleportCustodySolana {
     // Solana tx hash length
     self.teleportTxHashLength = 128
 
-    self.AdminStoragePath = /storage/teleportCustodyAdmin
+    self.AdminStoragePath = /storage/teleportCustodySolanaAdmin
     self.TeleportAdminStoragePath = /storage/teleportCustodySolanaTeleportAdmin
     self.TeleportAdminTeleportUserPath = /public/teleportCustodySolanaTeleportUser
     self.TeleportAdminTeleportControlPath = /private/teleportCustodySolanaTeleportControl

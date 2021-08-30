@@ -161,7 +161,7 @@ pub contract TeleportCustodyEthereum {
   init() {
     self.teleportAddressLength = 20
     self.teleportTxHashLength = 64
-    self.AdminStoragePath = /storage/teleportCustodyAdmin
+    self.AdminStoragePath = /storage/teleportCustodyEthereumAdmin
     self.TeleportAdminStoragePath = /storage/teleportCustodyEthereumTeleportAdmin
     self.TeleportAdminTeleportUserPath = /public/teleportCustodyEthereumTeleportUser
     self.TeleportAdminTeleportControlPath = /private/teleportCustodyEthereumTeleportControl

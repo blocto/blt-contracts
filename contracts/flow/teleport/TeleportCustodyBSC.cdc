@@ -161,7 +161,7 @@ pub contract TeleportCustodyBSC {
   init() {
     self.teleportAddressLength = 20
     self.teleportTxHashLength = 64
-    self.AdminStoragePath = /storage/teleportCustodyAdmin
+    self.AdminStoragePath = /storage/teleportCustodyBSCAdmin
     self.TeleportAdminStoragePath = /storage/teleportCustodyBSCTeleportAdmin
     self.TeleportAdminTeleportUserPath = /public/teleportCustodyBSCTeleportUser
     self.TeleportAdminTeleportControlPath = /private/teleportCustodyBSCTeleportControl
