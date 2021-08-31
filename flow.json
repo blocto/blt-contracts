@@ -37,7 +37,12 @@
         "mainnet": "0x0f9df91c9121c460"
       }
     },
-    "BltUsdtSwapPair": "./contracts/flow/swap/BltUsdtSwapPair.cdc",
+    "BltUsdtSwapPair": {
+      "source": "./contracts/flow/staking/BltUsdtSwapPair.cdc",
+      "aliases": {
+        "mainnet": "0xfcb06a5ae5b21a2d"
+      }
+    },
     "FungibleToken": {
       "source": "./contracts/flow/token/FungibleToken.cdc",
       "aliases": {
@@ -54,8 +59,24 @@
       }
     },
     "TeleportCustody": "./contracts/flow/teleport/TeleportCustody.cdc",
-    "TeleportCustodyEthereum": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
-    "TeleportCustodySolana": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
+    "TeleportCustodyEthereum": {
+      "source": "./contracts/flow/staking/TeleportCustodyEthereum.cdc",
+      "aliases": {
+        "mainnet": "0x0ac14a822e54cc4e"
+      }
+    },
+    "TeleportCustodySolana": {
+      "source": "./contracts/flow/staking/TeleportCustodySolana.cdc",
+      "aliases": {
+        "mainnet": "0x0ac14a822e54cc4e"
+      }
+    },
+    "TeleportCustodyBSC": {
+      "source": "./contracts/flow/staking/TeleportCustodyBSC.cdc",
+      "aliases": {
+        "mainnet": "0x0ac14a822e54cc4e"
+      }
+    },
     "TeleportedTetherToken": {
       "source": "./contracts/flow/token/TeleportedTetherToken.cdc",
       "aliases": {
