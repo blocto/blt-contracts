@@ -9,6 +9,11 @@ const config: HardhatUserConfig = {
       url: "", // rinkeby url
       accounts: [/* private key here. 0x... */],
     },
+    bsctestnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      accounts: [/* private key here. 0x... */],
+    },
   },
   solidity: {
     compilers: [
@@ -21,7 +26,7 @@ const config: HardhatUserConfig = {
     ],
   },
   etherscan: {
-    apiKey: "", // etherscan api key here...
+    apiKey: "", // etherscan/bscscan api key here...
   },
 };
 

@@ -38,6 +38,29 @@ networks: {
 npm run deploy-rinkeby
 ```
 
+### BSC Testnet
+
+1. Set up url and deploy account in hardhat.config.ts
+
+```js
+...
+
+networks: {
+	bsctestnet: {
+		accounts: [/* private key here. 0x... */],
+	},
+},
+
+...
+```
+
+2. run command
+
+```sh
+npm run deploy-bsc-testnet
+```
+
+
 ## Verify
 
 ### Rinkeby
@@ -60,4 +83,26 @@ npx hardhat verify --network rinkeby TOKEN_ADDRESS "BloctoToken" "BLT" 8
 
 ```js
 npx hardhat verify --network rinkeby TELEPORT_CUSTODY_ADDRESS "TOKEN_ADDRESS"
+```
+
+### BSC Testnet
+
+1. set up bscscan api key in `hardhat.config.ts`
+
+```
+etherscan: {
+	apiKey: "",
+},
+```
+
+2. verify token
+
+```js
+npx hardhat verify --network bsctestnet TOKEN_ADDRESS "BloctoToken" "BLT" 8
+```
+
+3. verify teleportCustody
+
+```js
+npx hardhat verify --network bsctestnet TELEPORT_CUSTODY_ADDRESS "TOKEN_ADDRESS"
 ```
