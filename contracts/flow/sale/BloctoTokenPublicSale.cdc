@@ -12,7 +12,6 @@
 import FungibleToken from "../token/FungibleToken.cdc"
 import NonFungibleToken from "../token/NonFungibleToken.cdc"
 import BloctoToken from "../token/BloctoToken.cdc"
-import BloctoPass from "../token/BloctoPass.cdc"
 import TeleportedTetherToken from "../token/TeleportedTetherToken.cdc"
 
 pub contract BloctoTokenPublicSale {
@@ -83,7 +82,7 @@ pub contract BloctoTokenPublicSale {
     }
 
     // BLT purchase method
-    // User pays tUSDT and get a BloctoPass NFT with lockup terms
+    // User pays tUSDT and get unlocked BloctoToken
     // Note that "address" can potentially be faked, but there's no incentive doing so
     pub fun purchase(from: @TeleportedTetherToken.Vault, address: Address) {
         pre {
@@ -91,16 +90,6 @@ pub contract BloctoTokenPublicSale {
             self.purchases[address] == nil: "Already purchased by the same account"
             from.balance <= self.personalCap: "Purchase amount exceeds personal cap"
         }
-
-        let collectionRef = getAccount(address).getCapability(BloctoPass.CollectionPublicPath)
-            .borrow<&{NonFungibleToken.CollectionPublic}>()
-            ?? panic("Could not borrow blocto pass collection public reference")
-
-        // Make sure user does not already have a BloctoPass
-        assert (
-            collectionRef.getIDs().length == 0,
-            message: "User already has a BloctoPass"
-        )
 
         let amount = from.balance
         self.tusdtVault.deposit(from: <- from)
