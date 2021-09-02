@@ -1,6 +1,6 @@
-import FungibleToken from "../../contracts/flow/token/FungibleToken.cdc"
-import TeleportedTetherToken from "../../contracts/flow/token/TeleportedTetherToken.cdc"
-import BloctoTokenSale from "../../contracts/flow/sale/BloctoTokenSale.cdc"
+import FungibleToken from "../../../contracts/flow/token/FungibleToken.cdc"
+import TeleportedTetherToken from "../../../contracts/flow/token/TeleportedTetherToken.cdc"
+import BloctoTokenSale from "../../../contracts/flow/sale/BloctoTokenSale.cdc"
 
 transaction(amount: UFix64, to: Address) {
 

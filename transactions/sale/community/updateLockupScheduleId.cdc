@@ -1,6 +1,6 @@
-import BloctoTokenSale from "../../contracts/flow/sale/BloctoTokenSale.cdc"
+import BloctoTokenSale from "../../../contracts/flow/sale/BloctoTokenSale.cdc"
 
-transaction() {
+transaction(lockupScheduleId: Int) {
 
     // The reference to the Admin Resource
     let adminRef: &BloctoTokenSale.Admin
@@ -14,7 +14,7 @@ transaction() {
 
     execute {
 
-        // Freeze sale
-        self.adminRef.freeze()
+        // Refun BLT purchase
+        self.adminRef.updateLockupScheduleId(lockupScheduleId: lockupScheduleId)
     }
 }
