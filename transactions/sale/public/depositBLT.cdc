@@ -1,11 +1,11 @@
-import FungibleToken from "../../contracts/flow/token/FungibleToken.cdc"
-import BloctoToken from "../../contracts/flow/token/BloctoToken.cdc"
-import BloctoTokenSale from "../../contracts/flow/sale/BloctoTokenSale.cdc"
+import FungibleToken from "../../../contracts/flow/token/FungibleToken.cdc"
+import BloctoToken from "../../../contracts/flow/token/BloctoToken.cdc"
+import BloctoTokenPublicSale from "../../../contracts/flow/sale/BloctoTokenPublicSale.cdc"
 
 transaction(amount: UFix64) {
 
     // The reference to the Admin Resource
-    let adminRef: &BloctoTokenSale.Admin
+    let adminRef: &BloctoTokenPublicSale.Admin
 
     // The tUSDT Vault resource that holds the tokens that are being transferred
     let sentVault:  @FungibleToken.Vault
@@ -13,7 +13,7 @@ transaction(amount: UFix64) {
     prepare(account: AuthAccount) {
 
         // Get admin reference
-        self.adminRef = account.borrow<&BloctoTokenSale.Admin>(from: BloctoTokenSale.SaleAdminStoragePath)
+        self.adminRef = account.borrow<&BloctoTokenPublicSale.Admin>(from: BloctoTokenPublicSale.SaleAdminStoragePath)
 			?? panic("Could not borrow reference to the admin!")
 
         // Get a reference to the signer's stored vault

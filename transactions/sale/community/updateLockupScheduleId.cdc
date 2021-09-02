@@ -1,6 +1,6 @@
-import BloctoTokenSale from "../../contracts/flow/sale/BloctoTokenSale.cdc"
+import BloctoTokenSale from "../../../contracts/flow/sale/BloctoTokenSale.cdc"
 
-transaction(addresses: [Address]) {
+transaction(lockupScheduleId: Int) {
 
     // The reference to the Admin Resource
     let adminRef: &BloctoTokenSale.Admin
@@ -14,9 +14,7 @@ transaction(addresses: [Address]) {
 
     execute {
 
-        // Distribute BLT purchase to all addresses in the list
-        for address in addresses {
-            self.adminRef.distribute(address: address)
-        }
+        // Refun BLT purchase
+        self.adminRef.updateLockupScheduleId(lockupScheduleId: lockupScheduleId)
     }
 }

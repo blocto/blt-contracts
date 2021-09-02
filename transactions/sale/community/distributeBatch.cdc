@@ -1,6 +1,6 @@
-import BloctoTokenSale from "../../contracts/flow/sale/BloctoTokenSale.cdc"
+import BloctoTokenSale from "../../../contracts/flow/sale/BloctoTokenSale.cdc"
 
-transaction(address: Address) {
+transaction(addresses: [Address]) {
 
     // The reference to the Admin Resource
     let adminRef: &BloctoTokenSale.Admin
@@ -14,7 +14,9 @@ transaction(address: Address) {
 
     execute {
 
-        // Distribute BLT purchase
-        self.adminRef.distribute(address: address)
+        // Distribute BLT purchase to all addresses in the list
+        for address in addresses {
+            self.adminRef.distribute(address: address)
+        }
     }
 }

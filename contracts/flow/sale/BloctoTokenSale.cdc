@@ -1,8 +1,8 @@
 /*
 
-    BloctoTokenSale
+    BloctoTokenSale (Community Sale)
 
-    The BloctoToken Sale contract is used for 
+    The BloctoToken Community Sale contract is used for 
     BLT token community sale. Qualified purchasers
     can purchase with tUSDT (Teleported Tether) to get
     BLTs at the same price and lock-up terms as private sale

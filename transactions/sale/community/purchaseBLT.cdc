@@ -1,7 +1,7 @@
-import NonFungibleToken from "../../contracts/flow/token/NonFungibleToken.cdc"
-import TeleportedTetherToken from "../../contracts/flow/token/TeleportedTetherToken.cdc"
-import BloctoPass from "../../contracts/flow/token/BloctoPass.cdc"
-import BloctoTokenSale from "../../contracts/flow/sale/BloctoTokenSale.cdc"
+import NonFungibleToken from "../../../contracts/flow/token/NonFungibleToken.cdc"
+import TeleportedTetherToken from "../../../contracts/flow/token/TeleportedTetherToken.cdc"
+import BloctoPass from "../../../contracts/flow/token/BloctoPass.cdc"
+import BloctoTokenSale from "../../../contracts/flow/sale/BloctoTokenSale.cdc"
 
 transaction(amount: UFix64) {
 
