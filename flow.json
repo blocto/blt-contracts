@@ -44,7 +44,7 @@
       }
     },
     "BltUsdtSwapPair": {
-      "source": "./contracts/flow/staking/BltUsdtSwapPair.cdc",
+      "source": "./contracts/flow/swap/BltUsdtSwapPair.cdc",
       "aliases": {
         "mainnet": "0xfcb06a5ae5b21a2d"
       }
