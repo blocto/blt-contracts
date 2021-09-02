@@ -66,19 +66,19 @@
     },
     "TeleportCustody": "./contracts/flow/teleport/TeleportCustody.cdc",
     "TeleportCustodyEthereum": {
-      "source": "./contracts/flow/staking/TeleportCustodyEthereum.cdc",
+      "source": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
       "aliases": {
         "mainnet": "0x0ac14a822e54cc4e"
       }
     },
     "TeleportCustodySolana": {
-      "source": "./contracts/flow/staking/TeleportCustodySolana.cdc",
+      "source": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
       "aliases": {
         "mainnet": "0x0ac14a822e54cc4e"
       }
     },
     "TeleportCustodyBSC": {
-      "source": "./contracts/flow/staking/TeleportCustodyBSC.cdc",
+      "source": "./contracts/flow/teleport/TeleportCustodyBSC.cdc",
       "aliases": {
         "mainnet": "0x0ac14a822e54cc4e"
       }
