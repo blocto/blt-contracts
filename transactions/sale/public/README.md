@@ -48,6 +48,7 @@ flow transactions send ./transactions/sale/public/purchaseBLT.cdc \
 flow transactions send ./transactions/sale/public/distribute.cdc \
   --network testnet \
   --arg Address:0x67e7299327d1bf70 \
+  --arg UFix64:500.0 \
   --signer blt-admin-testnet \
   --gas-limit 1000
 ```

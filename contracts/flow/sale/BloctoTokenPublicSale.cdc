@@ -62,7 +62,7 @@ pub contract BloctoTokenPublicSale {
         pub let address: Address
 
         // Purchase amount in tUSDT
-        pub let amount: UFix64
+        pub(set) var amount: UFix64
 
         // Random ticked ID
         pub let ticketId: UInt64
@@ -144,7 +144,9 @@ pub contract BloctoTokenPublicSale {
             BloctoTokenPublicSale.isSaleActive = false
         }
 
-        pub fun distribute(address: Address) {
+        // Distribute BLT with an allocation amount
+        // If user's purchase amount exceeds allocation amount, the remainder will be refunded
+        pub fun distribute(address: Address, allocationAmount: UFix64) {
             pre {
                 BloctoTokenPublicSale.purchases[address] != nil: "Cannot find purchase record for the address"
                 BloctoTokenPublicSale.purchases[address]?.state == PurchaseState.initial: "Already distributed or refunded"
@@ -157,17 +159,38 @@ pub contract BloctoTokenPublicSale {
             let purchaseInfo = BloctoTokenPublicSale.purchases[address]
                 ?? panic("Count not get purchase info for the address")
 
-            let bltAmount = purchaseInfo.amount / BloctoTokenPublicSale.price
+            // Make sure allocation amount does not exceed purchase amount
+            assert (
+                allocationAmount <= purchaseInfo.amount,
+                message: "Allocation amount exceeds purchase amount"
+            )
+
+            let refundAmount = purchaseInfo.amount - allocationAmount
+            let bltAmount = allocationAmount / BloctoTokenPublicSale.price
             let bltVault <- BloctoTokenPublicSale.bltVault.withdraw(amount: bltAmount)
 
             // Set the state of the purchase to DISTRIBUTED
             purchaseInfo.state = PurchaseState.distributed
+            purchaseInfo.amount = allocationAmount
             BloctoTokenPublicSale.purchases[address] = purchaseInfo
 
             // Deposit the withdrawn tokens in the recipient's receiver
             receiverRef.deposit(from: <- bltVault)
 
-            emit Distributed(address: address, tusdtAmount: purchaseInfo.amount, bltAmount: bltAmount)
+            emit Distributed(address: address, tusdtAmount: allocationAmount, bltAmount: bltAmount)
+
+            // Refund the remaining amount
+            if refundAmount > 0.0 {
+                let tUSDTReceiverRef = getAccount(address).getCapability(TeleportedTetherToken.TokenPublicReceiverPath)
+                    .borrow<&{FungibleToken.Receiver}>()
+                    ?? panic("Could not borrow tUSDT vault receiver public reference")
+                
+                let tusdtVault <- BloctoTokenPublicSale.tusdtVault.withdraw(amount: refundAmount)
+
+                receiverRef.deposit(from: <- tusdtVault)
+
+                emit Refunded(address: address, amount: refundAmount)
+            }
         }
 
         pub fun refund(address: Address) {

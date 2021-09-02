@@ -1,6 +1,6 @@
 import BloctoTokenPublicSale from "../../../contracts/flow/sale/BloctoTokenPublicSale.cdc"
 
-transaction(addresses: [Address]) {
+transaction(addresses: [Address], allocationAmount: UFix64) {
 
     // The reference to the Admin Resource
     let adminRef: &BloctoTokenPublicSale.Admin
@@ -16,7 +16,7 @@ transaction(addresses: [Address]) {
 
         // Distribute BLT purchase to all addresses in the list
         for address in addresses {
-            self.adminRef.distribute(address: address)
+            self.adminRef.distribute(address: address, allocationAmount: allocationAmount)
         }
     }
 }
