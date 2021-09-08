@@ -1,4 +1,6 @@
 arguments/
 build/
 flowdb/
-/.idea
+
+.idea
+flow.mainnet.json

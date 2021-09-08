@@ -57,6 +57,9 @@ pub contract BloctoTokenPublicSale {
     // All purchase records
     access(contract) var purchases: {Address: PurchaseInfo}
 
+    // Workaround random number generator
+    pub resource Random {}
+
     pub struct PurchaseInfo {
         // Purchaser address
         pub let address: Address
@@ -74,9 +77,14 @@ pub contract BloctoTokenPublicSale {
             address: Address,
             amount: UFix64,
         ) {
+            // Create random resource 
+            let random <- create Random()
+            let ticketId = random.uuid
+            destroy random
+
             self.address = address
             self.amount = amount
-            self.ticketId = unsafeRandom() % 1_000_000_000
+            self.ticketId = ticketId % 1_073_741_824 // 2^30
             self.state = PurchaseState.initial
         }
     }
@@ -187,7 +195,7 @@ pub contract BloctoTokenPublicSale {
                 
                 let tusdtVault <- BloctoTokenPublicSale.tusdtVault.withdraw(amount: refundAmount)
 
-                receiverRef.deposit(from: <- tusdtVault)
+                tUSDTReceiverRef.deposit(from: <- tusdtVault)
 
                 emit Refunded(address: address, amount: refundAmount)
             }

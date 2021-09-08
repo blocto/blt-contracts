@@ -3,7 +3,7 @@
 ```
 flow transactions send ./transactions/sale/public/freeze.cdc \
   --network testnet \
-  --signer blt-admin-testnet \
+  --signer blt-admin-new-testnet \
   --gas-limit 1000
 ```
 
@@ -11,7 +11,7 @@ flow transactions send ./transactions/sale/public/freeze.cdc \
 ```
 flow transactions send ./transactions/sale/public/unfreeze.cdc \
   --network testnet \
-  --signer blt-admin-testnet \
+  --signer blt-admin-new-testnet \
   --gas-limit 1000
 ```
 
@@ -20,7 +20,7 @@ flow transactions send ./transactions/sale/public/unfreeze.cdc \
 flow transactions send ./transactions/sale/public/depositBLT.cdc \
   --network testnet \
   --arg UFix64:50000.0 \
-  --signer blt-admin-testnet \
+  --signer blt-admin-new-testnet \
   --gas-limit 1000
 ```
 
@@ -30,7 +30,7 @@ flow transactions send ./transactions/sale/public/withdrawTusdt.cdc \
   --network testnet \
   --arg UFix64:50000.0 \
   --arg Address:0x03d1e02a48354e2b \
-  --signer blt-admin-testnet \
+  --signer blt-admin-new-testnet \
   --gas-limit 1000
 ```
 
@@ -49,7 +49,7 @@ flow transactions send ./transactions/sale/public/distribute.cdc \
   --network testnet \
   --arg Address:0x67e7299327d1bf70 \
   --arg UFix64:500.0 \
-  --signer blt-admin-testnet \
+  --signer blt-admin-new-testnet \
   --gas-limit 1000
 ```
 
@@ -67,7 +67,7 @@ flow transactions send ./transactions/sale/public/distributeBatch.cdc \
 flow transactions send ./transactions/sale/public/refund.cdc \
   --network testnet \
   --arg Address:0x95d4f57daf2fb5ce \
-  --signer blt-admin-testnet \
+  --signer blt-admin-new-testnet \
   --gas-limit 1000
 ```
 

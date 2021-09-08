@@ -1,6 +1,7 @@
 import NonFungibleToken from "../../../contracts/flow/token/NonFungibleToken.cdc"
 import TeleportedTetherToken from "../../../contracts/flow/token/TeleportedTetherToken.cdc"
-import BloctoPass from "../../../contracts/flow/token/BloctoPass.cdc"
+import FungibleToken from "../../../contracts/flow/token/FungibleToken.cdc"
+import BloctoToken from "../../../contracts/flow/token/BloctoToken.cdc"
 import BloctoTokenPublicSale from "../../../contracts/flow/sale/BloctoTokenPublicSale.cdc"
 
 transaction(amount: UFix64) {
@@ -23,16 +24,25 @@ transaction(amount: UFix64) {
         // Record the buyer address
         self.buyerAddress = account.address
 
-        // If user does not have BloctoPass collection yet, create one to receive
-        if account.borrow<&BloctoPass.Collection>(from: BloctoPass.CollectionStoragePath) == nil {
+        // Create BloctoToken vault if not currently available
+        if(account.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath) == nil) {
+            
+            // Create a new Blocto Token Vault and put it in storage
+            account.save(<-BloctoToken.createEmptyVault(), to: BloctoToken.TokenStoragePath)
 
-            let collection <- BloctoPass.createEmptyCollection() as! @BloctoPass.Collection
+            // Create a public capability to the Vault that only exposes
+            // the deposit function through the Receiver interface
+            account.link<&BloctoToken.Vault{FungibleToken.Receiver}>(
+                BloctoToken.TokenPublicReceiverPath,
+                target: BloctoToken.TokenStoragePath
+            )
 
-            account.save(<-collection, to: BloctoPass.CollectionStoragePath)
-
-            account.link<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>(
-                BloctoPass.CollectionPublicPath,
-                target: BloctoPass.CollectionStoragePath)
+            // Create a public capability to the Vault that only exposes
+            // the balance field through the Balance interface
+            account.link<&BloctoToken.Vault{FungibleToken.Balance}>(
+                BloctoToken.TokenPublicBalancePath,
+                target: BloctoToken.TokenStoragePath
+            )
         }
     }
 
