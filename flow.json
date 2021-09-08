@@ -235,6 +235,9 @@
         }
       ],
       "chain": "flow-testnet"
+    },
+    "blt-admin-mainnet": {
+      "fromFile": "./flow.mainnet.json"
     }
   },
   "deployments": {
