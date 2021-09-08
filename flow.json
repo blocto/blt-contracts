@@ -236,6 +236,21 @@
       ],
       "chain": "flow-testnet"
     },
+    "blt-user3-testnet": {
+      "address": "8e6abc0783e31b41",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 0,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "b93534ee974f86c402ca0cee06c18821e4cba64c180f6f53c10e8db974ebd755"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
+    },
     "blt-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     }
