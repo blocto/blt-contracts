@@ -187,7 +187,7 @@ pub contract BloctoTokenPublicSale {
                 
                 let tusdtVault <- BloctoTokenPublicSale.tusdtVault.withdraw(amount: refundAmount)
 
-                receiverRef.deposit(from: <- tusdtVault)
+                tUSDTReceiverRef.deposit(from: <- tusdtVault)
 
                 emit Refunded(address: address, amount: refundAmount)
             }
