@@ -22,29 +22,83 @@ flow transactions send ./transactions/teleport/unlockTokens.cdc \
   --gas-limit 1000
 ```
 
-### Setup TeleportAdmin
+### Setup TeleportAdminBSC
 ```
-flow transactions build ./transactions/teleport/createTeleportAdminSolana.cdc \
-  --network testnet \
-  --arg UFix64:1000000000.0 \
-  --proposer 0x967a0fb3c949cbc5 \
+flow transactions build ./transactions/teleport/createTeleportAdminBSC.cdc \
+  --network mainnet \
+  --arg UFix64:1000000.0 \
+  --proposer 0x0ac14a822e54cc4e \
   --proposer-key-index 0 \
-  --authorizer 0x967a0fb3c949cbc5 \
-  --authorizer 0xf086a545ce3c552d \
-  --payer 0xf086a545ce3c552d \
+  --authorizer 0x0ac14a822e54cc4e \
+  --authorizer 0x55ad22f01ef568a1 \
+  --payer 0x55ad22f01ef568a1 \
   --gas-limit 1000 \
   -x payload \
   --save ./build/unsigned.rlp
 
 flow transactions sign ./build/unsigned.rlp \
-  --signer blt-teleport-testnet \
+  --signer blt-teleport-admin-mainnet \
   --filter payload \
   --save ./build/signed-1.rlp
 
 flow transactions sign ./build/signed-1.rlp \
-  --signer blt-teleport-admin-testnet \
+  --signer blocto-hot-wallet-mainnet \
   --filter payload \
   --save ./build/signed-2.rlp
 
-flow transactions send-signed --network testnet ./build/signed-2.rlp
+flow transactions send-signed --network mainnet ./build/signed-2.rlp
+```
+
+### Setup TeleportAdminSolana
+```
+flow transactions build ./transactions/teleport/createTeleportAdminSolana.cdc \
+  --network mainnet \
+  --arg UFix64:1000000.0 \
+  --proposer 0x0ac14a822e54cc4e \
+  --proposer-key-index 0 \
+  --authorizer 0x0ac14a822e54cc4e \
+  --authorizer 0x55ad22f01ef568a1 \
+  --payer 0x55ad22f01ef568a1 \
+  --gas-limit 1000 \
+  -x payload \
+  --save ./build/unsigned.rlp
+
+flow transactions sign ./build/unsigned.rlp \
+  --signer blt-teleport-admin-mainnet \
+  --filter payload \
+  --save ./build/signed-1.rlp
+
+flow transactions sign ./build/signed-1.rlp \
+  --signer blocto-hot-wallet-mainnet \
+  --filter payload \
+  --save ./build/signed-2.rlp
+
+flow transactions send-signed --network mainnet ./build/signed-2.rlp
+```
+
+### Setup TeleportAdminEthereum
+```
+flow transactions build ./transactions/teleport/createTeleportAdminEthereum.cdc \
+  --network mainnet \
+  --arg UFix64:1000000.0 \
+  --proposer 0x0ac14a822e54cc4e \
+  --proposer-key-index 0 \
+  --authorizer 0x0ac14a822e54cc4e \
+  --authorizer 0x55ad22f01ef568a1 \
+  --payer 0x55ad22f01ef568a1 \
+  --gas-limit 1000 \
+  -x payload \
+  --save ./build/unsigned.rlp
+
+flow transactions sign ./build/unsigned.rlp \
+  --signer blt-teleport-admin-mainnet \
+  --filter payload \
+  --save ./build/signed-1.rlp
+
+flow transactions sign ./build/signed-1.rlp \
+  --signer blocto-hot-wallet-mainnet \
+  --filter payload \
+  --save ./build/signed-2.rlp
+
+flow transactions send-signed --network mainnet ./build/signed-2.rlp
 ```

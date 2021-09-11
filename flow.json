@@ -253,6 +253,12 @@
     },
     "blt-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
+    },
+    "blt-teleport-admin-mainnet": {
+      "fromFile": "./flow.mainnet.json"
+    },
+    "blocto-hot-wallet-mainnet": {
+      "fromFile": "./flow.mainnet.json"
     }
   },
   "deployments": {
