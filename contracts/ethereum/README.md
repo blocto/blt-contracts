@@ -1,4 +1,10 @@
-# Ethereum
+# Ethereum / BSC Side of BloctoToken and TeleportCustody
+
+## Deployed
+
+### BSC
+- BloctoToken: [0x02Bdf640fba368E7Ba5c6429cCaF251512273865](https://bscscan.com/token/0x02Bdf640fba368E7Ba5c6429cCaF251512273865)
+- TeleportCustody: [0x567f7048785fcEF7944B1C980AcbB32d0CA573B7](https://bscscan.com/address/0x567f7048785fcEF7944B1C980AcbB32d0CA573B7)
 
 ## Test
 
