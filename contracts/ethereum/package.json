@@ -6,7 +6,9 @@
     "test": "hardhat test",
     "emulator": "hardhat node",
     "deploy-local": "hardhat run --network localhost scripts/deploy.ts",
-    "deploy-rinkeby": "hardhat run --network rinkeby scripts/deploy.ts"
+    "deploy-rinkeby": "hardhat run --network rinkeby scripts/deploy.ts",
+    "deploy-bsc-testnet": "hardhat run --network bscTestnet scripts/deploy.ts",
+    "deploy-bsc-mainnet": "hardhat run --network bscMainnet scripts/deploy.ts"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",

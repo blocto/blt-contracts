@@ -9,13 +9,21 @@ const config: HardhatUserConfig = {
       url: "", // rinkeby url
       accounts: [/* private key here. 0x... */],
     },
+    bscTestnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      accounts: [],
+    },
+    bscMainnet: {
+      url: "https://bsc-dataseed1.binance.org",
+      accounts: [],
+    },
   },
   solidity: {
     compilers: [
       {
-        version: "0.8.0",
+        version: "0.8.7",
         settings: {
-          optimizer: { enabled: true, runs: 200 },
+          optimizer: { enabled: true, runs: 1000 },
         },
       },
     ],

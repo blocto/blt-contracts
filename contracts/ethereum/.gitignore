@@ -1,5 +1,8 @@
 node_modules
 
-#Hardhat files
+# Hardhat files
 cache
 artifacts
+
+# Private files
+hardhat.config.secret.ts
