@@ -10,6 +10,17 @@ flow transactions send ./transactions/teleport/lockTokens.cdc \
   --gas-limit 1000
 ```
 
+### Teleport BLT to BSC
+```
+flow transactions send ./transactions/teleport/lockTokensBSC.cdc \
+  --network mainnet \
+  --arg Address:0x55ad22f01ef568a1 \
+  --arg UFix64:1.0 \
+  --arg String:3f74f0af1FA2B2308dd157c7f163307e52e7fED4 \
+  --signer blt-admin-mainnet \
+  --gas-limit 1000
+```
+
 ### Unlock BLT
 ```
 flow transactions send ./transactions/teleport/unlockTokens.cdc \
@@ -21,6 +32,26 @@ flow transactions send ./transactions/teleport/unlockTokens.cdc \
   --signer blt-teleport-admin-testnet \
   --gas-limit 1000
 ```
+
+### Unlock BLT from BSC
+```
+flow transactions send ./transactions/teleport/unlockTokensBSC.cdc \
+  --network mainnet \
+  --arg UFix64:1.0 \
+  --arg Address:0x0f9df91c9121c460 \
+  --arg String:3f74f0af1FA2B2308dd157c7f163307e52e7fED4 \
+  --arg String:15a6bbb03e1c1103840be66c7269769664465e805a99b99cddc9b3137100bb63 \
+  --signer blocto-hot-wallet-mainnet \
+  --gas-limit 1000
+```
+
+### Update BSC Teleport Fees
+flow transactions send ./transactions/teleport/updateTeleportFeesBSC.cdc \
+  --network mainnet \
+  --arg UFix64:0.0 \
+  --arg UFix64:0.0 \
+  --signer blocto-hot-wallet-mainnet \
+  --gas-limit 1000
 
 ### Setup TeleportAdminBSC
 ```
