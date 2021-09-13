@@ -17,6 +17,7 @@ use {
         sysvar::Sysvar,
     },
     spl_token,
+    std::str::FromStr,
 };
 
 /// Program state handler.
@@ -32,7 +33,8 @@ impl Processor {
         match instruction {
             TeleportInstruction::GetOwner => {
                 msg!("Instruction: GetOwner");
-                msg!(&format!("owner is {}", state::OWNER.to_string()));
+                let owner = Pubkey::from_str(state::OWNER_KEY).unwrap();
+                msg!(&format!("owner is {}", owner.to_string()));
                 Ok(())
             }
             TeleportInstruction::InitConfig => {
@@ -265,7 +267,8 @@ impl Processor {
         }
 
         // check wallet program
-        if wallet_program_info.key != &state::MULTISIG_PROGRAM {
+        let expected_multisig_program = Pubkey::from_str(state::MULTISIG_PROGRAM_KEY).unwrap();
+        if wallet_program_info.key != &expected_multisig_program{
             msg!("unexpected multisig program");
             return Err(TeleportError::UnexpectedError.into());
         }
@@ -277,7 +280,8 @@ impl Processor {
         }
 
         // check mint
-        if mint_info.key != &state::BLT_MINT {
+        let expected_blt = Pubkey::from_str(state::BLT_MINT_KEY).unwrap();
+        if mint_info.key != &expected_blt {
             msg!("unexpected mint");
             return Err(TeleportError::UnexpectedError.into());
         }
@@ -396,7 +400,8 @@ impl Processor {
         let rent_sysvar_info = next_account_info(account_info_iter)?;
         let rent = &Rent::from_account_info(rent_sysvar_info)?;
         // check wallet program
-        if wallet_program_info.key != &state::MULTISIG_PROGRAM {
+        let expected_multisig_program = Pubkey::from_str(state::MULTISIG_PROGRAM_KEY).unwrap();
+        if wallet_program_info.key != &expected_multisig_program {
             msg!("unexpected multisig program");
             return Err(TeleportError::UnexpectedError.into());
         }
@@ -564,7 +569,6 @@ impl Processor {
         // check teleport_out_record_info
         Self::get_teleport_out_record(program_id, teleport_out_record_info)?;
 
-
         let dest_starting_lamports = target_info.lamports();
         **target_info.lamports.borrow_mut() = dest_starting_lamports
             .checked_add(teleport_out_record_info.lamports())
@@ -575,7 +579,8 @@ impl Processor {
     }
 
     fn only_owner(account_info: &AccountInfo) -> ProgramResult {
-        if account_info.key != &state::OWNER {
+        let owner = Pubkey::from_str(state::OWNER_KEY).unwrap();
+        if account_info.key != &owner {
             msg!("owner mismatch");
             return Err(TeleportError::AuthFailed.into());
         }
@@ -620,7 +625,8 @@ impl Processor {
             return Err(TeleportError::IncorrectProgramAccount.into());
         }
 
-        let teleport_out_record = state::TeleportOutRecord::try_from_slice(&teleport_out_record_info.data.borrow())?;
+        let teleport_out_record =
+            state::TeleportOutRecord::try_from_slice(&teleport_out_record_info.data.borrow())?;
         if !teleport_out_record.is_init {
             return Err(TeleportError::UninitializedAccount.into());
         }
