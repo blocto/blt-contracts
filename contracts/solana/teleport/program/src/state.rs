@@ -6,23 +6,14 @@ use {
     solana_program::{msg, program_error::ProgramError, pubkey::Pubkey},
 };
 
-// BsBZoyMThoCCJAZR2nRyeCa3Tg2TyiDbAaNqeJxkqkHU
-pub const OWNER: Pubkey = Pubkey::new_from_array([
-    161, 111, 219, 59, 147, 221, 7, 127, 88, 42, 141, 30, 211, 69, 198, 108, 142, 249, 183, 249,
-    92, 127, 241, 91, 118, 190, 46, 20, 186, 220, 132, 23,
-]);
+// TODO use env!
+pub const OWNER_KEY: &str = "BsBZoyMThoCCJAZR2nRyeCa3Tg2TyiDbAaNqeJxkqkHU";
 
-// D6vhDDD47LqHfHGps5YKkzJNBhXasrTf5LbNmkF3XHww
-pub const MULTISIG_PROGRAM: Pubkey = Pubkey::new_from_array([
-    179, 208, 219, 188, 251, 227, 215, 188, 180, 224, 242, 225, 39, 246, 138, 13, 26, 29, 195, 101,
-    12, 247, 227, 6, 11, 98, 112, 139, 37, 42, 72, 2,
-]);
+// TODO use env!
+pub const MULTISIG_PROGRAM_KEY: &str = "D6vhDDD47LqHfHGps5YKkzJNBhXasrTf5LbNmkF3XHww";
 
-// BLT1noyNr3GttckEVrtcfC6oyK6yV1DpPgSyXbncMwef
-pub const BLT_MINT: Pubkey = Pubkey::new_from_array([
-    153, 144, 81, 125, 228, 170, 183, 36, 177, 216, 231, 254, 173, 2, 211, 242, 90, 122, 214, 145,
-    43, 163, 57, 198, 183, 182, 55, 210, 245, 61, 125, 16,
-]);
+// TODO use env!
+pub const BLT_MINT_KEY: &str = "BLT1noyNr3GttckEVrtcfC6oyK6yV1DpPgSyXbncMwef";
 
 pub const SIGNER_SEED: &[u8] = b"BLT";
 
