@@ -7,7 +7,7 @@ use {
 };
 
 // TODO use env!
-pub const OWNER_KEY: &str = "8nRmgWnYeXUDdhSgeaR3hkoPZZHzHjfkyqawD6UGzh7Y";
+pub const OWNER_KEY: &str = "Ad8pZMQCznufvH85mVhyUyuchhEvBRMMMSawJTPCBVZq";
 
 // TODO use env!
 pub const MULTISIG_PROGRAM_KEY: &str = "D6vhDDD47LqHfHGps5YKkzJNBhXasrTf5LbNmkF3XHww";
