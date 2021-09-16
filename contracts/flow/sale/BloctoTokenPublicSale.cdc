@@ -67,6 +67,9 @@ pub contract BloctoTokenPublicSale {
         // Purchase amount in tUSDT
         pub(set) var amount: UFix64
 
+        // Refunded amount in tUSDT
+        pub(set) var refundAmount: UFix64
+
         // Random ticked ID
         pub let ticketId: UInt64
 
@@ -84,6 +87,7 @@ pub contract BloctoTokenPublicSale {
 
             self.address = address
             self.amount = amount
+            self.refundAmount = 0.0
             self.ticketId = ticketId % 1_073_741_824 // 2^30
             self.state = PurchaseState.initial
         }
@@ -180,6 +184,7 @@ pub contract BloctoTokenPublicSale {
             // Set the state of the purchase to DISTRIBUTED
             purchaseInfo.state = PurchaseState.distributed
             purchaseInfo.amount = allocationAmount
+            purchaseInfo.refundAmount = refundAmount
             BloctoTokenPublicSale.purchases[address] = purchaseInfo
 
             // Deposit the withdrawn tokens in the recipient's receiver
