@@ -20,7 +20,7 @@ flow transactions send ./transactions/sale/public/unfreeze.cdc \
 flow transactions send ./transactions/sale/public/depositBLT.cdc \
   --network testnet \
   --arg UFix64:50000.0 \
-  --signer blt-admin-new-testnet \
+  --signer blt-admin-testnet \
   --gas-limit 1000
 ```
 
