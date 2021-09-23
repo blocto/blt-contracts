@@ -49,7 +49,7 @@ flow transactions send ./transactions/sale/public/distribute.cdc \
   --network testnet \
   --arg Address:0x67e7299327d1bf70 \
   --arg UFix64:500.0 \
-  --signer blt-admin-new-testnet \
+  --signer blt-admin-testnet \
   --gas-limit 1000
 ```
 

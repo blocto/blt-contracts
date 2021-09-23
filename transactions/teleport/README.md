@@ -21,6 +21,18 @@ flow transactions send ./transactions/teleport/lockTokensBSC.cdc \
   --gas-limit 1000
 ```
 
+### Teleport BLT to Solana
+```
+flow transactions send ./transactions/teleport/lockTokensSolana.cdc \
+  --network mainnet \
+  --arg Address:0x55ad22f01ef568a1 \
+  --arg UFix64:1.0 \
+  --arg String:9e92afba1ffdfe595377ea62174b0a65416647bd7933f934f4e76c2ab12a3e49 \
+  --arg String:SPL \
+  --signer blt-admin-mainnet \
+  --gas-limit 1000
+```
+
 ### Unlock BLT
 ```
 flow transactions send ./transactions/teleport/unlockTokens.cdc \
@@ -46,12 +58,24 @@ flow transactions send ./transactions/teleport/unlockTokensBSC.cdc \
 ```
 
 ### Update BSC Teleport Fees
+```
 flow transactions send ./transactions/teleport/updateTeleportFeesBSC.cdc \
   --network mainnet \
   --arg UFix64:0.0 \
   --arg UFix64:0.0 \
   --signer blocto-hot-wallet-mainnet \
   --gas-limit 1000
+```
+
+### Update Solana Teleport Fees
+```
+flow transactions send ./transactions/teleport/updateTeleportFeesSolana.cdc \
+  --network mainnet \
+  --arg UFix64:0.0 \
+  --arg UFix64:0.0 \
+  --signer blocto-hot-wallet-mainnet \
+  --gas-limit 1000
+```
 
 ### Setup TeleportAdminBSC
 ```
