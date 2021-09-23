@@ -34,7 +34,7 @@
     "BloctoTokenPublicSale": {
       "source": "./contracts/flow/sale/BloctoTokenPublicSale.cdc",
       "aliases": {
-        "mainnet": "0x0f9df91c9121c460"
+        "mainnet": "0x8f4da203e4cf06f9"
       }
     },
     "BloctoTokenStaking": {
@@ -255,6 +255,9 @@
       "fromFile": "./flow.mainnet.json"
     },
     "blt-teleport-admin-mainnet": {
+      "fromFile": "./flow.mainnet.json"
+    },
+    "blt-sale-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     },
     "blocto-hot-wallet-mainnet": {
