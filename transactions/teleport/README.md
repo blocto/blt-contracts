@@ -77,6 +77,24 @@ flow transactions send ./transactions/teleport/updateTeleportFeesSolana.cdc \
   --gas-limit 1000
 ```
 
+### Transfer BSC Teleport Fees
+```
+flow transactions send ./transactions/teleport/transferTeleportFeesBSC.cdc \
+  --network mainnet \
+  --arg Address:0x0f9df91c9121c460 \
+  --signer blocto-hot-wallet-mainnet \
+  --gas-limit 1000
+```
+
+### Transfer Solana Teleport Fees
+```
+flow transactions send ./transactions/teleport/transferTeleportFeesSolana.cdc \
+  --network mainnet \
+  --arg Address:0x0f9df91c9121c460 \
+  --signer blocto-hot-wallet-mainnet \
+  --gas-limit 1000
+```
+
 ### Setup TeleportAdminBSC
 ```
 flow transactions build ./transactions/teleport/createTeleportAdminBSC.cdc \
