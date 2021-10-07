@@ -5,10 +5,10 @@ import BltUsdtSwapPair from "../../contracts/flow/swap/BltUsdtSwapPair.cdc"
 
 transaction(token1Amount: UFix64, token2Amount: UFix64) {
   prepare(signer: AuthAccount) {
-    let fusdVault = signer.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)
+    let bltVault = signer.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)
         ?? panic("Could not borrow a reference to Vault")
     
-    let token1Vault <- fusdVault.withdraw(amount: token1Amount) as! @BloctoToken.Vault
+    let token1Vault <- bltVault.withdraw(amount: token1Amount) as! @BloctoToken.Vault
 
     let tetherVault = signer.borrow<&TeleportedTetherToken.Vault>(from: TeleportedTetherToken.TokenStoragePath)
         ?? panic("Could not borrow a reference to Vault")

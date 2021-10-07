@@ -17,6 +17,15 @@ flow transactions send ./transactions/token/transferBloctoToken.cdc \
   --gas-limit 1000
 ```
 
+### Transfer BloctoToken in a Batch
+```
+flow transactions send ./transactions/token/transferBloctoTokenBatch.cdc \
+  --network mainnet \
+  --args-json "$(cat "./arguments/batch/transferBloctoToken.json")" \
+  --signer blt-admin-mainnet \
+  --gas-limit 9999
+```
+
 ### Setup BloctoPass Collection
 ```
 flow transactions send ./transactions/token/setupBloctoPassCollection.cdc \

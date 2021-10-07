@@ -57,6 +57,13 @@
         "mainnet": "0xf233dcee88fe0abe"
       }
     },
+    "FUSD": {
+      "source": "./contracts/flow/token/FUSD.cdc",
+      "aliases": {
+        "testnet": "0xe223d8a629e49c68",
+        "mainnet": "0x3c5959b568896393"
+      }
+    },
     "NonFungibleToken": {
       "source": "./contracts/flow/token/NonFungibleToken.cdc",
       "aliases": {
@@ -252,6 +259,9 @@
       "chain": "flow-testnet"
     },
     "blt-admin-mainnet": {
+      "fromFile": "./flow.mainnet.json"
+    },
+    "blt-swap-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     },
     "blt-teleport-admin-mainnet": {

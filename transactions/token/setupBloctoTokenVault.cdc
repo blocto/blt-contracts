@@ -5,9 +5,6 @@ transaction {
 
     prepare(signer: AuthAccount) {
 
-        let test <- signer.load<@AnyResource>(from: BloctoToken.TokenStoragePath)
-        destroy test
-
         // If the account is already set up that's not a problem, but we don't want to replace it
         if(signer.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath) != nil) {
             return
