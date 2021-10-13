@@ -52,6 +52,10 @@ pub contract BloctoTokenStaking {
     /// Epoch
     pub var epoch: UInt64
 
+    /// Stake reward record
+    /// key: {EPOCH}_{STAKER_ID}
+    access(contract) var stakingRewardRecords: {String: Bool}
+
     /*********** Staking Composite Type Definitions *************/
 
     /// Contains information that is specific to a staker
@@ -453,6 +457,7 @@ pub contract BloctoTokenStaking {
         self.stakingEnabled = true
 
         self.stakers <- {}
+        self.stakingRewardRecords = {}
 
         self.StakingAdminStoragePath = /storage/bloctoTokenStakingAdmin
 
