@@ -483,6 +483,11 @@ pub contract BloctoTokenStaking {
         return stakers
     }
 
+    /// Gets staker id count
+    pub fun getStakerIDCount(): Int {
+        return BloctoTokenStaking.stakers.keys.length
+    }
+
     /// Gets the token payout value for the current epoch
     pub fun getEpochTokenPayout(): UFix64 {
         return self.epochTokenPayout
