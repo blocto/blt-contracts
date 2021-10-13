@@ -49,6 +49,9 @@ pub contract BloctoTokenStaking {
     /// Paths for storing staking resources
     pub let StakingAdminStoragePath: StoragePath
 
+    /// Epoch
+    pub var epoch: UInt64
+
     /*********** Staking Composite Type Definitions *************/
 
     /// Contains information that is specific to a staker
@@ -301,6 +304,7 @@ pub contract BloctoTokenStaking {
         /// are allowed to perform staking related operations
         pub fun startStakingAuction() {
             BloctoTokenStaking.stakingEnabled = true
+            BloctoTokenStaking.epoch = BloctoTokenStaking.epoch + 1
         }
 
         /// Ends the staking Auction by removing any unapproved stakers
@@ -454,8 +458,8 @@ pub contract BloctoTokenStaking {
 
         self.totalTokensStaked = 0.0
         self.epochTokenPayout = 1.0
+        self.epoch = 0
 
         self.account.save(<-create Admin(), to: self.StakingAdminStoragePath)
     }
 }
- 
