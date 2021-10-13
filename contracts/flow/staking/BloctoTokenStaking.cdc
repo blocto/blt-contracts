@@ -440,9 +440,47 @@ pub contract BloctoTokenStaking {
         return stakers
     }
 
+    /// Gets an slice of stakerIDs who's staking balance > 0
+    pub fun getStakedStakerIDsSlice(start: UInt64, end: UInt64): [UInt64] {
+        // all staker ids
+        var allStakerIDs: [UInt64] = BloctoTokenStaking.getStakerIDs()
+
+        // output
+        var stakers: [UInt64] = []
+
+        // filter staker ids by staking balance
+        var current = start
+        while current < end {
+            let stakerID = allStakerIDs[current]
+            let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
+            if stakerRecord.tokensStaked.balance > 0.0 {
+                stakers.append(stakerID)
+            }
+            current = current + 1
+        }
+        return stakers
+    }
+
     /// Gets an array of all the staker IDs that have ever registered
     pub fun getStakerIDs(): [UInt64] {
         return BloctoTokenStaking.stakers.keys
+    }
+
+    /// Gets an slice of stakerIDs who's staking balance > 0
+    pub fun getStakerIDsSlice(start: UInt64, end: UInt64): [UInt64] {
+        // all staker ids
+        var allStakerIDs: [UInt64] = BloctoTokenStaking.getStakerIDs()
+
+        // output
+        var stakers: [UInt64] = []
+
+        // filter staker ids by staking balance
+        var current = start
+        while current < end {
+            stakers.append(allStakerIDs[current])
+            current = current + 1
+        }
+        return stakers
     }
 
     /// Gets the token payout value for the current epoch
