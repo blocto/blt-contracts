@@ -371,14 +371,13 @@ pub contract BloctoTokenStaking {
         /// Tokens that have been committed are moved to the staked bucket
         /// Tokens that were unstaking during the last epoch are fully unstaked
         /// Unstaking requests are filled by moving those tokens from staked to unstaking
-        pub fun moveTokens() {
+        pub fun moveTokens(_ stakerIDs: [UInt64]) {
             pre {
                 !BloctoTokenStaking.stakingEnabled: "Cannot move tokens if the staking auction is still in progress"
             }
-            
-            let allstakerIDs = BloctoTokenStaking.getStakerIDs()
 
-            for stakerID in allstakerIDs {
+            for stakerID in stakerIDs {
+                // get staker record
                 let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
 
                 // Update total number of tokens staked by all the stakers of each type
