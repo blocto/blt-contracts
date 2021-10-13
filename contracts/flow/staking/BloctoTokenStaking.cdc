@@ -319,9 +319,10 @@ pub contract BloctoTokenStaking {
 
         /// Called at the end of the epoch to pay rewards to staker operators
         /// based on the tokens that they have staked
-        pub fun payRewards() {
-
-            let allstakerIDs = BloctoTokenStaking.getStakerIDs()
+        pub fun payRewards(_ stakerIDs: [UInt64]) {
+            pre {
+                !BloctoTokenStaking.stakingEnabled: "Cannot pay rewards if the staking auction is still in progress"
+            }
 
             let BloctoTokenMinter = BloctoTokenStaking.account.borrow<&BloctoToken.Minter>(from: BloctoToken.TokenMinterStoragePath)
                 ?? panic("Could not borrow minter reference")
@@ -334,8 +335,15 @@ pub contract BloctoTokenStaking {
             }
             var totalRewardScale = BloctoTokenStaking.epochTokenPayout / totalStaked
 
-            /// iterate through all the stakers to pay
-            for stakerID in allstakerIDs {
+            /// iterate through stakers to pay
+            for stakerID in stakerIDs {
+                // add reward record
+                let key = BloctoTokenStaking.epoch.toString().concat("_").concat(stakerID.toString())
+                if BloctoTokenStaking.stakingRewardRecords[key] != nil && BloctoTokenStaking.stakingRewardRecords[key]! {
+                    continue
+                }
+                BloctoTokenStaking.stakingRewardRecords[key] = true
+
                 let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
 
                 if stakerRecord.tokensStaked.balance == 0.0 { continue }
