@@ -49,10 +49,6 @@ pub contract BloctoTokenStaking {
     /// Paths for storing staking resources
     pub let StakingAdminStoragePath: StoragePath
 
-    /// Stake reward record
-    /// key: {EPOCH}_{STAKER_ID}
-    access(contract) var stakingRewardRecords: {String: Bool}
-
     /*********** Staking Composite Type Definitions *************/
 
     /// Contains information that is specific to a staker
@@ -335,11 +331,10 @@ pub contract BloctoTokenStaking {
             /// iterate through stakers to pay
             for stakerID in stakerIDs {
                 // add reward record
-                let key = BloctoTokenStaking.epoch.toString().concat("_").concat(stakerID.toString())
-                if BloctoTokenStaking.stakingRewardRecords[key] != nil && BloctoTokenStaking.stakingRewardRecords[key]! {
+                if BloctoTokenStaking.hasSentStakingReward(epoch: BloctoTokenStaking.getEpoch(), stakerID: stakerID) {
                     continue
                 }
-                BloctoTokenStaking.stakingRewardRecords[key] = true
+                BloctoTokenStaking.insertStakingRewardRecord(epoch: BloctoTokenStaking.getEpoch(), stakerID: stakerID)
 
                 let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
 
@@ -515,11 +510,48 @@ pub contract BloctoTokenStaking {
         self.account.save<UInt64>(epoch, to: /storage/bloctoTokenStakingEpoch)
     }
 
+
+    access(contract) fun getStakingRewardKey(epoch: UInt64, stakerID: UInt64): String {
+        // key: {EPOCH}_{STAKER_ID}
+        return epoch.toString().concat("_").concat(stakerID.toString())
+    }
+
+    /// staking reward records
+    pub fun hasSentStakingReward(epoch: UInt64, stakerID: UInt64): Bool {
+        let stakingRewardRecordsRef = self.account.copy<{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+        if stakingRewardRecordsRef == nil {
+            return false
+        }
+
+        let key = BloctoTokenStaking.getStakingRewardKey(epoch: epoch, stakerID: stakerID)
+        if stakingRewardRecordsRef![key] == nil {
+            return false
+        }
+
+        return stakingRewardRecordsRef![key]!
+    }
+
+    access(contract) fun insertStakingRewardRecord(epoch: UInt64, stakerID: UInt64) {
+        let key = BloctoTokenStaking.getStakingRewardKey(epoch: epoch, stakerID: stakerID)
+
+        let stakingRewardRecordsRef = self.account.load<{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+        if stakingRewardRecordsRef == nil {
+            self.account.save<{String: Bool}>({key: true}, to: /storage/bloctoTokenStakingStakingRewardRecords)
+            return
+        }
+
+        var stakingRewardRecords = stakingRewardRecordsRef!
+        let ori = stakingRewardRecords.insert(key: key, true)
+        if ori != nil && !ori! {
+            panic(key.concat(" has already existed"))
+        }
+        self.account.save<{String: Bool}>({key: true}, to: /storage/bloctoTokenStakingStakingRewardRecords)
+    }
+
     init() {
         self.stakingEnabled = true
 
         self.stakers <- {}
-        self.stakingRewardRecords = {}
 
         self.StakingAdminStoragePath = /storage/bloctoTokenStakingAdmin
 
