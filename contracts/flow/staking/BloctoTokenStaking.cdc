@@ -49,9 +49,6 @@ pub contract BloctoTokenStaking {
     /// Paths for storing staking resources
     pub let StakingAdminStoragePath: StoragePath
 
-    /// Epoch
-    pub var epoch: UInt64
-
     /// Stake reward record
     /// key: {EPOCH}_{STAKER_ID}
     access(contract) var stakingRewardRecords: {String: Bool}
@@ -308,7 +305,7 @@ pub contract BloctoTokenStaking {
         /// are allowed to perform staking related operations
         pub fun startStakingAuction() {
             BloctoTokenStaking.stakingEnabled = true
-            BloctoTokenStaking.epoch = BloctoTokenStaking.epoch + 1
+            BloctoTokenStaking.setEpoch(BloctoTokenStaking.getEpoch() + 1)
         }
 
         /// Ends the staking Auction by removing any unapproved stakers
@@ -503,6 +500,21 @@ pub contract BloctoTokenStaking {
         return BloctoTokenStaking.totalTokensStaked
     }
 
+    /// Epoch
+    pub fun getEpoch(): UInt64 {
+        let epoch = self.account.copy<UInt64>(from: /storage/bloctoTokenStakingEpoch)
+        if epoch == nil {
+            return 0
+        } else {
+            return epoch!
+        }
+    }
+
+    access(contract) fun setEpoch(_ epoch: UInt64) {
+        self.account.load<UInt64>(from: /storage/bloctoTokenStakingEpoch)
+        self.account.save<UInt64>(epoch, to: /storage/bloctoTokenStakingEpoch)
+    }
+
     init() {
         self.stakingEnabled = true
 
@@ -513,7 +525,6 @@ pub contract BloctoTokenStaking {
 
         self.totalTokensStaked = 0.0
         self.epochTokenPayout = 1.0
-        self.epoch = 0
 
         self.account.save(<-create Admin(), to: self.StakingAdminStoragePath)
     }
