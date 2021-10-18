@@ -175,3 +175,23 @@ flow transactions sign ./build/signed-1.rlp \
 
 flow transactions send-signed --network mainnet ./build/signed-2.rlp
 ```
+
+### Deposit Allowance BSC
+```
+flow transactions send ./transactions/teleport/depositAllowanceBSC.cdc \
+  --network mainnet \
+  --arg Address:0x73d494fc6fe4b127 \
+  --arg UFix64:5000000.0 \
+  --signer blt-teleport-admin-mainnet \
+  --gas-limit 1000
+```
+
+### Deposit Allowance Solana
+```
+flow transactions send ./transactions/teleport/depositAllowanceSolana.cdc \
+  --network mainnet \
+  --arg Address:0x73d494fc6fe4b127 \
+  --arg UFix64:5000000.0 \
+  --signer blt-teleport-admin-mainnet \
+  --gas-limit 1000
+```
