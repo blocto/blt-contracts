@@ -299,9 +299,15 @@ pub contract BloctoTokenStaking {
 
         /// Starts the staking auction, the period when stakers and delegators
         /// are allowed to perform staking related operations
-        pub fun startStakingAuction() {
+        pub fun startNewEpoch() {
             BloctoTokenStaking.stakingEnabled = true
             BloctoTokenStaking.setEpoch(BloctoTokenStaking.getEpoch() + 1)
+        }
+
+        /// Starts the staking auction, the period when stakers and delegators
+        /// are allowed to perform staking related operations
+        pub fun startStakingAuction() {
+            BloctoTokenStaking.stakingEnabled = true
         }
 
         /// Ends the staking Auction by removing any unapproved stakers
