@@ -503,12 +503,7 @@ pub contract BloctoTokenStaking {
 
     /// Epoch
     pub fun getEpoch(): UInt64 {
-        let epoch = self.account.copy<UInt64>(from: /storage/bloctoTokenStakingEpoch)
-        if epoch == nil {
-            return 0
-        } else {
-            return epoch!
-        }
+        return self.account.copy<UInt64>(from: /storage/bloctoTokenStakingEpoch) ?? 0;
     }
 
     access(contract) fun setEpoch(_ epoch: UInt64) {
