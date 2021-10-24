@@ -24,6 +24,7 @@ pub contract BloctoTokenStaking {
     pub event TokensUnstaked(stakerID: UInt64, amount: UFix64)
     pub event NodeRemovedAndRefunded(stakerID: UInt64, amount: UFix64)
     pub event RewardsPaid(stakerID: UInt64, amount: UFix64)
+    pub event MoveToken(stakerID: UInt64)
     pub event UnstakedTokensWithdrawn(stakerID: UInt64, amount: UFix64)
     pub event RewardTokensWithdrawn(stakerID: UInt64, amount: UFix64)
 
@@ -391,13 +392,15 @@ pub contract BloctoTokenStaking {
                 if stakerRecord.tokensRequestedToUnstake > 0.0 {
                     emit TokensUnstaked(stakerID: stakerRecord.id, amount: stakerRecord.tokensRequestedToUnstake)
                     stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.tokensStaked.withdraw(amount: stakerRecord.tokensRequestedToUnstake))
+
+                    // subtract their requested tokens from the total staked for their staker type
+                    BloctoTokenStaking.totalTokensStaked = BloctoTokenStaking.totalTokensStaked - stakerRecord.tokensRequestedToUnstake
+
+                    // Reset the tokens requested field so it can be used for the next epoch
+                    stakerRecord.tokensRequestedToUnstake = 0.0
                 }
 
-                // subtract their requested tokens from the total staked for their staker type
-                BloctoTokenStaking.totalTokensStaked = BloctoTokenStaking.totalTokensStaked - stakerRecord.tokensRequestedToUnstake
-
-                // Reset the tokens requested field so it can be used for the next epoch
-                stakerRecord.tokensRequestedToUnstake = 0.0
+                emit MoveToken(stakerID: stakerID)
             }
 
             emit NewEpoch(totalStaked: BloctoTokenStaking.getTotalStaked(), totalRewardPayout: BloctoTokenStaking.epochTokenPayout)
