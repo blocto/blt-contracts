@@ -14,7 +14,7 @@ pub contract BloctoTokenStaking {
 
     /****** Staking Events ******/
 
-    pub event NewEpoch(totalStaked: UFix64, totalRewardPayout: UFix64)
+    pub event NewEpoch(epoch: UInt64, totalStaked: UFix64, totalRewardPayout: UFix64)
 
     /// Staker Events
     pub event NewStakerCreated(stakerID: UInt64, amountCommitted: UFix64)
@@ -303,6 +303,7 @@ pub contract BloctoTokenStaking {
         pub fun startNewEpoch() {
             BloctoTokenStaking.stakingEnabled = true
             BloctoTokenStaking.setEpoch(BloctoTokenStaking.getEpoch() + 1)
+            emit NewEpoch(epoch: BloctoTokenStaking.getEpoch(), totalStaked: BloctoTokenStaking.getTotalStaked(), totalRewardPayout: BloctoTokenStaking.epochTokenPayout)
         }
 
         /// Starts the staking auction, the period when stakers and delegators
@@ -402,8 +403,6 @@ pub contract BloctoTokenStaking {
 
                 emit MoveToken(stakerID: stakerID)
             }
-
-            emit NewEpoch(totalStaked: BloctoTokenStaking.getTotalStaked(), totalRewardPayout: BloctoTokenStaking.epochTokenPayout)
         }
 
         /// Changes the total weekly payout to a new value
