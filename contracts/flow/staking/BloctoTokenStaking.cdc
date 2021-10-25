@@ -14,7 +14,7 @@ pub contract BloctoTokenStaking {
 
     /****** Staking Events ******/
 
-    pub event NewEpoch(totalStaked: UFix64, totalRewardPayout: UFix64)
+    pub event NewEpoch(epoch: UInt64, totalStaked: UFix64, totalRewardPayout: UFix64)
 
     /// Staker Events
     pub event NewStakerCreated(stakerID: UInt64, amountCommitted: UFix64)
@@ -24,6 +24,7 @@ pub contract BloctoTokenStaking {
     pub event TokensUnstaked(stakerID: UInt64, amount: UFix64)
     pub event NodeRemovedAndRefunded(stakerID: UInt64, amount: UFix64)
     pub event RewardsPaid(stakerID: UInt64, amount: UFix64)
+    pub event MoveToken(stakerID: UInt64)
     pub event UnstakedTokensWithdrawn(stakerID: UInt64, amount: UFix64)
     pub event RewardTokensWithdrawn(stakerID: UInt64, amount: UFix64)
 
@@ -299,6 +300,14 @@ pub contract BloctoTokenStaking {
 
         /// Starts the staking auction, the period when stakers and delegators
         /// are allowed to perform staking related operations
+        pub fun startNewEpoch() {
+            BloctoTokenStaking.stakingEnabled = true
+            BloctoTokenStaking.setEpoch(BloctoTokenStaking.getEpoch() + 1)
+            emit NewEpoch(epoch: BloctoTokenStaking.getEpoch(), totalStaked: BloctoTokenStaking.getTotalStaked(), totalRewardPayout: BloctoTokenStaking.epochTokenPayout)
+        }
+
+        /// Starts the staking auction, the period when stakers and delegators
+        /// are allowed to perform staking related operations
         pub fun startStakingAuction() {
             BloctoTokenStaking.stakingEnabled = true
         }
@@ -311,9 +320,10 @@ pub contract BloctoTokenStaking {
 
         /// Called at the end of the epoch to pay rewards to staker operators
         /// based on the tokens that they have staked
-        pub fun payRewards() {
-
-            let allstakerIDs = BloctoTokenStaking.getStakerIDs()
+        pub fun payRewards(_ stakerIDs: [UInt64]) {
+            pre {
+                !BloctoTokenStaking.stakingEnabled: "Cannot pay rewards if the staking auction is still in progress"
+            }
 
             let BloctoTokenMinter = BloctoTokenStaking.account.borrow<&BloctoToken.Minter>(from: BloctoToken.TokenMinterStoragePath)
                 ?? panic("Could not borrow minter reference")
@@ -326,8 +336,14 @@ pub contract BloctoTokenStaking {
             }
             var totalRewardScale = BloctoTokenStaking.epochTokenPayout / totalStaked
 
-            /// iterate through all the stakers to pay
-            for stakerID in allstakerIDs {
+            /// iterate through stakers to pay
+            for stakerID in stakerIDs {
+                // add reward record
+                if BloctoTokenStaking.hasSentStakingReward(epoch: BloctoTokenStaking.getEpoch(), stakerID: stakerID) {
+                    continue
+                }
+                BloctoTokenStaking.insertStakingRewardRecord(epoch: BloctoTokenStaking.getEpoch(), stakerID: stakerID)
+
                 let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
 
                 if stakerRecord.tokensStaked.balance == 0.0 { continue }
@@ -355,14 +371,13 @@ pub contract BloctoTokenStaking {
         /// Tokens that have been committed are moved to the staked bucket
         /// Tokens that were unstaking during the last epoch are fully unstaked
         /// Unstaking requests are filled by moving those tokens from staked to unstaking
-        pub fun moveTokens() {
+        pub fun moveTokens(_ stakerIDs: [UInt64]) {
             pre {
                 !BloctoTokenStaking.stakingEnabled: "Cannot move tokens if the staking auction is still in progress"
             }
-            
-            let allstakerIDs = BloctoTokenStaking.getStakerIDs()
 
-            for stakerID in allstakerIDs {
+            for stakerID in stakerIDs {
+                // get staker record
                 let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
 
                 // Update total number of tokens staked by all the stakers of each type
@@ -378,16 +393,16 @@ pub contract BloctoTokenStaking {
                 if stakerRecord.tokensRequestedToUnstake > 0.0 {
                     emit TokensUnstaked(stakerID: stakerRecord.id, amount: stakerRecord.tokensRequestedToUnstake)
                     stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.tokensStaked.withdraw(amount: stakerRecord.tokensRequestedToUnstake))
+
+                    // subtract their requested tokens from the total staked for their staker type
+                    BloctoTokenStaking.totalTokensStaked = BloctoTokenStaking.totalTokensStaked - stakerRecord.tokensRequestedToUnstake
+
+                    // Reset the tokens requested field so it can be used for the next epoch
+                    stakerRecord.tokensRequestedToUnstake = 0.0
                 }
 
-                // subtract their requested tokens from the total staked for their staker type
-                BloctoTokenStaking.totalTokensStaked = BloctoTokenStaking.totalTokensStaked - stakerRecord.tokensRequestedToUnstake
-
-                // Reset the tokens requested field so it can be used for the next epoch
-                stakerRecord.tokensRequestedToUnstake = 0.0
+                emit MoveToken(stakerID: stakerID)
             }
-
-            emit NewEpoch(totalStaked: BloctoTokenStaking.getTotalStaked(), totalRewardPayout: BloctoTokenStaking.epochTokenPayout)
         }
 
         /// Changes the total weekly payout to a new value
@@ -425,9 +440,52 @@ pub contract BloctoTokenStaking {
         return stakers
     }
 
+    /// Gets an slice of stakerIDs who's staking balance > 0
+    pub fun getStakedStakerIDsSlice(start: UInt64, end: UInt64): [UInt64] {
+        // all staker ids
+        var allStakerIDs: [UInt64] = BloctoTokenStaking.getStakerIDs()
+
+        // output
+        var stakers: [UInt64] = []
+
+        // filter staker ids by staking balance
+        var current = start
+        while current < end {
+            let stakerID = allStakerIDs[current]
+            let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
+            if stakerRecord.tokensStaked.balance > 0.0 {
+                stakers.append(stakerID)
+            }
+            current = current + 1
+        }
+        return stakers
+    }
+
     /// Gets an array of all the staker IDs that have ever registered
     pub fun getStakerIDs(): [UInt64] {
         return BloctoTokenStaking.stakers.keys
+    }
+
+    /// Gets an slice of stakerIDs who's staking balance > 0
+    pub fun getStakerIDsSlice(start: UInt64, end: UInt64): [UInt64] {
+        // all staker ids
+        var allStakerIDs: [UInt64] = BloctoTokenStaking.getStakerIDs()
+
+        // output
+        var stakers: [UInt64] = []
+
+        // filter staker ids by staking balance
+        var current = start
+        while current < end {
+            stakers.append(allStakerIDs[current])
+            current = current + 1
+        }
+        return stakers
+    }
+
+    /// Gets staker id count
+    pub fun getStakerIDCount(): Int {
+        return BloctoTokenStaking.stakers.keys.length
     }
 
     /// Gets the token payout value for the current epoch
@@ -445,6 +503,54 @@ pub contract BloctoTokenStaking {
         return BloctoTokenStaking.totalTokensStaked
     }
 
+    /// Epoch
+    pub fun getEpoch(): UInt64 {
+        return self.account.copy<UInt64>(from: /storage/bloctoTokenStakingEpoch) ?? 0;
+    }
+
+    access(contract) fun setEpoch(_ epoch: UInt64) {
+        self.account.load<UInt64>(from: /storage/bloctoTokenStakingEpoch)
+        self.account.save<UInt64>(epoch, to: /storage/bloctoTokenStakingEpoch)
+    }
+
+
+    access(contract) fun getStakingRewardKey(epoch: UInt64, stakerID: UInt64): String {
+        // key: {EPOCH}_{STAKER_ID}
+        return epoch.toString().concat("_").concat(stakerID.toString())
+    }
+
+    /// staking reward records
+    pub fun hasSentStakingReward(epoch: UInt64, stakerID: UInt64): Bool {
+        let stakingRewardRecordsRef = self.account.copy<{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+        if stakingRewardRecordsRef == nil {
+            return false
+        }
+
+        let key = BloctoTokenStaking.getStakingRewardKey(epoch: epoch, stakerID: stakerID)
+        if stakingRewardRecordsRef![key] == nil {
+            return false
+        }
+
+        return stakingRewardRecordsRef![key]!
+    }
+
+    access(contract) fun insertStakingRewardRecord(epoch: UInt64, stakerID: UInt64) {
+        let key = BloctoTokenStaking.getStakingRewardKey(epoch: epoch, stakerID: stakerID)
+
+        let stakingRewardRecordsRef = self.account.load<{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+        if stakingRewardRecordsRef == nil {
+            self.account.save<{String: Bool}>({key: true}, to: /storage/bloctoTokenStakingStakingRewardRecords)
+            return
+        }
+
+        var stakingRewardRecords = stakingRewardRecordsRef!
+        let ori = stakingRewardRecords.insert(key: key, true)
+        if ori != nil && !ori! {
+            panic(key.concat(" has already existed"))
+        }
+        self.account.save<{String: Bool}>(stakingRewardRecords, to: /storage/bloctoTokenStakingStakingRewardRecords)
+    }
+
     init() {
         self.stakingEnabled = true
 
@@ -458,4 +564,3 @@ pub contract BloctoTokenStaking {
         self.account.save(<-create Admin(), to: self.StakingAdminStoragePath)
     }
 }
- 
