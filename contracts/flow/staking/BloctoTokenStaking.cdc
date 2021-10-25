@@ -548,7 +548,7 @@ pub contract BloctoTokenStaking {
         if ori != nil && !ori! {
             panic(key.concat(" has already existed"))
         }
-        self.account.save<{String: Bool}>({key: true}, to: /storage/bloctoTokenStakingStakingRewardRecords)
+        self.account.save<{String: Bool}>(stakingRewardRecords, to: /storage/bloctoTokenStakingStakingRewardRecords)
     }
 
     init() {
