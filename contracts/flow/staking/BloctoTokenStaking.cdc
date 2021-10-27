@@ -325,7 +325,7 @@ pub contract BloctoTokenStaking {
                 !BloctoTokenStaking.stakingEnabled: "Cannot pay rewards if the staking auction is still in progress"
             }
 
-            let BloctoTokenMinter = BloctoTokenStaking.account.borrow<&BloctoToken.Minter>(from: BloctoToken.TokenMinterStoragePath)
+            let BloctoTokenMinter = BloctoTokenStaking.account.borrow<&BloctoToken.Minter>(from: /storage/bloctoTokenStakingMinter)
                 ?? panic("Could not borrow minter reference")
 
             // calculate the total number of tokens staked
