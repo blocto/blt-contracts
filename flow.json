@@ -307,6 +307,14 @@
         "TeleportCustodyEthereum",
         "TeleportCustodySolana"
       ]
+    },
+    "mainnet": {
+      "blt-admin-mainnet": [
+        "BloctoPass",
+        "BloctoPassStamp",
+        "BloctoToken",
+        "BloctoTokenStaking"
+      ]
     }
   }
 }
