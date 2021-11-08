@@ -521,7 +521,7 @@ pub contract BloctoTokenStaking {
 
     /// staking reward records
     pub fun hasSentStakingReward(epoch: UInt64, stakerID: UInt64): Bool {
-        let stakingRewardRecordsRef = self.account.copy<{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+        let stakingRewardRecordsRef = self.account.borrow<&{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
         if stakingRewardRecordsRef == nil {
             return false
         }
