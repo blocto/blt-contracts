@@ -336,7 +336,12 @@ pub contract BloctoTokenStaking {
             }
             var totalRewardScale = BloctoTokenStaking.epochTokenPayout / totalStaked
 
-            let stakingRewardRecordsRef = BloctoTokenStaking.account.load<{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords) ?? {}
+            var stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+            if stakingRewardRecordsRefOpt == nil {
+                BloctoTokenStaking.account.save<{String: Bool}>({} as {String: Bool}, to: /storage/bloctoTokenStakingStakingRewardRecords)
+                stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+            }
+            var stakingRewardRecordsRef = stakingRewardRecordsRefOpt!
             let epoch = BloctoTokenStaking.getEpoch()
 
             /// iterate through stakers to pay
@@ -368,8 +373,6 @@ pub contract BloctoTokenStaking {
                     destroy tokenReward
                 }
             }
-
-            BloctoTokenStaking.account.save<{String: Bool}>(stakingRewardRecordsRef, to: /storage/bloctoTokenStakingStakingRewardRecords)
         }
 
         /// Called at the end of the epoch to move tokens between buckets
