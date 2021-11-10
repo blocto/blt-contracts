@@ -47,7 +47,16 @@ flow transactions send ./transactions/token/admin/setupBloctoTokenMinter.cdc \
   --gas-limit 1000
 ```
 
-### Setup BloctoToken Minter for Staking
+### Setup Blocto Token Minter for Staking
+```
+flow transactions send ./transactions/token/admin/setupBloctoTokenMinterForStaking.cdc \
+  --network mainnet \
+  --arg UFix64:10000000.0 \
+  --signer blt-admin-mainnet \
+  --gas-limit 1000
+```
+
+### Setup BloctoToken Minter for Mining
 ```
 flow transactions build ./transactions/token/admin/setupBloctoTokenMinterForStaking.cdc \
   --network testnet \

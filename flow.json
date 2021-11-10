@@ -261,6 +261,9 @@
     "blt-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     },
+    "blt-staking-admin-mainnet": {
+      "fromFile": "./flow.mainnet.json"
+    },
     "blt-swap-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     },

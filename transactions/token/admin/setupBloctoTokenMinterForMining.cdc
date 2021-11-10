@@ -3,13 +3,13 @@ import BloctoToken from "../../../contracts/flow/token/BloctoToken.cdc"
 
 transaction(allowedAmount: UFix64) {
 
-    prepare(signer: AuthAccount) {
+    prepare(signer: AuthAccount, minter: AuthAccount) {
         let admin = signer
             .borrow<&BloctoToken.Administrator>(from: /storage/bloctoTokenAdmin)
             ?? panic("Signer is not the admin")
 
-        let minter <- admin.createNewMinter(allowedAmount: allowedAmount)
+        let minterResource <- admin.createNewMinter(allowedAmount: allowedAmount)
 
-        signer.save(<-minter, to: /storage/bloctoTokenStakingMinter)
+        minter.save(<-minterResource, to: BloctoToken.TokenMinterStoragePath)
     }
 }
