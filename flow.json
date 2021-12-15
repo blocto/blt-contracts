@@ -270,6 +270,9 @@
     "blt-teleport-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     },
+    "blt-usdt-admin-mainnet": {
+      "fromFile": "./flow.mainnet.json"
+    },
     "blt-sale-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     },
