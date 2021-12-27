@@ -302,7 +302,7 @@ pub contract BloctoTokenStaking {
         /// are allowed to perform staking related operations
         pub fun startNewEpoch() {
             BloctoTokenStaking.stakingEnabled = true
-            BloctoTokenStaking.setEpoch(BloctoTokenStaking.getEpoch() + 1)
+            BloctoTokenStaking.setEpoch(BloctoTokenStaking.getEpoch() + (1 as UInt64))
             emit NewEpoch(epoch: BloctoTokenStaking.getEpoch(), totalStaked: BloctoTokenStaking.getTotalStaked(), totalRewardPayout: BloctoTokenStaking.epochTokenPayout)
         }
 
