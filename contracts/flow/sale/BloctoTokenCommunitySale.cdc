@@ -1,6 +1,6 @@
 /*
 
-    BloctoTokenSale (Community Sale)
+    BloctoTokenCommunitySale (Community Sale)
 
     The BloctoToken Community Sale contract is used for 
     BLT token community sale. Qualified purchasers
@@ -15,7 +15,7 @@ import BloctoToken from "../token/BloctoToken.cdc"
 import BloctoPass from "../token/BloctoPass.cdc"
 import TeleportedTetherToken from "../token/TeleportedTetherToken.cdc"
 
-pub contract BloctoTokenSale {
+pub contract BloctoTokenCommunitySale {
 
     /****** Sale Events ******/
 
@@ -156,17 +156,17 @@ pub contract BloctoTokenSale {
 
     pub resource Admin {
         pub fun unfreeze() {
-            BloctoTokenSale.isSaleActive = true
+            BloctoTokenCommunitySale.isSaleActive = true
         }
 
         pub fun freeze() {
-            BloctoTokenSale.isSaleActive = false
+            BloctoTokenCommunitySale.isSaleActive = false
         }
 
         pub fun distribute(address: Address) {
             pre {
-                BloctoTokenSale.purchases[address] != nil: "Cannot find purchase record for the address"
-                BloctoTokenSale.purchases[address]?.state == PurchaseState.initial: "Already distributed or refunded"
+                BloctoTokenCommunitySale.purchases[address] != nil: "Cannot find purchase record for the address"
+                BloctoTokenCommunitySale.purchases[address]?.state == PurchaseState.initial: "Already distributed or refunded"
             }
 
             let collectionRef = getAccount(address).getCapability(BloctoPass.CollectionPublicPath)
@@ -179,14 +179,14 @@ pub contract BloctoTokenSale {
                 message: "User already has a BloctoPass"
             )
 
-            let purchaseInfo = BloctoTokenSale.purchases[address]
+            let purchaseInfo = BloctoTokenCommunitySale.purchases[address]
                 ?? panic("Count not get purchase info for the address")
         
-            let minterRef = BloctoTokenSale.account.borrow<&BloctoPass.NFTMinter>(from: BloctoPass.MinterStoragePath)
+            let minterRef = BloctoTokenCommunitySale.account.borrow<&BloctoPass.NFTMinter>(from: BloctoPass.MinterStoragePath)
                 ?? panic("Could not borrow reference to the BloctoPass minter!")
 
-            let bltAmount = purchaseInfo.amount / BloctoTokenSale.price
-            let bltVault <- BloctoTokenSale.bltVault.withdraw(amount: bltAmount)
+            let bltAmount = purchaseInfo.amount / BloctoTokenCommunitySale.price
+            let bltVault <- BloctoTokenCommunitySale.bltVault.withdraw(amount: bltAmount)
 
             let metadata = {
                 "origin": "Community Sale"
@@ -218,13 +218,13 @@ pub contract BloctoTokenSale {
 
             // Set the state of the purchase to DISTRIBUTED
             purchaseInfo.state = PurchaseState.distributed
-            BloctoTokenSale.purchases[address] = purchaseInfo
+            BloctoTokenCommunitySale.purchases[address] = purchaseInfo
 
             minterRef.mintNFTWithPredefinedLockup(
                 recipient: collectionRef,
                 metadata: metadata,
                 vault: <- bltVault,
-                lockupScheduleId: BloctoTokenSale.lockupScheduleId
+                lockupScheduleId: BloctoTokenCommunitySale.lockupScheduleId
             )
 
             emit Distributed(address: address, tusdtAmount: purchaseInfo.amount, bltAmount: bltAmount)
@@ -232,22 +232,22 @@ pub contract BloctoTokenSale {
 
         pub fun refund(address: Address) {
             pre {
-                BloctoTokenSale.purchases[address] != nil: "Cannot find purchase record for the address"
-                BloctoTokenSale.purchases[address]?.state == PurchaseState.initial: "Already distributed or refunded"
+                BloctoTokenCommunitySale.purchases[address] != nil: "Cannot find purchase record for the address"
+                BloctoTokenCommunitySale.purchases[address]?.state == PurchaseState.initial: "Already distributed or refunded"
             }
 
             let receiverRef = getAccount(address).getCapability(TeleportedTetherToken.TokenPublicReceiverPath)
                 .borrow<&{FungibleToken.Receiver}>()
                 ?? panic("Could not borrow tUSDT vault receiver public reference")
 
-            let purchaseInfo = BloctoTokenSale.purchases[address]
+            let purchaseInfo = BloctoTokenCommunitySale.purchases[address]
                 ?? panic("Count not get purchase info for the address")
 
-            let tusdtVault <- BloctoTokenSale.tusdtVault.withdraw(amount: purchaseInfo.amount)
+            let tusdtVault <- BloctoTokenCommunitySale.tusdtVault.withdraw(amount: purchaseInfo.amount)
 
             // Set the state of the purchase to REFUNDED
             purchaseInfo.state = PurchaseState.refunded
-            BloctoTokenSale.purchases[address] = purchaseInfo
+            BloctoTokenCommunitySale.purchases[address] = purchaseInfo
 
             receiverRef.deposit(from: <- tusdtVault)
 
@@ -259,34 +259,34 @@ pub contract BloctoTokenSale {
                 price > 0.0: "Sale price cannot be 0"
             }
 
-            BloctoTokenSale.price = price
+            BloctoTokenCommunitySale.price = price
             emit NewPrice(price: price)
         }
 
         pub fun updateLockupScheduleId(lockupScheduleId: Int) {
-            BloctoTokenSale.lockupScheduleId = lockupScheduleId
+            BloctoTokenCommunitySale.lockupScheduleId = lockupScheduleId
             emit NewLockupSchedule(lockupSchedule: BloctoPass.getPredefinedLockupSchedule(id: lockupScheduleId))
         }
 
         pub fun updatePersonalCap(personalCap: UFix64) {
-            BloctoTokenSale.personalCap = personalCap
+            BloctoTokenCommunitySale.personalCap = personalCap
             emit NewPersonalCap(personalCap: personalCap)
         }
 
         pub fun withdrawBlt(amount: UFix64): @FungibleToken.Vault {
-            return <- BloctoTokenSale.bltVault.withdraw(amount: amount)
+            return <- BloctoTokenCommunitySale.bltVault.withdraw(amount: amount)
         }
 
         pub fun withdrawTusdt(amount: UFix64): @FungibleToken.Vault {
-            return <- BloctoTokenSale.tusdtVault.withdraw(amount: amount)
+            return <- BloctoTokenCommunitySale.tusdtVault.withdraw(amount: amount)
         }
 
         pub fun depositBlt(from: @FungibleToken.Vault) {
-            BloctoTokenSale.bltVault.deposit(from: <- from)
+            BloctoTokenCommunitySale.bltVault.deposit(from: <- from)
         }
 
         pub fun depositTusdt(from: @FungibleToken.Vault) {
-            BloctoTokenSale.tusdtVault.deposit(from: <- from)
+            BloctoTokenCommunitySale.tusdtVault.deposit(from: <- from)
         }
     }
 
@@ -304,7 +304,7 @@ pub contract BloctoTokenSale {
         self.personalCap = 1000.0
 
         self.purchases = {}
-        self.SaleAdminStoragePath = /storage/bloctoTokenSaleAdmin
+        self.SaleAdminStoragePath = /storage/BloctoTokenCommunitySaleAdmin
 
         self.bltVault <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
         self.tusdtVault <- TeleportedTetherToken.createEmptyVault() as! @TeleportedTetherToken.Vault
