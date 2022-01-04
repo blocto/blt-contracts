@@ -1,9 +1,8 @@
-
 import Crypto
-import NonFungibleToken from 0x631e88ae7f1d7c20
-import BloctoPass from 0x6e0797ac987005f5
-import BloctoTokenStaking from 0x6e0797ac987005f5
-import BloctoToken from 0x6e0797ac987005f5
+import NonFungibleToken from "../token/NonFungibleToken.cdc"
+import BloctoPass from "../token/BloctoPass.cdc"
+import BloctoTokenStaking from "../staking/BloctoTokenStaking.cdc"
+import BloctoToken from "../token/BloctoToken.cdc"
 
 pub contract BloctoDAO {
   access(contract) var topics: [Topic]
