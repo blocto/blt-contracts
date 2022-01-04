@@ -15,12 +15,14 @@ pub contract BloctoDAO {
     pub case finished
   }
 
+  // Admin resourse holder can create Proposers
   pub resource Admin {
     pub fun createProposer(): @BloctoDAO.Proposer {
       return <- create Proposer()
     }
   }
 
+  // Proposer resource holder can propose new topics
   pub resource Proposer {
     pub fun addTopic(title: String, description: String, options: [String], startAt: UFix64?, endAt: UFix64?, minVoteStakingAmount: UFix64?) {
       BloctoDAO.topics.append(Topic(
@@ -48,6 +50,7 @@ pub contract BloctoDAO {
     }
   }
 
+  // Voter resource holder can vote on topics 
   pub resource Voter {
     // voted topic id <-> options index mapping
     access(self) var records: { UInt64: Int }
