@@ -77,6 +77,7 @@ pub contract BloctoDAO {
     pub let address: Address
     pub let optionIndex: Int
     pub let amount: UFix64
+
     init(address: Address, optionIndex: Int, amount: UFix64) {
       self.address = address
       self.optionIndex = optionIndex
@@ -109,9 +110,10 @@ pub contract BloctoDAO {
 
     init(proposer: Address, title: String, description: String, options: [String], startAt: UFix64?, endAt: UFix64?, minVoteStakingAmount: UFix64?) {
       pre {
-        title!.length <= 1000, "New title too long",
-        description == nil || description!.length <= 1000, "New description too long",
+        title.length <= 1000: "New title too long"
+        description.length <= 1000: "New description too long"
       }
+
       self.proposer = proposer
       self.title = title
       self.options = options
@@ -137,9 +139,9 @@ pub contract BloctoDAO {
 
     pub fun update(title: String?, description: String?, startAt: UFix64?, endAt: UFix64?, voided: Bool?) {
       pre {
-        title.length <= 1000, "Title too long",
-        description.length <= 1000, "Description too long",
-        voided != true: "Can't update after started",
+        title?.length ?? 0 <= 1000: "Title too long"
+        description?.length ?? 0 <= 1000: "Description too long"
+        voided != true: "Can't update after started"
         getCurrentBlock().timestamp < self.startAt: "Can't update after started"
       }
 
