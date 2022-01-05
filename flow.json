@@ -6,6 +6,12 @@
     }
   },
   "contracts": {
+    "BloctoDAO": {
+      "source": "./contracts/flow/dao/BloctoDAO.cdc",
+      "aliases": {
+        "mainnet": "0xe0f601b5afd47581"
+      }
+    },
     "BloctoPass": {
       "source": "./contracts/flow/token/BloctoPass.cdc",
       "aliases": {
@@ -259,6 +265,9 @@
       "chain": "flow-testnet"
     },
     "blt-admin-mainnet": {
+      "fromFile": "./flow.mainnet.json"
+    },
+    "blt-dao-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     },
     "blt-staking-admin-mainnet": {

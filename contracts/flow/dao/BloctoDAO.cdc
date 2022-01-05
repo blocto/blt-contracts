@@ -6,8 +6,13 @@ import BloctoToken from "../token/BloctoToken.cdc"
 
 pub contract BloctoDAO {
   access(contract) var topics: [Topic]
+  access(contract) var votedRecords: [{ Address: Int }]
+  access(contract) var totalTopics: Int
 
   pub let AdminStoragePath: StoragePath;
+  pub let VoterStoragePath: StoragePath;
+  pub let VoterPublicPath: PublicPath;
+  pub let VoterPath: PrivatePath;
 
   pub enum CountStatus: UInt8 {
     pub case invalid
@@ -34,7 +39,10 @@ pub contract BloctoDAO {
         endAt: endAt,
         minVoteStakingAmount: minVoteStakingAmount
       ))
+      BloctoDAO.votedRecords.append({})
+      BloctoDAO.totalTopics = BloctoDAO.totalTopics + 1
     }
+
     pub fun updateTopic(id: Int, title: String?, description: String?, startAt: UFix64?, endAt: UFix64?, voided: Bool?) {
       pre {
         BloctoDAO.topics[id].proposer == self.owner!.address: "Only original proposer can update"
@@ -50,11 +58,16 @@ pub contract BloctoDAO {
     }
   }
 
-  // Voter resource holder can vote on topics 
-  pub resource Voter {
+  pub resource interface VoterPublic {
     // voted topic id <-> options index mapping
+    pub fun getVotedOption(topicId: UInt64): Int?
+    pub fun getVotedOptions(): { UInt64: Int }
+  }
+
+  // Voter resource holder can vote on topics 
+  pub resource Voter: VoterPublic {
     access(self) var records: { UInt64: Int }
-    
+
     pub fun vote(topicId: UInt64, optionIndex: Int) {
       pre {
         self.records[topicId] == nil: "Already voted"
@@ -66,7 +79,11 @@ pub contract BloctoDAO {
 
     pub fun getVotedOption(topicId: UInt64): Int? {
       return self.records[topicId]
-    } 
+    }
+
+    pub fun getVotedOptions(): { UInt64: Int } {
+      return self.records
+    }
 
     init() {
       self.records = {}
@@ -86,14 +103,13 @@ pub contract BloctoDAO {
   }
 
   pub struct Topic {
+    pub let id: Int;
     pub let proposer: Address
     pub var title: String
     pub var description: String
     pub let minVoteStakingAmount: UFix64
 
     pub var options: [String]
-    // address <-> address selected options index mapping
-    access(self) var voted: { Address: Int }
     // options index <-> result mapping
     pub var votesCountActual: [UFix64]
 
@@ -120,10 +136,12 @@ pub contract BloctoDAO {
       self.description = description
       self.minVoteStakingAmount = minVoteStakingAmount != nil ? minVoteStakingAmount! : 0.0
       self.votesCountActual = []
+
       for option in options {
         self.votesCountActual.append(0.0)
       }
-      self.voted = {}
+
+      self.id = BloctoDAO.totalTopics
 
       self.sealed = false
       self.countIndex = 0
@@ -157,14 +175,14 @@ pub contract BloctoDAO {
       pre {
         self.isStarted(): "Vote not started"
         !self.isEnded(): "Vote ended"
-        self.voted[voterAddr] == nil: "Already voted"
+        BloctoDAO.votedRecords[self.id][voterAddr] == nil: "Already voted"
       }
 
       let voterStaked = BloctoDAO.getStakedBLT(address: voterAddr)
 
       assert(voterStaked >= self.minVoteStakingAmount, message: "Not eligible")
 
-      self.voted[voterAddr] = optionIndex
+      BloctoDAO.votedRecords[self.id][voterAddr] = optionIndex
     }
 
     // return if count ended
@@ -176,15 +194,17 @@ pub contract BloctoDAO {
         return CountStatus.finished
       }
 
-      let votedList = self.voted.keys
+      let votedList = BloctoDAO.votedRecords[self.id].keys
       var batchEnd = self.countIndex + size
+
       if batchEnd > votedList.length {
         batchEnd = votedList.length
       }
+
       while self.countIndex != batchEnd {
         let address = votedList[self.countIndex]
         let voterStaked = BloctoDAO.getStakedBLT(address: address)
-        let votedOptionIndex = self.voted[address]!
+        let votedOptionIndex = BloctoDAO.votedRecords[self.id][address]!
         self.votesCountActual[votedOptionIndex] = self.votesCountActual[votedOptionIndex] + voterStaked
 
         self.countIndex = self.countIndex + 1
@@ -193,7 +213,6 @@ pub contract BloctoDAO {
       self.sealed = self.countIndex == votedList.length
 
       return CountStatus.success
-
     }
 
     pub fun isEnded(): Bool {
@@ -207,24 +226,27 @@ pub contract BloctoDAO {
     pub fun getVotes(page: Int, pageSize: Int?): [VoteRecord] {
       var records: [VoteRecord] = []
       let size = pageSize != nil ? pageSize! : 100
-      let addresses = self.voted.keys
+      let addresses = BloctoDAO.votedRecords[self.id].keys
       var pageStart = (page - 1) * size
       var pageEnd = pageStart + size
+
       if pageEnd > addresses.length {
         pageEnd = addresses.length
       }
+
       while pageStart < pageEnd {
         let address = addresses[pageStart]
-        let optionIndex = self.voted[address]!
+        let optionIndex = BloctoDAO.votedRecords[self.id][address]!
         let amount = BloctoDAO.getStakedBLT(address: address)
         records.append(VoteRecord(address: address, optionIndex: optionIndex, amount: amount))
         pageStart = pageStart + 1
       }
+
       return records
     }
 
     pub fun getTotalVoted(): Int {
-      return self.voted.keys.length
+      return BloctoDAO.votedRecords[self.id].keys.length
     }
   }
 
@@ -266,8 +288,13 @@ pub contract BloctoDAO {
 
   init () {
     self.topics = []
+    self.votedRecords = []
+    self.totalTopics = 0
 
     self.AdminStoragePath = /storage/bloctoDAOAdmin
+    self.VoterStoragePath = /storage/bloctoDAOVoter
+    self.VoterPublicPath = /public/bloctoDAOVoter
+    self.VoterPath = /private/bloctoDAOVoter
     self.account.save(<-create Admin(), to: self.AdminStoragePath)
   }
 }
