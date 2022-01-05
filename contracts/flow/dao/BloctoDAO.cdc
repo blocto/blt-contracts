@@ -39,6 +39,8 @@ pub contract BloctoDAO {
         endAt: endAt,
         minVoteStakingAmount: minVoteStakingAmount
       ))
+      BloctoDAO.votedRecords.append({})
+      BloctoDAO.totalTopics = BloctoDAO.totalTopics + 1
     }
 
     pub fun updateTopic(id: Int, title: String?, description: String?, startAt: UFix64?, endAt: UFix64?, voided: Bool?) {
@@ -140,7 +142,6 @@ pub contract BloctoDAO {
       }
 
       self.id = BloctoDAO.totalTopics
-      BloctoDAO.addVotedRecords()
 
       self.sealed = false
       self.countIndex = 0
@@ -247,11 +248,6 @@ pub contract BloctoDAO {
     pub fun getTotalVoted(): Int {
       return BloctoDAO.votedRecords[self.id].keys.length
     }
-  }
-
-  access(contract) fun addVotedRecords() {
-    self.votedRecords.append({})
-    self.totalTopics = self.totalTopics + 1
   }
 
   pub fun getStakedBLT(address: Address): UFix64 {
