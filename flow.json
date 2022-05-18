@@ -32,7 +32,7 @@
     },
     "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
     "BloctoTokenSale": {
-      "source": "./contracts/flow/sale/BloctoTokenSale.cdc",
+      "source": "./contracts/flow/sale/BloctoTokenCommunitySale.cdc",
       "aliases": {
         "mainnet": "0x0f9df91c9121c460"
       }
@@ -110,7 +110,7 @@
       "chain": "flow-emulator"
     },
     "testnet": {
-      "host": "access.devnet.nodes.onflow.org:9000",
+      "host": "access.testnet.nodes.onflow.org:9000",
       "chain": "flow-testnet"
     },
     "mainnet": {
@@ -159,6 +159,21 @@
           "hashAlgorithm": "SHA3_256",
           "context": {
             "privateKey": "2a7dff7b7e222213088682580b980e72b25c5a045324ce19a1f59a49b1512014"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
+    },
+    "blt-admin-exp-testnet": {
+      "address": "0x33ab1645acbc6278",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 0,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "38032d4b0ff2bb63f13184c76eb8cba138ed60913063e3fca1a68ad2881e89dc"
           }
         }
       ],

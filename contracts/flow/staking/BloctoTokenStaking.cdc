@@ -514,14 +514,13 @@ pub contract BloctoTokenStaking {
 
     /// Epoch
     pub fun getEpoch(): UInt64 {
-        return self.account.copy<UInt64>(from: /storage/bloctoTokenStakingEpoch) ?? (0 as UInt64);
+        return self.account.copy<UInt64>(from: /storage/bloctoTokenStakingEpoch) ?? (0 as UInt64)
     }
 
     access(contract) fun setEpoch(_ epoch: UInt64) {
         self.account.load<UInt64>(from: /storage/bloctoTokenStakingEpoch)
         self.account.save<UInt64>(epoch, to: /storage/bloctoTokenStakingEpoch)
     }
-
 
     access(contract) fun getStakingRewardKey(epoch: UInt64, stakerID: UInt64): String {
         // key: {EPOCH}_{STAKER_ID}
