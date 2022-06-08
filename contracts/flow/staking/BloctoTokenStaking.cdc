@@ -529,7 +529,8 @@ pub contract BloctoTokenStaking {
     }
 
     access(contract) fun getStakingRewardPath(epoch: UInt64): StoragePath {
-        return StoragePath(identifier: "bloctoTokenStakingStakingRewardRecords".concat("_").concat(epoch.toString()))
+        // path: /storage/bloctoTokenStakingStakingRewardRecords_{EPOCH}
+        return StoragePath(identifier: "bloctoTokenStakingStakingRewardRecords".concat("_").concat(epoch.toString()))!
     }
 
     /// staking reward records
