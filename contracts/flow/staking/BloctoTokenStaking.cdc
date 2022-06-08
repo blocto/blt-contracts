@@ -320,7 +320,7 @@ pub contract BloctoTokenStaking {
 
         /// Called at the end of the epoch to pay rewards to staker operators
         /// based on the tokens that they have staked
-        pub fun payRewards(_ stakerIDs: [UInt64]) {
+        pub fun payRewards(_ stakerIDs: [UInt64], epochPath: StoragePath) {
             pre {
                 !BloctoTokenStaking.stakingEnabled: "Cannot pay rewards if the staking auction is still in progress"
             }
@@ -336,10 +336,10 @@ pub contract BloctoTokenStaking {
             }
             var totalRewardScale = BloctoTokenStaking.epochTokenPayout / totalStaked
 
-            var stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+            var stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: epochPath)
             if stakingRewardRecordsRefOpt == nil {
-                BloctoTokenStaking.account.save<{String: Bool}>({} as {String: Bool}, to: /storage/bloctoTokenStakingStakingRewardRecords)
-                stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+                BloctoTokenStaking.account.save<{String: Bool}>({} as {String: Bool}, to: epochPath)
+                stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: epochPath)
             }
             var stakingRewardRecordsRef = stakingRewardRecordsRefOpt!
             let epoch = BloctoTokenStaking.getEpoch()
@@ -528,8 +528,8 @@ pub contract BloctoTokenStaking {
     }
 
     /// staking reward records
-    pub fun hasSentStakingReward(epoch: UInt64, stakerID: UInt64): Bool {
-        let stakingRewardRecordsRef = self.account.borrow<&{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+    pub fun hasSentStakingReward(epoch: UInt64, stakerID: UInt64, epochPath: StoragePath): Bool {
+        let stakingRewardRecordsRef = self.account.borrow<&{String: Bool}>(from: epochPath)
         if stakingRewardRecordsRef == nil {
             return false
         }
