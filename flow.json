@@ -291,6 +291,9 @@
     "blt-swap-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     },
+    "blt-teleport-owner-mainnet": {
+      "fromFile": "./flow.mainnet.json"
+    },
     "blt-teleport-admin-mainnet": {
       "fromFile": "./flow.mainnet.json"
     },
