@@ -336,13 +336,14 @@ pub contract BloctoTokenStaking {
             }
             var totalRewardScale = BloctoTokenStaking.epochTokenPayout / totalStaked
 
-            var stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+            let epoch = BloctoTokenStaking.getEpoch()
+            let epochPath = BloctoTokenStaking.getStakingRewardPath(epoch: epoch)
+            var stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: epochPath)
             if stakingRewardRecordsRefOpt == nil {
-                BloctoTokenStaking.account.save<{String: Bool}>({} as {String: Bool}, to: /storage/bloctoTokenStakingStakingRewardRecords)
-                stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+                BloctoTokenStaking.account.save<{String: Bool}>({} as {String: Bool}, to: epochPath)
+                stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: epochPath)
             }
             var stakingRewardRecordsRef = stakingRewardRecordsRefOpt!
-            let epoch = BloctoTokenStaking.getEpoch()
 
             /// iterate through stakers to pay
             for stakerID in stakerIDs {
@@ -527,9 +528,14 @@ pub contract BloctoTokenStaking {
         return epoch.toString().concat("_").concat(stakerID.toString())
     }
 
+    access(contract) fun getStakingRewardPath(epoch: UInt64): StoragePath {
+        // path: /storage/bloctoTokenStakingStakingRewardRecords_{EPOCH}
+        return StoragePath(identifier: "bloctoTokenStakingStakingRewardRecords".concat("_").concat(epoch.toString()))!
+    }
+
     /// staking reward records
     pub fun hasSentStakingReward(epoch: UInt64, stakerID: UInt64): Bool {
-        let stakingRewardRecordsRef = self.account.borrow<&{String: Bool}>(from: /storage/bloctoTokenStakingStakingRewardRecords)
+        let stakingRewardRecordsRef = self.account.borrow<&{String: Bool}>(from: BloctoTokenStaking.getStakingRewardPath(epoch: epoch))
         if stakingRewardRecordsRef == nil {
             return false
         }
