@@ -271,7 +271,8 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(btMiningInfo.BTMiningAddr)
 
-		_ = tx.AddArgument(cadence.NewString("tx"))
+		str, _ := cadence.NewString("tx")
+		_ = tx.AddArgument(str)
 		_ = tx.AddArgument(CadenceUFix64("2.3"))
 		_ = tx.AddArgument(CadenceUFix64("100.0"))
 		_ = tx.AddArgument(cadence.NewUInt64(123))
@@ -304,7 +305,8 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(btMiningInfo.BTMiningAddr)
 
-		_ = tx.AddArgument(cadence.NewString("tx"))
+		str, _ := cadence.NewString("tx")
+		_ = tx.AddArgument(str)
 		_ = tx.AddArgument(CadenceUFix64("4.7"))
 		_ = tx.AddArgument(CadenceUFix64("101.0"))
 		_ = tx.AddArgument(cadence.NewUInt64(321))
@@ -337,7 +339,8 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(btMiningInfo.BTMiningAddr)
 
-		_ = tx.AddArgument(cadence.NewString("tx"))
+		str, _ := cadence.NewString("tx")
+		_ = tx.AddArgument(str)
 
 		signAndSubmit(
 			t, b, tx,
@@ -380,7 +383,8 @@ func TestBPMiningUpdateCriteria(t *testing.T) {
 			SetPayer(b.ServiceKey().Address).
 			AddAuthorizer(btMiningInfo.BTMiningAddr)
 
-		_ = tx.AddArgument(cadence.NewString("tx"))
+		str, _ := cadence.NewString("tx")
+		_ = tx.AddArgument(str)
 		_ = tx.AddArgument(CadenceUFix64("2.3"))
 		_ = tx.AddArgument(CadenceUFix64("100.0"))
 		_ = tx.AddArgument(cadence.NewUInt64(123))

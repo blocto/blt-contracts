@@ -87,8 +87,8 @@ func addAccountContractWithArgs(
 		}
 	}`
 
-	cadenceName := cadence.NewString(contract.Name)
-	cadenceCode := cadence.NewString(contract.SourceHex())
+	cadenceName, _ := cadence.NewString(contract.Name)
+	cadenceCode, _ := cadence.NewString(contract.SourceHex())
 
 	tx := flow.NewTransaction().
 		AddRawArgument(jsoncdc.MustEncode(cadenceName)).
