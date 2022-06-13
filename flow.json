@@ -81,19 +81,22 @@
     "TeleportCustodyEthereum": {
       "source": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
       "aliases": {
-        "mainnet": "0x0ac14a822e54cc4e"
+        "mainnet": "0x0ac14a822e54cc4e",
+        "testnet": "0x967a0fb3c949cbc5"
       }
     },
     "TeleportCustodySolana": {
       "source": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
       "aliases": {
-        "mainnet": "0x0ac14a822e54cc4e"
+        "mainnet": "0x0ac14a822e54cc4e",
+        "testnet": "0x967a0fb3c949cbc5"
       }
     },
     "TeleportCustodyBSC": {
       "source": "./contracts/flow/teleport/TeleportCustodyBSC.cdc",
       "aliases": {
-        "mainnet": "0x0ac14a822e54cc4e"
+        "mainnet": "0x0ac14a822e54cc4e",
+        "testnet": "0x967a0fb3c949cbc5"
       }
     },
     "TeleportedTetherToken": {
@@ -334,11 +337,6 @@
       ],
       "blt-swap-testnet": [
         "BltUsdtSwapPair"
-      ],
-      "blt-teleport-testnet": [
-        "TeleportCustody",
-        "TeleportCustodyEthereum",
-        "TeleportCustodySolana"
       ]
     },
     "mainnet": {

@@ -429,7 +429,7 @@ pub contract BloctoTokenStaking {
             BloctoTokenStaking.stakers[stakerID] != nil:
                 "Specified staker ID does not exist in the record"
         }
-        return &BloctoTokenStaking.stakers[stakerID] as! &StakerRecord
+        return( &BloctoTokenStaking.stakers[stakerID] as! &StakerRecord?)!
     }
 
     /// Gets an array of all the stakerIDs that are staked.
