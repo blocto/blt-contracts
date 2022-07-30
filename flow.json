@@ -108,18 +108,9 @@
     }
   },
   "networks": {
-    "emulator": {
-      "host": "127.0.0.1:3569",
-      "chain": "flow-emulator"
-    },
-    "testnet": {
-      "host": "access.testnet.nodes.onflow.org:9000",
-      "chain": "flow-testnet"
-    },
-    "mainnet": {
-      "host": "access.mainnet.nodes.onflow.org:9000",
-      "chain": "flow-mainnet"
-    }
+    "emulator": "127.0.0.1:3569",
+    "mainnet": "access.mainnet.nodes.onflow.org:9000",
+    "testnet": "access.devnet.nodes.onflow.org:9000"
   },
   "accounts": {
     "emulator-account": {
