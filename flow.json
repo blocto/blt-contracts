@@ -158,6 +158,21 @@
       ],
       "chain": "flow-testnet"
     },
+    "blt-staking-new-testnet": {
+      "address": "0x7deafdfc288e422d",
+      "keys": [
+        {
+          "type": "hex",
+          "index": 0,
+          "signatureAlgorithm": "ECDSA_secp256k1",
+          "hashAlgorithm": "SHA3_256",
+          "context": {
+            "privateKey": "f6ae0d76b35b2cb45ab58ab9316a1efda51068ddf14f6ab551e0c72da83b6d89"
+          }
+        }
+      ],
+      "chain": "flow-testnet"
+    },
     "blt-admin-exp-testnet": {
       "address": "0x33ab1645acbc6278",
       "keys": [
@@ -319,12 +334,15 @@
         "BloctoTokenPublicSale"
       ],
       "blt-admin-new-testnet": [
-        "BloctoPass",
         "BloctoPassStamp",
         "BloctoToken",
         "BloctoTokenSale",
-        "BloctoTokenStaking",
         "BloctoTokenMining"
+      ],
+      "blt-staking-new-testnet": [
+        "BloctoPass",
+        "BloctoTokenStaking",
+        "BloctoDAO"
       ],
       "blt-swap-testnet": [
         "BltUsdtSwapPair"
