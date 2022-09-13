@@ -362,13 +362,10 @@ pub contract BloctoTokenStaking {
 
                 if rewardAmount == 0.0 { continue }
 
-                /// Mint the tokens to reward the operator
-                let tokenReward <- BloctoTokenMinter.mintTokens(amount: rewardAmount)
-
-                emit RewardsPaid(stakerID: stakerRecord.id, amount: tokenReward.balance)
+                emit RewardsPaid(stakerID: stakerRecord.id, amount: rewardAmount)
 
                 /// Deposit the staker Rewards into their tokensRewarded bucket
-                stakerRecord.tokensRewarded.deposit(from: <-tokenReward)
+                stakerRecord.tokensRewarded.deposit(from: <- BloctoTokenMinter.mintTokens(amount: rewardAmount))
             }
         }
 
