@@ -85,6 +85,13 @@
         "testnet": "0x967a0fb3c949cbc5"
       }
     },
+    "TeleportCustodyAptos": {
+      "source": "./contracts/flow/teleport/TeleportCustodyAptos.cdc",
+      "aliases": {
+        "mainnet": "TBD",
+        "testnet": "TBD"
+      }
+    },
     "TeleportCustodySolana": {
       "source": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
       "aliases": {
