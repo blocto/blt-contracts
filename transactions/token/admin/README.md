@@ -29,7 +29,7 @@ flow transactions send ./transactions/token/admin/mintBloctoPassWithCustomLockup
 
 ### Mint BloctoPass NFT with Predefined Lockup Schedule
 ```
-flow transactions send ./transactions/token/admin/mintBloctoPassWithCustomLockup.cdc \
+flow transactions send ./transactions/token/admin/mintBloctoPassWithPredefinedLockup.cdc \
   --network testnet \
   --arg Address:0x95d4f57daf2fb5ce \
   --arg UFix64:500.0 \
