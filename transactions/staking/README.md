@@ -59,3 +59,29 @@ flow transactions sign ./build/signed-1.rlp \
 
 flow transactions send-signed --network mainnet ./build/signed-2.rlp
 ```
+
+### Setup Staking Admin
+```
+flow transactions build ./transactions/staking/setupStakingAdmin.cdc \
+  --network testnet \
+  --proposer 0x7deafdfc288e422d \
+  --proposer-key-index 0 \
+  --authorizer 0x7deafdfc288e422d \
+  --authorizer 0x13080159c8bfe9d8 \
+  --payer 0x13080159c8bfe9d8 \
+  --gas-limit 1000 \
+  -x payload \
+  --save ./build/unsigned.rlp
+
+flow transactions sign ./build/unsigned.rlp \
+  --signer blt-staking-new-testnet \
+  --filter payload \
+  --save ./build/signed-1.rlp
+
+flow transactions sign ./build/signed-1.rlp \
+  --signer blt-staking-admin-testnet \
+  --filter payload \
+  --save ./build/signed-2.rlp
+
+flow transactions send-signed --network testnet ./build/signed-2.rlp
+```

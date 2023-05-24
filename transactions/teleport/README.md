@@ -157,31 +157,37 @@ flow transactions build ./transactions/teleport/createTeleportAdminEthereum.cdc 
   --proposer 0x0ac14a822e54cc4e \
   --proposer-key-index 0 \
   --authorizer 0x0ac14a822e54cc4e \
-  --authorizer 0x55ad22f01ef568a1 \
-  --payer 0x55ad22f01ef568a1 \
+  --authorizer 0x73d494fc6fe4b127 \
+  --payer 0x73d494fc6fe4b127 \
   --gas-limit 1000 \
   -x payload \
   --save ./build/unsigned.rlp
 
 flow transactions sign ./build/unsigned.rlp \
-  --signer blt-teleport-admin-mainnet \
+  --signer blt-teleport-owner-mainnet \
   --filter payload \
   --save ./build/signed-1.rlp
 
 flow transactions sign ./build/signed-1.rlp \
-  --signer blocto-hot-wallet-mainnet \
+  --signer blt-teleport-admin-mainnet \
   --filter payload \
   --save ./build/signed-2.rlp
 
 flow transactions send-signed --network mainnet ./build/signed-2.rlp
 ```
 
+### Deposit Allowance Ethereum
+```
+flow transactions send ./transactions/teleport/depositAllowanceEthereum.cdc 0x73d494fc6fe4b127 1000000.0 \
+  --network mainnet \
+  --signer blt-teleport-owner-mainnet \
+  --gas-limit 1000
+```
+
 ### Deposit Allowance BSC
 ```
-flow transactions send ./transactions/teleport/depositAllowanceBSC.cdc \
+flow transactions send ./transactions/teleport/depositAllowanceBSC.cdc 0x73d494fc6fe4b127 5000000.0 \
   --network mainnet \
-  --arg Address:0x73d494fc6fe4b127 \
-  --arg UFix64:5000000.0 \
   --signer blt-teleport-admin-mainnet \
   --gas-limit 1000
 ```

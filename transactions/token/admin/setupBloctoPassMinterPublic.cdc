@@ -4,7 +4,7 @@ transaction {
     prepare(signer: AuthAccount) {
         // create a public capability to mint Blocto Pass
         signer.link<&{BloctoPass.MinterPublic}>(
-            BloctoPass.MinterPublicPath,
+            /public/bloctoPassMinter,
             target: BloctoPass.MinterStoragePath
         )
     }

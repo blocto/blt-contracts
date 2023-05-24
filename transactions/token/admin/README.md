@@ -50,10 +50,36 @@ flow transactions send ./transactions/token/admin/setupBloctoTokenMinter.cdc \
 ### Setup Blocto Token Minter for Staking
 ```
 flow transactions send ./transactions/token/admin/setupBloctoTokenMinterForStaking.cdc \
-  --network mainnet \
+  --network testnet \
   --arg UFix64:10000000.0 \
-  --signer blt-admin-mainnet \
+  --signer blt-staking-new-testnet \
   --gas-limit 1000
+```
+
+### Setup Blocto Token Minter for Staking (different accounts)
+```
+flow transactions build ./transactions/token/admin/setupBloctoTokenMinterForStaking.cdc 10000000.0 \
+  --network testnet \
+  --proposer 0x6e0797ac987005f5 \
+  --proposer-key-index 0 \
+  --authorizer 0x6e0797ac987005f5 \
+  --authorizer 0x7deafdfc288e422d \
+  --payer 0x7deafdfc288e422d \
+  --gas-limit 1000 \
+  -x payload \
+  --save ./build/unsigned.rlp
+
+flow transactions sign ./build/unsigned.rlp \
+  --signer blt-admin-new-testnet \
+  --filter payload \
+  --save ./build/signed-1.rlp
+
+flow transactions sign ./build/signed-1.rlp \
+  --signer blt-staking-new-testnet \
+  --filter payload \
+  --save ./build/signed-2.rlp
+
+flow transactions send-signed --network testnet ./build/signed-2.rlp
 ```
 
 ### Setup BloctoToken Minter for Mining

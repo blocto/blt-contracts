@@ -5,12 +5,13 @@ transaction() {
 		let adminRef = admin.borrow<&BloctoTokenStaking.Admin>(from: BloctoTokenStaking.StakingAdminStoragePath)
 		?? panic("failed to borrow &BloctoTokenStaking.Admin")
 
-
 		admin.unlink(/private/bloctoTokenStakingAdmin);
 		let adminCapability: Capability<&BloctoTokenStaking.Admin> = admin.link<&BloctoTokenStaking.Admin>(
             	/private/bloctoTokenStakingAdmin,
             	target: BloctoTokenStaking.StakingAdminStoragePath
         	) ?? panic("failed to get capability")
+
+		let oldCapability = newAdmin.load<Capability>(from: BloctoTokenStaking.StakingAdminStoragePath)
 		newAdmin.save<Capability<&BloctoTokenStaking.Admin>>(adminCapability, to: BloctoTokenStaking.StakingAdminStoragePath)
 	}
 }
