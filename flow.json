@@ -78,6 +78,12 @@
       }
     },
     "TeleportCustody": "./contracts/flow/teleport/TeleportCustody.cdc",
+    "TeleportCustodyAptos": {
+      "source": "./contracts/flow/teleport/TeleportCustodyAptos.cdc",
+      "aliases": {
+        "mainnet": "0x714000cf4dd1c4ed"
+      }
+    },
     "TeleportCustodyEthereum": {
       "source": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
       "aliases": {

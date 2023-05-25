@@ -184,6 +184,14 @@ flow transactions send ./transactions/teleport/depositAllowanceEthereum.cdc 0x73
   --gas-limit 1000
 ```
 
+### Deposit Allowance Aptos
+```
+flow transactions send ./transactions/teleport/depositAllowanceAptos.cdc 0x73d494fc6fe4b127 1000000.0 \
+  --network mainnet \
+  --signer blt-teleport-owner-aptos-mainnet \
+  --gas-limit 1000
+```
+
 ### Deposit Allowance BSC
 ```
 flow transactions send ./transactions/teleport/depositAllowanceBSC.cdc 0x73d494fc6fe4b127 5000000.0 \
