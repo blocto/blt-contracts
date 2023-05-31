@@ -49,37 +49,37 @@ flow transactions send ./transactions/token/admin/setupBloctoTokenMinter.cdc \
 
 ### Setup Blocto Token Minter for Staking
 ```
-flow transactions send ./transactions/token/admin/setupBloctoTokenMinterForStaking.cdc \
-  --network testnet \
+flow transactions send ./transactions/token/admin/setupBloctoTokenMinterForStaking.cdc 10000000.0 \
+  --network mainnet \
   --arg UFix64:10000000.0 \
-  --signer blt-staking-new-testnet \
+  --signer blt-admin-mainnet \
   --gas-limit 1000
 ```
 
 ### Setup Blocto Token Minter for Staking (different accounts)
 ```
 flow transactions build ./transactions/token/admin/setupBloctoTokenMinterForStaking.cdc 10000000.0 \
-  --network testnet \
-  --proposer 0x6e0797ac987005f5 \
+  --network mainnet \
+  --proposer 0x0f9df91c9121c460 \
   --proposer-key-index 0 \
-  --authorizer 0x6e0797ac987005f5 \
-  --authorizer 0x7deafdfc288e422d \
-  --payer 0x7deafdfc288e422d \
+  --authorizer 0x0f9df91c9121c460 \
+  --authorizer 0x6a5a9c49e5b2ad53 \
+  --payer 0x6a5a9c49e5b2ad53 \
   --gas-limit 1000 \
   -x payload \
   --save ./build/unsigned.rlp
 
 flow transactions sign ./build/unsigned.rlp \
-  --signer blt-admin-new-testnet \
+  --signer blt-admin-mainnet \
   --filter payload \
   --save ./build/signed-1.rlp
 
 flow transactions sign ./build/signed-1.rlp \
-  --signer blt-staking-new-testnet \
+  --signer blt-staking-admin-mainnet \
   --filter payload \
   --save ./build/signed-2.rlp
 
-flow transactions send-signed --network testnet ./build/signed-2.rlp
+flow transactions send-signed --network mainnet ./build/signed-2.rlp
 ```
 
 ### Setup BloctoToken Minter for Mining
