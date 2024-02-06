@@ -47,11 +47,18 @@ flow transactions send ./transactions/token/admin/setupBloctoTokenMinter.cdc \
   --gas-limit 1000
 ```
 
+### Destroy Blocto Token Minter from Staking Account
+```
+flow transactions send ./transactions/token/admin/destroyBloctoTokenMinter.cdc \
+  --network mainnet \
+  --signer blt-staking-admin-mainnet \
+  --gas-limit 1000
+```
+
 ### Setup Blocto Token Minter for Staking
 ```
-flow transactions send ./transactions/token/admin/setupBloctoTokenMinterForStaking.cdc 10000000.0 \
+flow transactions send ./transactions/token/admin/setupBloctoTokenMinterForStakingSelf.cdc 10000000.0 \
   --network mainnet \
-  --arg UFix64:10000000.0 \
   --signer blt-admin-mainnet \
   --gas-limit 1000
 ```
