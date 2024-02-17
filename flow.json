@@ -27,7 +27,8 @@
     "BloctoToken": {
       "source": "./contracts/flow/token/BloctoToken.cdc",
       "aliases": {
-        "mainnet": "0x0f9df91c9121c460"
+        "mainnet": "0x0f9df91c9121c460",
+        "testnet": "0x6e0797ac987005f5"
       }
     },
     "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
@@ -89,6 +90,13 @@
       "aliases": {
         "mainnet": "0x0ac14a822e54cc4e",
         "testnet": "0x967a0fb3c949cbc5"
+      }
+    },
+    "TeleportCustodyAptos": {
+      "source": "./contracts/flow/teleport/TeleportCustodyAptos.cdc",
+      "aliases": {
+        "mainnet": "TBD",
+        "testnet": "TBD"
       }
     },
     "TeleportCustodySolana": {
@@ -370,6 +378,12 @@
       ],
       "blt-swap-testnet": [
         "BltUsdtSwapPair"
+      ],
+      "blt-teleport-testnet": [
+        "TeleportCustodyEthereum",
+        "TeleportCustodyBSC",
+        "TeleportCustodySolana",
+        "TeleportCustodyAptos"
       ]
     },
     "mainnet": {
