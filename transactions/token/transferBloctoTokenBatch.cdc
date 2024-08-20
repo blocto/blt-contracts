@@ -25,7 +25,7 @@ transaction(addresses: [Address], amounts: [UFix64]) {
             // Get the recipient's public account object
             let recipient = getAccount(addresses[index])
 
-             // Get a reference to the recipient's Receiver
+            // Get a reference to the recipient's Receiver
             let receiverRef = recipient.capabilities
                 .borrow<&{FungibleToken.Receiver}>(BloctoToken.TokenPublicReceiverPath)
                 ?? panic("Could not borrow receiver reference to the recipient's Vault".concat(addresses[index].toString()))
