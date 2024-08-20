@@ -27,6 +27,7 @@
     "BloctoToken": {
       "source": "./contracts/flow/token/BloctoToken.cdc",
       "aliases": {
+        "testing": "0x0000000000000007",
         "mainnet": "0x0f9df91c9121c460"
       }
     },
@@ -55,26 +56,11 @@
         "mainnet": "0xfcb06a5ae5b21a2d"
       }
     },
-    "FungibleToken": {
-      "source": "./contracts/flow/token/FungibleToken.cdc",
-      "aliases": {
-        "emulator": "0xee82856bf20e2aa6",
-        "testnet": "0x9a0766d93b6608b7",
-        "mainnet": "0xf233dcee88fe0abe"
-      }
-    },
     "FUSD": {
       "source": "./contracts/flow/token/FUSD.cdc",
       "aliases": {
         "testnet": "0xe223d8a629e49c68",
         "mainnet": "0x3c5959b568896393"
-      }
-    },
-    "NonFungibleToken": {
-      "source": "./contracts/flow/token/NonFungibleToken.cdc",
-      "aliases": {
-        "testnet": "0x631e88ae7f1d7c20",
-        "mainnet": "0x1d7e57aa55817448"
       }
     },
     "TeleportCustody": "./contracts/flow/teleport/TeleportCustody.cdc",
@@ -113,10 +99,74 @@
       }
     }
   },
+  "dependencies": {
+    "Burner": {
+      "source": "previewnet://b6763b4399a888c8.Burner",
+      "hash": "9f84f00c8d2afd70916514e56f9459ef7f426b70a7440dd1b64f2723ff779ce7",
+      "aliases": {
+        "emulator": "f8d6e0586b0a20c7",
+        "mainnet": "e467b9dd11fa00df",
+        "previewnet": "b6763b4399a888c8",
+        "testnet": "8c5303eaa26202d6"
+      }
+    },
+    "FungibleToken": {
+      "source": "previewnet://a0225e7000ac82a9.FungibleToken",
+      "hash": "3cad0cb7d88b8af34ab82a1580c6d70906649f7e974c12958a55c822d4f1e808",
+      "aliases": {
+        "emulator": "ee82856bf20e2aa6",
+        "mainnet": "f233dcee88fe0abe",
+        "previewnet": "a0225e7000ac82a9",
+        "testnet": "9a0766d93b6608b7"
+      }
+    },
+    "FungibleTokenMetadataViews": {
+      "source": "previewnet://a0225e7000ac82a9.FungibleTokenMetadataViews",
+      "hash": "2206d6ac3d18e2a26ed8e610cb28d1e054423b20a8bdc2ac6a10bffc7e579a9c",
+      "aliases": {
+        "emulator": "ee82856bf20e2aa6",
+        "mainnet": "f233dcee88fe0abe",
+        "previewnet": "a0225e7000ac82a9",
+        "testnet": "9a0766d93b6608b7"
+      }
+    },
+    "MetadataViews": {
+      "source": "previewnet://b6763b4399a888c8.MetadataViews",
+      "hash": "a49bab604f143ced27662b28d16887707ed7a4e60e626eb1e742ea93bf0bffb0",
+      "aliases": {
+        "emulator": "f8d6e0586b0a20c7",
+        "mainnet": "1d7e57aa55817448",
+        "previewnet": "b6763b4399a888c8",
+        "testnet": "631e88ae7f1d7c20"
+      }
+    },
+    "NonFungibleToken": {
+      "source": "previewnet://b6763b4399a888c8.NonFungibleToken",
+      "hash": "ebf4d24a324803365c238d95c621ee472f36acc1ed4158ff5d255e8fb865e3cc",
+      "aliases": {
+        "emulator": "f8d6e0586b0a20c7",
+        "mainnet": "1d7e57aa55817448",
+        "previewnet": "b6763b4399a888c8",
+        "testnet": "631e88ae7f1d7c20"
+      }
+    },
+    "ViewResolver": {
+      "source": "previewnet://b6763b4399a888c8.ViewResolver",
+      "hash": "eaa3214b0e178c5692cfc243a14c739150d5d57ef3f9204a252d70667a67db76",
+      "aliases": {
+        "emulator": "f8d6e0586b0a20c7",
+        "mainnet": "1d7e57aa55817448",
+        "previewnet": "b6763b4399a888c8",
+        "testnet": "631e88ae7f1d7c20"
+      }
+    }
+  },
   "networks": {
+    "testing": "127.0.0.1:3569",
     "emulator": "127.0.0.1:3569",
     "mainnet": "access.mainnet.nodes.onflow.org:9000",
-    "testnet": "access.devnet.nodes.onflow.org:9000"
+    "testnet": "access.devnet.nodes.onflow.org:9000",
+    "previewnet": "access.previewnet.nodes.onflow.org:9000"
   },
   "accounts": {
     "emulator-account": {
@@ -308,36 +358,6 @@
         }
       ],
       "chain": "flow-testnet"
-    },
-    "blt-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-dao-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-staking-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-swap-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-teleport-owner-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-teleport-owner-aptos-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-teleport-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-usdt-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-sale-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blocto-hot-wallet-mainnet": {
-      "fromFile": "./flow.mainnet.json"
     }
   },
   "deployments": {
@@ -370,14 +390,6 @@
       ],
       "blt-swap-testnet": [
         "BltUsdtSwapPair"
-      ]
-    },
-    "mainnet": {
-      "blt-admin-mainnet": [
-        "BloctoPass",
-        "BloctoPassStamp",
-        "BloctoToken",
-        "BloctoTokenStaking"
       ]
     }
   }

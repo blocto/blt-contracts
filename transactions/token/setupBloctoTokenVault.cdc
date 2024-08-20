@@ -1,30 +1,29 @@
-import FungibleToken from "../../contracts/flow/token/FungibleToken.cdc"
-import BloctoToken from "../../contracts/flow/token/BloctoToken.cdc"
+import "FungibleToken"
+import "BloctoToken"
 
 transaction {
 
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue, SaveValue, Capabilities) &Account) {
 
         // If the account is already set up that's not a problem, but we don't want to replace it
-        if(signer.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath) != nil) {
+        if(signer.storage.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath) != nil) {
             return
         }
         
-        // Create a new Blocto Token Vault and put it in storage
-        signer.save(<-BloctoToken.createEmptyVault(), to: BloctoToken.TokenStoragePath)
+        // Create a new tUSDT Token Vault and put it in storage
+        signer.storage.save(
+            <- BloctoToken.createEmptyVault(vaultType: Type<@BloctoToken.Vault>()), 
+            to: BloctoToken.TokenStoragePath
+        )
 
         // Create a public capability to the Vault that only exposes
         // the deposit function through the Receiver interface
-        signer.link<&BloctoToken.Vault{FungibleToken.Receiver}>(
-            BloctoToken.TokenPublicReceiverPath,
-            target: BloctoToken.TokenStoragePath
-        )
+        let receiverCapability = signer.capabilities.storage.issue<&{FungibleToken.Receiver}>(BloctoToken.TokenStoragePath)
+        signer.capabilities.publish(receiverCapability, at: BloctoToken.TokenPublicReceiverPath)
 
         // Create a public capability to the Vault that only exposes
         // the balance field through the Balance interface
-        signer.link<&BloctoToken.Vault{FungibleToken.Balance}>(
-            BloctoToken.TokenPublicBalancePath,
-            target: BloctoToken.TokenStoragePath
-        )
+        let balanceCapability = signer.capabilities.storage.issue<&{FungibleToken.Balance}>(BloctoToken.TokenStoragePath)
+        signer.capabilities.publish(balanceCapability, at: BloctoToken.TokenPublicBalancePath)
     }
 }

@@ -1,9 +1,9 @@
-import FungibleToken from "../../contracts/flow/token/FungibleToken.cdc"
+import "FungibleToken"
+import "BloctoToken"
 
-pub fun main(address: Address): UFix64 {
-    let balanceRef = getAccount(address).getCapability(/public/bloctoTokenBalance)
-        .borrow<&{FungibleToken.Balance}>()
-        ?? panic("Could not borrow balance public reference")
-
-    return balanceRef.balance
+access(all)
+fun main(address: Address): UFix64 {
+  let vaultRef = getAccount(address).capabilities.borrow<&{FungibleToken.Vault}>(BloctoToken.TokenPublicBalancePath) 
+    ?? panic("Could not borrow receiver reference to the recipient's Vault")
+  return vaultRef.balance
 }
