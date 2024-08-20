@@ -1,6 +1,7 @@
 import "FungibleToken"
 import "MetadataViews"
 import "FungibleTokenMetadataViews"
+import "Burner"
 
 access(all) contract TeleportedTetherToken: FungibleToken {
 
@@ -73,7 +74,10 @@ access(all) contract TeleportedTetherToken: FungibleToken {
 
     // Called when a fungible token is burned via the `Burner.burn()` method
     access(contract) fun burnCallback() {
-      // Do nothing
+      if self.balance > 0.0 {
+        TeleportedTetherToken.totalSupply = TeleportedTetherToken.totalSupply - self.balance
+      }
+      self.balance = 0.0
     }
 
     // getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
@@ -342,8 +346,7 @@ access(all) contract TeleportedTetherToken: FungibleToken {
       emit FeeCollected(amount: self.outwardFee, type: 0)
 
       let amount = vault.balance
-      destroy vault
-      TeleportedTetherToken.totalSupply = TeleportedTetherToken.totalSupply - amount
+      Burner.burn(<- vault)
       emit TokensTeleportedOut(amount: amount, to: to)
     }
 
