@@ -61,61 +61,63 @@ contract BloctoToken: FungibleToken{
     
 
      // Gets a list of the metadata views that this contract supports
-   access(all) view fun getContractViews(resourceType: Type?): [Type] {
-     return [Type<FungibleTokenMetadataViews.FTView>(),
-             Type<FungibleTokenMetadataViews.FTDisplay>(),
-             Type<FungibleTokenMetadataViews.FTVaultData>(),
-             Type<FungibleTokenMetadataViews.TotalSupply>()]
-   }
+    access(all) view fun getContractViews(resourceType: Type?): [Type] {
+        return [
+            Type<FungibleTokenMetadataViews.FTView>(),
+            Type<FungibleTokenMetadataViews.FTDisplay>(),
+            Type<FungibleTokenMetadataViews.FTVaultData>(),
+            Type<FungibleTokenMetadataViews.TotalSupply>()
+            ]
+    }
 
-   /// Get a Metadata View from FlowToken
-   ///
-   /// @param view: The Type of the desired view.
-   /// @return A structure representing the requested view.
-   ///
-   access(all) fun resolveContractView(resourceType: Type?, viewType: Type): AnyStruct? {
-     switch viewType {
-       case Type<FungibleTokenMetadataViews.FTView>():
-         return FungibleTokenMetadataViews.FTView(
-           ftDisplay: self.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTDisplay>()) as! FungibleTokenMetadataViews.FTDisplay?,
-           ftVaultData: self.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
-         )
-       case Type<FungibleTokenMetadataViews.FTDisplay>():
-         let media = MetadataViews.Media(
-           file: MetadataViews.HTTPFile(
-             url: "https://raw.githubusercontent.com/blocto/assets/main/color/flow/blt.svg"
-           ),
-           mediaType: "image/svgxml"
-         )
-         let medias = MetadataViews.Medias([media])
-         return FungibleTokenMetadataViews.FTDisplay(
-           name: "Blocto Token",
-           symbol: "BLT",
-           description: "Blocto token (BLT) is the utility and governance token of Blocto.",
-           externalURL: MetadataViews.ExternalURL("https://blocto.io/"),
-           logos: medias,
-           socials: {
-               "x": MetadataViews.ExternalURL("https://x.com/BloctoApp")
-           }
-         )
-       case Type<FungibleTokenMetadataViews.FTVaultData>():
-         let vaultRef = BloctoToken.account.storage.borrow<auth(FungibleToken.Withdraw) &BloctoToken.Vault>(from: /storage/BloctoTokenVault)
-           ?? panic("Could not borrow reference to the contract's Vault!")
-         return FungibleTokenMetadataViews.FTVaultData(
-             storagePath: /storage/bloctoTokenVault,
-             receiverPath: /public/bloctoTokenReceiver,
-             metadataPath: /public/bloctoTokenBalance,
-             receiverLinkedType: Type<&{FungibleToken.Receiver, FungibleToken.Vault}>(),
-             metadataLinkedType: Type<&{FungibleToken.Balance, FungibleToken.Vault}>(),
-             createEmptyVaultFunction: (fun (): @{FungibleToken.Vault} {
-                 return <-vaultRef.createEmptyVault()
-             })
-         )
-       case Type<FungibleTokenMetadataViews.TotalSupply>():
-         return FungibleTokenMetadataViews.TotalSupply(totalSupply: BloctoToken.totalSupply)
-     }
-     return nil
-   }
+    /// Get a Metadata View from FlowToken
+    ///
+    /// @param view: The Type of the desired view.
+    /// @return A structure representing the requested view.
+    ///
+    access(all) fun resolveContractView(resourceType: Type?, viewType: Type): AnyStruct? {
+        switch viewType {
+            case Type<FungibleTokenMetadataViews.FTView>():
+                return FungibleTokenMetadataViews.FTView(
+                    ftDisplay: self.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTDisplay>()) as! FungibleTokenMetadataViews.FTDisplay?,
+                    ftVaultData: self.resolveContractView(resourceType: nil, viewType: Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+                )
+            case Type<FungibleTokenMetadataViews.FTDisplay>():
+                let media = MetadataViews.Media(
+                    file: MetadataViews.HTTPFile(
+                        url: "https://raw.githubusercontent.com/blocto/assets/main/color/flow/blt.svg"
+                    ),
+                    mediaType: "image/svgxml"
+                )
+                let medias = MetadataViews.Medias([media])
+                return FungibleTokenMetadataViews.FTDisplay(
+                    name: "Blocto Token",
+                    symbol: "BLT",
+                    description: "Blocto token (BLT) is the utility and governance token of Blocto.",
+                    externalURL: MetadataViews.ExternalURL("https://blocto.io/"),
+                    logos: medias,
+                    socials: {
+                        "x": MetadataViews.ExternalURL("https://x.com/BloctoApp")
+                    }
+                )
+            case Type<FungibleTokenMetadataViews.FTVaultData>():
+                let vaultRef = BloctoToken.account.storage.borrow<auth(FungibleToken.Withdraw) &BloctoToken.Vault>(from: /storage/BloctoTokenVault)
+                    ?? panic("Could not borrow reference to the contract's Vault!")
+                return FungibleTokenMetadataViews.FTVaultData(
+                    storagePath: /storage/bloctoTokenVault,
+                    receiverPath: /public/bloctoTokenReceiver,
+                    metadataPath: /public/bloctoTokenBalance,
+                    receiverLinkedType: Type<&{FungibleToken.Receiver, FungibleToken.Vault}>(),
+                    metadataLinkedType: Type<&{FungibleToken.Balance, FungibleToken.Vault}>(),
+                    createEmptyVaultFunction: (fun (): @{FungibleToken.Vault} {
+                        return <-vaultRef.createEmptyVault()
+                    })
+            )
+            case Type<FungibleTokenMetadataViews.TotalSupply>():
+                return FungibleTokenMetadataViews.TotalSupply(totalSupply: BloctoToken.totalSupply)
+        }
+        return nil
+    }
     // Vault
     //
     // Each user stores an instance of only the Vault in their storage
@@ -185,16 +187,16 @@ contract BloctoToken: FungibleToken{
 
         // Called when a fungible token is burned via the `Burner.burn()` method
         access(contract) fun burnCallback() {
-        // Do nothing
+            // Do nothing
         }
 
         // getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
         access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
-        return {self.getType(): true}
+            return {self.getType(): true}
         }
 
         access(all) view fun isSupportedVaultType(type: Type): Bool {
-        if (type == self.getType()) { return true } else { return false }
+            if (type == self.getType()) { return true } else { return false }
         }
 
 
@@ -204,7 +206,7 @@ contract BloctoToken: FungibleToken{
         //         developers to know which parameter to pass to the resolveView() method.
         //
         access(all) view fun getViews(): [Type]{
-        return BloctoToken.getContractViews(resourceType: nil)
+            return BloctoToken.getContractViews(resourceType: nil)
         }
 
         // Get a Metadata View from FlowToken
@@ -213,7 +215,7 @@ contract BloctoToken: FungibleToken{
         // @return A structure representing the requested view.
         //
         access(all) fun resolveView(_ view: Type): AnyStruct? {
-        return BloctoToken.resolveContractView(resourceType: nil, viewType: view)
+            return BloctoToken.resolveContractView(resourceType: nil, viewType: view)
         }
     }
     
