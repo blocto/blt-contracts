@@ -4,4 +4,5 @@ flowdb/
 
 .idea
 .aptos
+.vscode
 flow.mainnet.json

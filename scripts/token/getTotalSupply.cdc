@@ -1,5 +1,6 @@
-import BloctoToken from "../../contracts/flow/token/BloctoToken.cdc"
+import "BloctoToken"
 
-pub fun main(): UFix64 {
+access(all)
+fun main(): UFix64 {
     return BloctoToken.totalSupply
 }
