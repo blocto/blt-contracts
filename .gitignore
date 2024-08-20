@@ -1,6 +1,7 @@
 arguments/
 build/
 flowdb/
+imports/
 
 .idea
 .aptos
