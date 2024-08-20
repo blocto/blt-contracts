@@ -133,13 +133,6 @@
 		"testnet": "access.devnet.nodes.onflow.org:9000"
 	},
 	"accounts": {
-		"blocto-hot-wallet-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
-			}
-		},
 		"blt-admin-emulator": {
 			"address": "f3fcd2c1a78f5eee",
 			"key": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87"
@@ -150,13 +143,6 @@
 				"type": "hex",
 				"signatureAlgorithm": "ECDSA_secp256k1",
 				"privateKey": "38032d4b0ff2bb63f13184c76eb8cba138ed60913063e3fca1a68ad2881e89dc"
-			}
-		},
-		"blt-admin-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
 			}
 		},
 		"blt-admin-new-testnet": {
@@ -175,13 +161,6 @@
 				"privateKey": "1de30bc0ec3c4ead208ddef38fb98a6a78dae0efc8ec7a463805654091559a45"
 			}
 		},
-		"blt-dao-admin-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
-			}
-		},
 		"blt-mining-testnet": {
 			"address": "4e57c4f07871af8d",
 			"key": {
@@ -193,20 +172,6 @@
 		"blt-mining2-testnet": {
 			"address": "475242ecdf13596e",
 			"key": "aaed7f786971dc53104ed55b3de617aac4d987174eb691474a969e4c129ecea0"
-		},
-		"blt-sale-admin-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
-			}
-		},
-		"blt-staking-admin-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
-			}
 		},
 		"blt-staking-admin-testnet": {
 			"address": "13080159c8bfe9d8",
@@ -225,26 +190,12 @@
 				"privateKey": "f6ae0d76b35b2cb45ab58ab9316a1efda51068ddf14f6ab551e0c72da83b6d89"
 			}
 		},
-		"blt-swap-admin-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
-			}
-		},
 		"blt-swap-testnet": {
 			"address": "c59604d4e65f14b3",
 			"key": {
 				"type": "hex",
 				"signatureAlgorithm": "ECDSA_secp256k1",
 				"privateKey": "6d2d903526ce75051c074a50c008ad38b179bae55c045ac3d57bf267b16c7c66"
-			}
-		},
-		"blt-teleport-admin-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
 			}
 		},
 		"blt-teleport-admin-testnet": {
@@ -256,30 +207,9 @@
 				"privateKey": "cf89ac36ee891eeeaa1e55cab68350b479d946a94f46e411c31975be80bc48ab"
 			}
 		},
-		"blt-teleport-owner-aptos-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
-			}
-		},
-		"blt-teleport-owner-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
-			}
-		},
 		"blt-teleport-testnet": {
 			"address": "967a0fb3c949cbc5",
 			"key": "4d90e59b86fb7cede90f764eb3593b56fe4fe02205e315828d5d62e117dba575"
-		},
-		"blt-usdt-admin-mainnet": {
-			"address": "c587b03e785923ce",
-			"key": {
-				"type": "file",
-				"location": "./flow.mainnet.json"
-			}
 		},
 		"blt-user-emulator": {
 			"address": "e03daebed8ca0615",
@@ -341,14 +271,6 @@
 				"BloctoTokenStaking",
 				"NonFungibleToken",
 				"TeleportedTetherToken"
-			]
-		},
-		"mainnet": {
-			"blt-admin-mainnet": [
-				"BloctoPass",
-				"BloctoPassStamp",
-				"BloctoToken",
-				"BloctoTokenStaking"
 			]
 		},
 		"testnet": {
