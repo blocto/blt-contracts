@@ -1,7 +1,7 @@
-import BloctoToken from "../../../contracts/flow/token/BloctoToken.cdc"
+import "BloctoToken"
 
 transaction {
-    prepare(stakingAdmin: AuthAccount) {
-        destroy stakingAdmin.load<@BloctoToken.Minter>(from: /storage/bloctoTokenStakingMinter)
+    prepare(stakingAdmin: auth(Storage) &Account) {
+        destroy stakingAdmin.storage.load<@BloctoToken.Minter>(from: /storage/bloctoTokenStakingMinter)
     }
 }

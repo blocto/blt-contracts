@@ -3,6 +3,7 @@ import "BloctoToken"
 
 access(all) let admin = Test.getAccount(0x0000000000000007)
 access(all) let receiver = Test.createAccount()
+access(all) let minter = Test.createAccount()
 
 access(all) fun setup() {
     let err = Test.deployContract(
@@ -61,4 +62,17 @@ access(all) fun testTransfer() {
     let receiverBalance = getBalanceResult.returnValue! as! UFix64
     Test.assertEqual(currentSenderBalance - transferAmount, senderBalance)
     Test.assertEqual(currentReceiverBalance + transferAmount, receiverBalance)
+}
+
+access(all) fun testSetupMinter() {
+    // create permission for minter
+    let setupMinterCode = Test.readFile("../transactions/token/admin/setupBloctoTokenMinterForMining.cdc")
+    let setupTx = Test.Transaction(
+        code: setupMinterCode,
+        authorizers: [admin.address, minter.address],
+        signers: [admin, minter],
+        arguments: [10000.0],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beSucceeded())
 }
