@@ -1,384 +1,387 @@
 {
-  "emulators": {
-    "default": {
-      "port": 3569,
-      "serviceAccount": "emulator-account"
-    }
-  },
-  "contracts": {
-    "BloctoDAO": {
-      "source": "./contracts/flow/dao/BloctoDAO.cdc",
-      "aliases": {
-        "mainnet": "0xe0f601b5afd47581"
-      }
-    },
-    "BloctoPass": {
-      "source": "./contracts/flow/token/BloctoPass.cdc",
-      "aliases": {
-        "mainnet": "0x0f9df91c9121c460"
-      }
-    },
-    "BloctoPassStamp": {
-      "source": "./contracts/flow/token/BloctoPassStamp.cdc",
-      "aliases": {
-        "mainnet": "0x0f9df91c9121c460"
-      }
-    },
-    "BloctoToken": {
-      "source": "./contracts/flow/token/BloctoToken.cdc",
-      "aliases": {
-        "mainnet": "0x0f9df91c9121c460"
-      }
-    },
-    "BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
-    "BloctoTokenSale": {
-      "source": "./contracts/flow/sale/BloctoTokenCommunitySale.cdc",
-      "aliases": {
-        "mainnet": "0x0f9df91c9121c460"
-      }
-    },
-    "BloctoTokenPublicSale": {
-      "source": "./contracts/flow/sale/BloctoTokenPublicSale.cdc",
-      "aliases": {
-        "mainnet": "0x8f4da203e4cf06f9"
-      }
-    },
-    "BloctoTokenStaking": {
-      "source": "./contracts/flow/staking/BloctoTokenStaking.cdc",
-      "aliases": {
-        "mainnet": "0x0f9df91c9121c460"
-      }
-    },
-    "BltUsdtSwapPair": {
-      "source": "./contracts/flow/swap/BltUsdtSwapPair.cdc",
-      "aliases": {
-        "mainnet": "0xfcb06a5ae5b21a2d"
-      }
-    },
-    "FungibleToken": {
-      "source": "./contracts/flow/token/FungibleToken.cdc",
-      "aliases": {
-        "emulator": "0xee82856bf20e2aa6",
-        "testnet": "0x9a0766d93b6608b7",
-        "mainnet": "0xf233dcee88fe0abe"
-      }
-    },
-    "FUSD": {
-      "source": "./contracts/flow/token/FUSD.cdc",
-      "aliases": {
-        "testnet": "0xe223d8a629e49c68",
-        "mainnet": "0x3c5959b568896393"
-      }
-    },
-    "NonFungibleToken": {
-      "source": "./contracts/flow/token/NonFungibleToken.cdc",
-      "aliases": {
-        "testnet": "0x631e88ae7f1d7c20",
-        "mainnet": "0x1d7e57aa55817448"
-      }
-    },
-    "TeleportCustody": "./contracts/flow/teleport/TeleportCustody.cdc",
-    "TeleportCustodyAptos": {
-      "source": "./contracts/flow/teleport/TeleportCustodyAptos.cdc",
-      "aliases": {
-        "mainnet": "0x714000cf4dd1c4ed"
-      }
-    },
-    "TeleportCustodyEthereum": {
-      "source": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
-      "aliases": {
-        "mainnet": "0x0ac14a822e54cc4e",
-        "testnet": "0x967a0fb3c949cbc5"
-      }
-    },
-    "TeleportCustodySolana": {
-      "source": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
-      "aliases": {
-        "mainnet": "0x0ac14a822e54cc4e",
-        "testnet": "0x967a0fb3c949cbc5"
-      }
-    },
-    "TeleportCustodyBSC": {
-      "source": "./contracts/flow/teleport/TeleportCustodyBSC.cdc",
-      "aliases": {
-        "mainnet": "0x0ac14a822e54cc4e",
-        "testnet": "0x967a0fb3c949cbc5"
-      }
-    },
-    "TeleportedTetherToken": {
-      "source": "./contracts/flow/token/TeleportedTetherToken.cdc",
-      "aliases": {
-        "testnet": "0xab26e0a07d770ec1",
-        "mainnet": "0xcfdd90d4a00f7b5b"
-      }
-    }
-  },
-  "networks": {
-    "emulator": "127.0.0.1:3569",
-    "mainnet": "access.mainnet.nodes.onflow.org:9000",
-    "testnet": "access.devnet.nodes.onflow.org:9000"
-  },
-  "accounts": {
-    "emulator-account": {
-      "address": "f8d6e0586b0a20c7",
-      "keys": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87",
-      "chain": "flow-emulator"
-    },
-    "blt-admin-emulator": {
-      "address": "f3fcd2c1a78f5eee",
-      "keys": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87",
-      "chain": "flow-emulator"
-    },
-    "blt-user-emulator": {
-      "address": "e03daebed8ca0615",
-      "keys": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87",
-      "chain": "flow-emulator"
-    },
-    "blt-admin-testnet": {
-      "address": "ccc5c610f25031c9",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "1de30bc0ec3c4ead208ddef38fb98a6a78dae0efc8ec7a463805654091559a45"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-admin-new-testnet": {
-      "address": "6e0797ac987005f5",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "2a7dff7b7e222213088682580b980e72b25c5a045324ce19a1f59a49b1512014"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-staking-new-testnet": {
-      "address": "0x7deafdfc288e422d",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "f6ae0d76b35b2cb45ab58ab9316a1efda51068ddf14f6ab551e0c72da83b6d89"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-staking-admin-testnet": {
-      "address": "0x13080159c8bfe9d8",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 2702,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "3bf9c55f862c203847eb2b556a4451f2d3ee61837fc40479d27de3cc238be787"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-admin-exp-testnet": {
-      "address": "0x33ab1645acbc6278",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "38032d4b0ff2bb63f13184c76eb8cba138ed60913063e3fca1a68ad2881e89dc"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-mining-testnet": {
-      "address": "4e57c4f07871af8d",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "40c790cc76e75c397a6f972b6018222698ae3ae32cf44c27b5c8814bf3528c21"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-mining2-testnet": {
-      "address": "475242ecdf13596e",
-      "keys": "aaed7f786971dc53104ed55b3de617aac4d987174eb691474a969e4c129ecea0",
-      "chain": "flow-testnet"
-    },
-    "blt-teleport-testnet": {
-      "address": "967a0fb3c949cbc5",
-      "keys": "4d90e59b86fb7cede90f764eb3593b56fe4fe02205e315828d5d62e117dba575",
-      "chain": "flow-testnet"
-    },
-    "blt-teleport-admin-testnet": {
-      "address": "f086a545ce3c552d",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 2,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "cf89ac36ee891eeeaa1e55cab68350b479d946a94f46e411c31975be80bc48ab"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-swap-testnet": {
-      "address": "c59604d4e65f14b3",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "6d2d903526ce75051c074a50c008ad38b179bae55c045ac3d57bf267b16c7c66"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-user-testnet": {
-      "address": "457df669b4f4d1a4",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "595ba8e69cfbbf1656606da55bd54efa4dda01a6cb49f35e3aa6ae21fc630ec5"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-user2-testnet": {
-      "address": "80db1142287cd376",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "f0cfa244910ff9522510f1c63369c02e49e6722096f491096a2dd524557deba6"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-user3-testnet": {
-      "address": "8e6abc0783e31b41",
-      "keys": [
-        {
-          "type": "hex",
-          "index": 0,
-          "signatureAlgorithm": "ECDSA_secp256k1",
-          "hashAlgorithm": "SHA3_256",
-          "context": {
-            "privateKey": "b93534ee974f86c402ca0cee06c18821e4cba64c180f6f53c10e8db974ebd755"
-          }
-        }
-      ],
-      "chain": "flow-testnet"
-    },
-    "blt-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-dao-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-staking-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-swap-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-teleport-owner-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-teleport-owner-aptos-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-teleport-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-usdt-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blt-sale-admin-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    },
-    "blocto-hot-wallet-mainnet": {
-      "fromFile": "./flow.mainnet.json"
-    }
-  },
-  "deployments": {
-    "emulator": {
-      "blt-admin-emulator": [
-        "BloctoPass",
-        "BloctoPassStamp",
-        "BloctoToken",
-        "BloctoTokenMining",
-        "BloctoTokenSale",
-        "BloctoTokenStaking",
-        "NonFungibleToken",
-        "TeleportedTetherToken"
-      ]
-    },
-    "testnet": {
-      "blt-admin-testnet": [
-        "BloctoTokenPublicSale"
-      ],
-      "blt-admin-new-testnet": [
-        "BloctoPassStamp",
-        "BloctoToken",
-        "BloctoTokenSale",
-        "BloctoTokenMining"
-      ],
-      "blt-staking-new-testnet": [
-        "BloctoPass",
-        "BloctoTokenStaking",
-        "BloctoDAO"
-      ],
-      "blt-swap-testnet": [
-        "BltUsdtSwapPair"
-      ]
-    },
-    "mainnet": {
-      "blt-admin-mainnet": [
-        "BloctoPass",
-        "BloctoPassStamp",
-        "BloctoToken",
-        "BloctoTokenStaking"
-      ]
-    }
-  }
+	"contracts": {
+		"BloctoDAO": {
+			"source": "./contracts/flow/dao/BloctoDAO.cdc",
+			"aliases": {
+				"mainnet": "e0f601b5afd47581"
+			}
+		},
+		"BloctoPass": {
+			"source": "./contracts/flow/token/BloctoPass.cdc",
+			"aliases": {
+				"mainnet": "0f9df91c9121c460"
+			}
+		},
+		"BloctoPassStamp": {
+			"source": "./contracts/flow/token/BloctoPassStamp.cdc",
+			"aliases": {
+				"mainnet": "0f9df91c9121c460"
+			}
+		},
+		"BloctoToken": {
+			"source": "./contracts/flow/token/BloctoToken.cdc",
+			"aliases": {
+				"mainnet": "0f9df91c9121c460"
+			}
+		},
+		"BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
+		"BloctoTokenPublicSale": {
+			"source": "./contracts/flow/sale/BloctoTokenPublicSale.cdc",
+			"aliases": {
+				"mainnet": "8f4da203e4cf06f9"
+			}
+		},
+		"BloctoTokenSale": {
+			"source": "./contracts/flow/sale/BloctoTokenCommunitySale.cdc",
+			"aliases": {
+				"mainnet": "0f9df91c9121c460"
+			}
+		},
+		"BloctoTokenStaking": {
+			"source": "./contracts/flow/staking/BloctoTokenStaking.cdc",
+			"aliases": {
+				"mainnet": "0f9df91c9121c460"
+			}
+		},
+		"BltUsdtSwapPair": {
+			"source": "./contracts/flow/swap/BltUsdtSwapPair.cdc",
+			"aliases": {
+				"mainnet": "fcb06a5ae5b21a2d"
+			}
+		},
+		"Burner": {
+			"source": "./contracts/flow/token/Burner.cdc",
+			"aliases": {
+				"mainnet": "f233dcee88fe0abe",
+				"testnet": "9a0766d93b6608b7"
+			}
+		},
+		"FUSD": {
+			"source": "./contracts/flow/token/FUSD.cdc",
+			"aliases": {
+				"mainnet": "3c5959b568896393",
+				"testnet": "e223d8a629e49c68"
+			}
+		},
+		"FungibleToken": {
+			"source": "./contracts/flow/token/FungibleToken.cdc",
+			"aliases": {
+				"emulator": "ee82856bf20e2aa6",
+				"mainnet": "f233dcee88fe0abe",
+				"testnet": "9a0766d93b6608b7"
+			}
+		},
+		"FungibleTokenMetadataViews": {
+			"source": "./contracts/flow/token/FungibleTokenMetadataViews.cdc",
+			"aliases": {
+				"mainnet": "f233dcee88fe0abe",
+				"testnet": "9a0766d93b6608b7"
+			}
+		},
+		"MetadataViews": {
+			"source": "./contracts/flow/token/MetadataViews.cdc",
+			"aliases": {
+				"mainnet": "1d7e57aa55817448",
+				"testnet": "631e88ae7f1d7c20"
+			}
+		},
+		"NonFungibleToken": {
+			"source": "./contracts/flow/token/NonFungibleToken.cdc",
+			"aliases": {
+				"mainnet": "1d7e57aa55817448",
+				"testnet": "631e88ae7f1d7c20"
+			}
+		},
+		"TeleportCustody": "./contracts/flow/teleport/TeleportCustody.cdc",
+		"TeleportCustodyAptos": {
+			"source": "./contracts/flow/teleport/TeleportCustodyAptos.cdc",
+			"aliases": {
+				"mainnet": "714000cf4dd1c4ed"
+			}
+		},
+		"TeleportCustodyBSC": {
+			"source": "./contracts/flow/teleport/TeleportCustodyBSC.cdc",
+			"aliases": {
+				"mainnet": "0ac14a822e54cc4e",
+				"testnet": "967a0fb3c949cbc5"
+			}
+		},
+		"TeleportCustodyEthereum": {
+			"source": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
+			"aliases": {
+				"mainnet": "0ac14a822e54cc4e",
+				"testnet": "967a0fb3c949cbc5"
+			}
+		},
+		"TeleportCustodySolana": {
+			"source": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
+			"aliases": {
+				"mainnet": "0ac14a822e54cc4e",
+				"testnet": "967a0fb3c949cbc5"
+			}
+		},
+		"TeleportedTetherToken": {
+			"source": "./contracts/flow/token/TeleportedTetherToken.cdc",
+			"aliases": {
+				"mainnet": "cfdd90d4a00f7b5b",
+				"testing": "0000000000000007",
+				"testnet": "2d270db9ac8c7fef"
+			}
+		},
+		"ViewResolver": {
+			"source": "./contracts/flow/token/ViewResolver.cdc",
+			"aliases": {
+				"mainnet": "1d7e57aa55817448",
+				"testnet": "631e88ae7f1d7c20"
+			}
+		}
+	},
+	"networks": {
+		"emulator": "127.0.0.1:3569",
+		"mainnet": "access.mainnet.nodes.onflow.org:9000",
+		"testing": "127.0.0.1:3569",
+		"testnet": "access.devnet.nodes.onflow.org:9000"
+	},
+	"accounts": {
+		"blt-admin-emulator": {
+			"address": "f3fcd2c1a78f5eee",
+			"key": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87"
+		},
+		"blt-admin-exp-testnet": {
+			"address": "33ab1645acbc6278",
+			"key": {
+				"type": "hex",
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "38032d4b0ff2bb63f13184c76eb8cba138ed60913063e3fca1a68ad2881e89dc"
+			}
+		},
+		"blt-admin-new-testnet": {
+			"address": "6e0797ac987005f5",
+			"key": {
+				"type": "hex",
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "2a7dff7b7e222213088682580b980e72b25c5a045324ce19a1f59a49b1512014"
+			}
+		},
+		"blt-admin-testnet": {
+			"address": "ccc5c610f25031c9",
+			"key": {
+				"type": "hex",
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "1de30bc0ec3c4ead208ddef38fb98a6a78dae0efc8ec7a463805654091559a45"
+			}
+		},
+		"blt-mining-testnet": {
+			"address": "4e57c4f07871af8d",
+			"key": {
+				"type": "hex",
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "40c790cc76e75c397a6f972b6018222698ae3ae32cf44c27b5c8814bf3528c21"
+			}
+		},
+		"blt-mining2-testnet": {
+			"address": "475242ecdf13596e",
+			"key": "aaed7f786971dc53104ed55b3de617aac4d987174eb691474a969e4c129ecea0"
+		},
+		"blt-staking-admin-testnet": {
+			"address": "13080159c8bfe9d8",
+			"key": {
+				"type": "hex",
+				"index": 2702,
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "3bf9c55f862c203847eb2b556a4451f2d3ee61837fc40479d27de3cc238be787"
+			}
+		},
+		"blt-staking-new-testnet": {
+			"address": "7deafdfc288e422d",
+			"key": {
+				"type": "hex",
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "f6ae0d76b35b2cb45ab58ab9316a1efda51068ddf14f6ab551e0c72da83b6d89"
+			}
+		},
+		"blt-swap-testnet": {
+			"address": "c59604d4e65f14b3",
+			"key": {
+				"type": "hex",
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "6d2d903526ce75051c074a50c008ad38b179bae55c045ac3d57bf267b16c7c66"
+			}
+		},
+		"blt-teleport-admin-testnet": {
+			"address": "f086a545ce3c552d",
+			"key": {
+				"type": "hex",
+				"index": 2,
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "cf89ac36ee891eeeaa1e55cab68350b479d946a94f46e411c31975be80bc48ab"
+			}
+		},
+		"blt-teleport-testnet": {
+			"address": "967a0fb3c949cbc5",
+			"key": "4d90e59b86fb7cede90f764eb3593b56fe4fe02205e315828d5d62e117dba575"
+		},
+		"blt-user-emulator": {
+			"address": "e03daebed8ca0615",
+			"key": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87"
+		},
+		"blt-user-testnet": {
+			"address": "457df669b4f4d1a4",
+			"key": {
+				"type": "hex",
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "595ba8e69cfbbf1656606da55bd54efa4dda01a6cb49f35e3aa6ae21fc630ec5"
+			}
+		},
+		"blt-user2-testnet": {
+			"address": "80db1142287cd376",
+			"key": {
+				"type": "hex",
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "f0cfa244910ff9522510f1c63369c02e49e6722096f491096a2dd524557deba6"
+			}
+		},
+		"blt-user3-testnet": {
+			"address": "8e6abc0783e31b41",
+			"key": {
+				"type": "hex",
+				"signatureAlgorithm": "ECDSA_secp256k1",
+				"privateKey": "b93534ee974f86c402ca0cee06c18821e4cba64c180f6f53c10e8db974ebd755"
+			}
+		},
+		"emulator-account": {
+			"address": "f8d6e0586b0a20c7",
+			"key": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87"
+		},
+		"tusdt-admin-testnet": {
+			"address": "2d270db9ac8c7fef",
+			"key": "c5d43c4fc59584a4f4e41a8ef40772d0a7d89b2894f80d68a7cab42c34ebb29f"
+		},
+		"tusdt-teleport-admin-testnet": {
+			"address": "c26a86fd71f30119",
+			"key": "83c686f118f814f4b4cf607ca10c2fabd084078b06f0d72d4364e3a19a6996d4"
+		},
+		"tusdt-user-testnet": {
+			"address": "30595a13f90d0ba7",
+			"key": "7f5bf4662229a7112458ccdc534fb25f554ab83b74a46f60b4823c6541110ed0"
+		},
+		"tusdt-user2-testnet": {
+			"address": "c587b03e785923ce",
+			"key": "287740d6de69b6fc5d2c31875b68e72d440ac037ea82cacc1d11484131a55690"
+		},
+		"blt-admin-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		},
+		"blt-dao-admin-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		},
+		"blt-staking-admin-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		},
+		"blt-swap-admin-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		},
+		"blt-teleport-owner-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		},
+		"blt-teleport-owner-aptos-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		},
+		"blt-teleport-admin-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		},
+		"blt-usdt-admin-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		},
+		"blt-sale-admin-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		},
+		"blocto-hot-wallet-mainnet": {
+			"address": "c587b03e785923ce",
+			"key": {
+				"type": "file",
+				"location": "./flow.mainnet.json"
+			}
+		}
+	},
+	"deployments": {
+		"emulator": {
+			"blt-admin-emulator": [
+				"BloctoPass",
+				"BloctoPassStamp",
+				"BloctoToken",
+				"BloctoTokenMining",
+				"BloctoTokenSale",
+				"BloctoTokenStaking",
+				"NonFungibleToken",
+				"TeleportedTetherToken"
+			]
+		},
+		"mainnet": {
+			"blt-admin-mainnet": [
+				"BloctoPass",
+				"BloctoPassStamp",
+				"BloctoToken",
+				"BloctoTokenStaking"
+			]
+		},
+		"testnet": {
+			"blt-admin-new-testnet": [
+				"BloctoPassStamp",
+				"BloctoToken",
+				"BloctoTokenSale",
+				"BloctoTokenMining"
+			],
+			"blt-admin-testnet": [
+				"BloctoTokenPublicSale"
+			],
+			"blt-staking-new-testnet": [
+				"BloctoPass",
+				"BloctoTokenStaking",
+				"BloctoDAO"
+			],
+			"blt-swap-testnet": [
+				"BltUsdtSwapPair"
+			],
+			"tusdt-admin-testnet": [
+				"TeleportedTetherToken"
+			]
+		}
+	}
 }
