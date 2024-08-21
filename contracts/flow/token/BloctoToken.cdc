@@ -189,7 +189,10 @@ contract BloctoToken: FungibleToken{
 
         // Called when a fungible token is burned via the `Burner.burn()` method
         access(contract) fun burnCallback() {
-            // Do nothing
+            if self.balance > 0.0 {
+                BloctoToken.totalSupply = BloctoToken.totalSupply - self.balance
+            }
+            self.balance = 0.0
         }
 
         // getSupportedVaultTypes optionally returns a list of vault types that this receiver accepts
@@ -309,6 +312,7 @@ contract BloctoToken: FungibleToken{
         fun burnTokens(from: @{FungibleToken.Vault}){ 
             let vault <- from as! @BloctoToken.Vault
             let amount = vault.balance
+            BloctoToken.totalSupply = BloctoToken.totalSupply - amount
             destroy vault
             emit TokensBurned(amount: amount)
         }
