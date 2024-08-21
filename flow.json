@@ -21,8 +21,9 @@
 		"BloctoToken": {
 			"source": "./contracts/flow/token/BloctoToken.cdc",
 			"aliases": {
+				"testing": "0x0000000000000007",
 				"mainnet": "0f9df91c9121c460",
-				"testing": "0000000000000007"
+				"testnet": "0x653cfe36d146e7be"
 			}
 		},
 		"BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
