@@ -103,7 +103,7 @@ contract BloctoToken: FungibleToken{
                     }
                 )
             case Type<FungibleTokenMetadataViews.FTVaultData>():
-                let vaultRef = BloctoToken.account.storage.borrow<auth(FungibleToken.Withdraw) &BloctoToken.Vault>(from: /storage/BloctoTokenVault)
+                let vaultRef = BloctoToken.account.storage.borrow<auth(FungibleToken.Withdraw) &BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)
                     ?? panic("Could not borrow reference to the contract's Vault!")
                 return FungibleTokenMetadataViews.FTVaultData(
                     storagePath: /storage/bloctoTokenVault,
