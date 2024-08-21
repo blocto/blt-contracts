@@ -124,7 +124,7 @@ access(all) contract TeleportedTetherToken: FungibleToken {
       destroy vault
     }
 
-    // Get all the Metadata Views implemented by FlowToken
+    // Get all the Metadata Views implemented by TeleportedTetherToken
     //
     // @return An array of Types defining the implemented views. This value will be used by
     //         developers to know which parameter to pass to the resolveView() method.
@@ -133,7 +133,7 @@ access(all) contract TeleportedTetherToken: FungibleToken {
       return TeleportedTetherToken.getContractViews(resourceType: nil)
     }
 
-    // Get a Metadata View from FlowToken
+    // Get a Metadata View from TeleportedTetherToken
     //
     // @param view: The Type of the desired view.
     // @return A structure representing the requested view.
@@ -166,7 +166,7 @@ access(all) contract TeleportedTetherToken: FungibleToken {
             Type<FungibleTokenMetadataViews.TotalSupply>()]
   }
 
-  // Get a Metadata View from FlowToken
+  // Get a Metadata View from TeleportedTetherToken
   //
   // @param view: The Type of the desired view.
   // @return A structure representing the requested view.
