@@ -21,8 +21,8 @@
 		"BloctoToken": {
 			"source": "./contracts/flow/token/BloctoToken.cdc",
 			"aliases": {
-				"testing": "0x0000000000000007",
-				"mainnet": "0f9df91c9121c460"
+				"mainnet": "0f9df91c9121c460",
+				"testing": "0000000000000007"
 			}
 		},
 		"BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
@@ -161,6 +161,10 @@
 		"testnet": "access.devnet.nodes.onflow.org:9000"
 	},
 	"accounts": {
+		"blt-admin-crescendo-testnet": {
+			"address": "653cfe36d146e7be",
+			"key": "600c63b7dd45898b8411d9e2d2717987bbadda02aa10e9cd29f49ebe6d8ed047"
+		},
 		"blt-admin-emulator": {
 			"address": "f3fcd2c1a78f5eee",
 			"key": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87"
@@ -302,6 +306,9 @@
 			]
 		},
 		"testnet": {
+			"blt-admin-crescendo-testnet": [
+				"BloctoToken"
+			],
 			"blt-admin-new-testnet": [
 				"BloctoPassStamp",
 				"BloctoToken",
