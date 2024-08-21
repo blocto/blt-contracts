@@ -10,8 +10,10 @@ contract BloctoToken: FungibleToken{
     access(all) entitlement AdministratorEntitlement
     // An entitlement for Minter access
     access(all) entitlement MinterEntitlement
+    // An entitlement for Burner access
+    access(all) entitlement BurnerEntitlement
 
-    // Total supply of Flow tokens in existence
+    // Total supply of Blocto tokens in existence
     access(all)
     var totalSupply: UFix64
     
@@ -70,7 +72,7 @@ contract BloctoToken: FungibleToken{
             ]
     }
 
-    /// Get a Metadata View from FlowToken
+    /// Get a Metadata View from BloctoToken
     ///
     /// @param view: The Type of the desired view.
     /// @return A structure representing the requested view.
@@ -131,7 +133,7 @@ contract BloctoToken: FungibleToken{
     // new tokens.
     //
     access(all)
-    resource Vault: FungibleToken.Vault, FungibleToken.Provider, FungibleToken.Receiver, FungibleToken.Balance{ 
+    resource Vault: FungibleToken.Vault { 
         
         // holds the balance of a users tokens
         access(all)
@@ -303,7 +305,7 @@ contract BloctoToken: FungibleToken{
         // Note: the burned tokens are automatically subtracted from the
         // total supply in the Vault destructor.
         //
-        access(MinterEntitlement)
+        access(BurnerEntitlement)
         fun burnTokens(from: @{FungibleToken.Vault}){ 
             let vault <- from as! @BloctoToken.Vault
             let amount = vault.balance
