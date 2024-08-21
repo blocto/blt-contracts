@@ -197,12 +197,12 @@ access(all) contract TeleportedTetherToken: FungibleToken {
           }
         )
       case Type<FungibleTokenMetadataViews.FTVaultData>():
-        let vaultRef = TeleportedTetherToken.account.storage.borrow<auth(FungibleToken.Withdraw) &TeleportedTetherToken.Vault>(from: /storage/teleportedTetherTokenVault)
+        let vaultRef = TeleportedTetherToken.account.storage.borrow<auth(FungibleToken.Withdraw) &TeleportedTetherToken.Vault>(from: TeleportedTetherToken.TokenStoragePath)
           ?? panic("Could not borrow reference to the contract's Vault!")
         return FungibleTokenMetadataViews.FTVaultData(
-          storagePath: /storage/teleportedTetherTokenVault,
-          receiverPath: /public/teleportedTetherTokenReceiver,
-          metadataPath: /public/teleportedTetherTokenBalance,
+          storagePath: TeleportedTetherToken.TokenStoragePath,
+          receiverPath: TeleportedTetherToken.TokenPublicReceiverPath,
+          metadataPath: TeleportedTetherToken.TokenPublicBalancePath,
           receiverLinkedType: Type<&{FungibleToken.Receiver, FungibleToken.Vault}>(),
           metadataLinkedType: Type<&{FungibleToken.Balance, FungibleToken.Vault}>(),
           createEmptyVaultFunction: (fun (): @{FungibleToken.Vault} {
