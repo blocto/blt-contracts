@@ -399,6 +399,20 @@ access(all) contract TeleportedTetherToken: FungibleToken {
     self.TokenPublicBalancePath = /public/teleportedTetherTokenBalance
     self.TokenPublicReceiverPath = /public/teleportedTetherTokenReceiver
 
+    // Create a new tUSDT Token Vault and put it in storage
+    let vault <- TeleportedTetherToken.createEmptyVault(vaultType: Type<@TeleportedTetherToken.Vault>())
+    self.account.storage.save(<- vault, to: self.TokenStoragePath)
+
+    // Create a public capability to the Vault that only exposes
+    // the deposit function through the Receiver interface
+    let receiverCapability = self.account.capabilities.storage.issue<&{FungibleToken.Receiver}>(self.TokenStoragePath)
+    self.account.capabilities.publish(receiverCapability, at: self.TokenPublicReceiverPath)
+
+    // Create a public capability to the Vault that only exposes
+    // the balance field through the Balance interface
+    let balanceCapability = self.account.capabilities.storage.issue<&{FungibleToken.Balance}>(self.TokenStoragePath)
+    self.account.capabilities.publish(balanceCapability, at: self.TokenPublicBalancePath)
+
     let admin <- create Administrator()
     self.account.storage.save(<- admin, to: /storage/teleportedTetherTokenAdmin)
 
