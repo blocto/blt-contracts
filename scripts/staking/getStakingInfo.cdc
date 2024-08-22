@@ -1,10 +1,10 @@
-import NonFungibleToken from "../../contracts/flow/token/NonFungibleToken.cdc"
-import BloctoPass from "../../contracts/flow/token/BloctoPass.cdc"
-import BloctoTokenStaking from "../../contracts/flow/staking/BloctoTokenStaking.cdc"
+import "NonFungibleToken" 
+import "BloctoPass"
+import "BloctoTokenStaking"
 
-pub fun main(address: Address, index: Int): BloctoTokenStaking.StakerInfo {
-    let collectionRef = getAccount(address).getCapability(/public/bloctoPassCollection)
-        .borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>()
+access(all)
+fun main(address: Address, index: Int): BloctoTokenStaking.StakerInfo {
+    let collectionRef = getAccount(address).capabilities.borrow<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>(/public/bloctoPassCollection)
         ?? panic("Could not borrow collection public reference")
 
     let ids = collectionRef.getIDs()

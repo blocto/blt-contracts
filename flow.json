@@ -9,21 +9,25 @@
 		"BloctoPass": {
 			"source": "./contracts/flow/token/BloctoPass.cdc",
 			"aliases": {
-				"mainnet": "0f9df91c9121c460"
+				"mainnet": "0f9df91c9121c460",
+				"testing": "0000000000000007",
+				"testnet": "653cfe36d146e7be"
 			}
 		},
 		"BloctoPassStamp": {
 			"source": "./contracts/flow/token/BloctoPassStamp.cdc",
 			"aliases": {
-				"mainnet": "0f9df91c9121c460"
+				"mainnet": "0f9df91c9121c460",
+				"testing": "0000000000000007",
+				"testnet": "653cfe36d146e7be"
 			}
 		},
 		"BloctoToken": {
 			"source": "./contracts/flow/token/BloctoToken.cdc",
 			"aliases": {
-				"testing": "0x0000000000000007",
+				"testing": "0000000000000007",
 				"mainnet": "0f9df91c9121c460",
-				"testnet": "0x653cfe36d146e7be"
+				"testnet": "653cfe36d146e7be"
 			}
 		},
 		"BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
@@ -42,7 +46,9 @@
 		"BloctoTokenStaking": {
 			"source": "./contracts/flow/staking/BloctoTokenStaking.cdc",
 			"aliases": {
-				"mainnet": "0f9df91c9121c460"
+				"mainnet": "0f9df91c9121c460",
+				"testing": "0000000000000007",
+				"testnet": "653cfe36d146e7be"
 			}
 		},
 		"BltUsdtSwapPair": {

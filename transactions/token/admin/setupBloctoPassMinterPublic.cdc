@@ -1,11 +1,9 @@
-import BloctoPass from "../../../contracts/flow/token/BloctoPass.cdc"
+import "BloctoPass"
 
 transaction {
-    prepare(signer: AuthAccount) {
+    prepare(signer: auth(BorrowValue, SaveValue, Capabilities) &Account) {
         // create a public capability to mint Blocto Pass
-        signer.link<&{BloctoPass.MinterPublic}>(
-            /public/bloctoPassMinter,
-            target: BloctoPass.MinterStoragePath
-        )
+        let balanceCapability = signer.capabilities.storage.issue<&{BloctoPass.MinterPublic}>(BloctoPass.MinterStoragePath)
+        signer.capabilities.publish(balanceCapability, at: BloctoPass.MinterPublicPath)
     }
 }
