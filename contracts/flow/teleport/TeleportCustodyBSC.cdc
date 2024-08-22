@@ -2,9 +2,9 @@ import "FungibleToken"
 import "BloctoToken"
 
 access(all)
-contract TeleportCustodyBSC { 
-	access(all)entitlement AdministratorEntitlement
-	access(all)entitlement AdminEntitlement
+contract TeleportCustodyBSC {
+	access(all) entitlement AdministratorEntitlement
+	access(all) entitlement AdminEntitlement
 
 	access(all)
 	event TeleportAdminCreated(allowedAmount: UFix64)
@@ -90,10 +90,10 @@ contract TeleportCustodyBSC {
 		access(all)
 		var allowedAmount: UFix64
 		
-		access(AdminEntitlement)
+		access(all)
 		fun lock(from: @{FungibleToken.Vault}, to: [UInt8]): Void
 		
-		access(AdminEntitlement)
+		access(all)
 		fun depositAllowance(from: @Allowance)
 	}
 	
@@ -126,7 +126,7 @@ contract TeleportCustodyBSC {
 		access(all)
 		let feeCollector: @BloctoToken.Vault
 		
-		access(AdminEntitlement)
+		access(all)
 		fun lock(from: @{FungibleToken.Vault}, to: [UInt8]) { 
 			pre { 
 				!TeleportCustodyBSC.isFrozen:
@@ -189,7 +189,7 @@ contract TeleportCustodyBSC {
 			return self.feeCollector.balance
 		}
 		
-		access(AdminEntitlement)
+		access(all)
 		fun depositAllowance(from: @Allowance) { 
 			self.allowedAmount = self.allowedAmount + from.balance
 			destroy from

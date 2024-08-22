@@ -1,13 +1,13 @@
-import FungibleToken from "../../contracts/flow/token/FungibleToken.cdc"
-import BloctoToken from "../../contracts/flow/token/BloctoToken.cdc"
-import TeleportCustodyBSC from "../../contracts/flow/teleport/TeleportCustodyBSC.cdc"
+import "FungibleToken"
+import "BloctoToken"
+import "TeleportCustodyBSC"
 
 transaction(target: Address) {
   // The teleport admin reference
-  let teleportAdminRef: &TeleportCustodyBSC.TeleportAdmin
+  let teleportAdminRef: auth(TeleportCustodyBSC.AdminEntitlement) &{TeleportCustodyBSC.TeleportUser}
 
-  prepare(teleportAdmin: AuthAccount) {
-    self.teleportAdminRef = teleportAdmin.borrow<&TeleportCustodyBSC.TeleportAdmin>(from: TeleportCustodyBSC.TeleportAdminStoragePath)
+  prepare(teleportAdmin: auth(BorrowValue) &Account) {
+    self.teleportAdminRef = teleportAdmin.borrow<auth(TeleportCustodyBSC.AdminEntitlement) &{TeleportCustodyBSC.TeleportUser}>(from: TeleportCustodyBSC.TeleportAdminStoragePath)
         ?? panic("Could not borrow a reference to the teleport admin resource")
   }
 
@@ -18,8 +18,7 @@ transaction(target: Address) {
     let recipient = getAccount(target)
 
     // Get a reference to the recipient's Receiver
-    let receiverRef = recipient.getCapability(BloctoToken.TokenPublicReceiverPath)
-      .borrow<&{FungibleToken.Receiver}>()
+    let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(BloctoToken.TokenPublicReceiverPath)
       ?? panic("Could not borrow receiver reference to the recipient's Vault")
 
     // Deposit the withdrawn tokens in the recipient's receiver

@@ -1,22 +1,20 @@
-import FungibleToken from "../../contracts/flow/token/FungibleToken.cdc"
-import BloctoToken from "../../contracts/flow/token/BloctoToken.cdc"
-import TeleportCustodyBSC from "../../contracts/flow/teleport/TeleportCustodyBSC.cdc"
+import "FungibleToken"
+import "BloctoToken"
+import "TeleportCustodyBSC"
 
 transaction(amount: UFix64, target: Address, from: String, hash: String) {
 
     // The TeleportControl reference for teleport operations
-    let teleportControlRef: &TeleportCustodyBSC.TeleportAdmin{TeleportCustodyBSC.TeleportControl}
+    let teleportControlRef: auth(TeleportCustodyBSC.AdminEntitlement) &{TeleportCustodyBSC.TeleportControl}
 
     // The Receiver reference of the user
-    let receiverRef: &BloctoToken.Vault{FungibleToken.Receiver}
+    let receiverRef: &{FungibleToken.Receiver}
 
-    prepare(teleportAdmin: AuthAccount) {
-        self.teleportControlRef = teleportAdmin.getCapability(TeleportCustodyBSC.TeleportAdminTeleportControlPath)
-            .borrow<&TeleportCustodyBSC.TeleportAdmin{TeleportCustodyBSC.TeleportControl}>()
+    prepare(teleportAdmin: auth(BorrowValue) &Account) {
+        self.teleportControlRef = teleportAdmin.storage.borrow<auth(TeleportCustodyBSC.AdminEntitlement) &{TeleportCustodyBSC.TeleportControl}>(from: TeleportCustodyBSC.TeleportAdminStoragePath)
             ?? panic("Could not borrow a reference to TeleportControl")
 
-        self.receiverRef = getAccount(target).getCapability(BloctoToken.TokenPublicReceiverPath)
-            .borrow<&BloctoToken.Vault{FungibleToken.Receiver}>()
+        self.receiverRef = getAccount(target).capabilities.borrow<&{FungibleToken.Receiver}>(BloctoToken.TokenPublicReceiverPath)
             ?? panic("Could not borrow a reference to Receiver")
     }
 

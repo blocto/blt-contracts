@@ -91,10 +91,10 @@ contract TeleportCustodySolana {
 		var allowedAmount: UFix64
 		
 		// toAddressType: SOL, SPL
-		access(AdminEntitlement)
+		access(all)
 		fun lock(from: @{FungibleToken.Vault}, to: [UInt8], toAddressType: String): Void
 		
-		access(AdminEntitlement)
+		access(all)
 		fun depositAllowance(from: @Allowance)
 	}
 	
@@ -128,7 +128,7 @@ contract TeleportCustodySolana {
 		let feeCollector: @BloctoToken.Vault
 		
 		// toAddressType: SOL, SPL
-		access(AdminEntitlement)
+		access(all)
 		fun lock(from: @{FungibleToken.Vault}, to: [UInt8], toAddressType: String) { 
 			pre{ 
 				!TeleportCustodySolana.isFrozen:
@@ -191,7 +191,7 @@ contract TeleportCustodySolana {
 			return self.feeCollector.balance
 		}
 		
-		access(AdminEntitlement)
+		access(all)
 		fun depositAllowance(from: @Allowance) { 
 			self.allowedAmount = self.allowedAmount + from.balance
 			destroy from

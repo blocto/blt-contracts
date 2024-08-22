@@ -90,10 +90,10 @@ contract TeleportCustodyAptos {
 		access(all)
 		var allowedAmount: UFix64
 		
-		access(AdminEntitlement)
+		access(all)
 		fun lock(from: @{FungibleToken.Vault}, to: [UInt8]): Void
 		
-		access(AdminEntitlement)
+		access(all)
 		fun depositAllowance(from: @Allowance)
 	}
 	
@@ -126,7 +126,7 @@ contract TeleportCustodyAptos {
 		access(all)
 		let feeCollector: @BloctoToken.Vault
 		
-		access(AdminEntitlement)
+		access(all)
 		fun lock(from: @{FungibleToken.Vault}, to: [UInt8]) { 
 			pre { 
 				!TeleportCustodyAptos.isFrozen:
@@ -189,7 +189,7 @@ contract TeleportCustodyAptos {
 			return self.feeCollector.balance
 		}
 		
-		access(AdminEntitlement)
+		access(all)
 		fun depositAllowance(from: @Allowance) { 
 			self.allowedAmount = self.allowedAmount + from.balance
 			destroy from
