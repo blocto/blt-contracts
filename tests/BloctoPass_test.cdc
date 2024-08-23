@@ -3,8 +3,9 @@ import "BloctoPass"
 import "BloctoTokenStaking"
 
 access(all) let admin = Test.getAccount(0x0000000000000007)
-access(all) let staker = Test.createAccount()
-access(all) let minter = Test.createAccount()
+access(all) let stakingAdmin = Test.createAccount()
+access(all) let staker1 = Test.createAccount() // user1
+access(all) let staker2 = Test.createAccount() // user2
 
 access(all) fun setup() {
     var err = Test.deployContract(
@@ -27,7 +28,6 @@ access(all) fun setup() {
     )
     Test.expect(err, Test.beNil())
 
-
     err = Test.deployContract(
         name: "BloctoPass",
         path: "../contracts/flow/token/BloctoPass.cdc",
@@ -37,8 +37,28 @@ access(all) fun setup() {
 }
 
 
-access(all) fun testSetupBloctoPassMinterPublic() {
+access(all) fun testInitInfo() {
+    // set epoch
+    let setupCode = Test.readFile("../transactions/staking/setEpoch.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [admin.address],
+        signers: [admin],
+        arguments: [0 as UInt64],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beSucceeded())
 
+
+    Test.assertEqual(0 as UInt64, BloctoTokenStaking.getEpoch())
+    Test.assertEqual(0.0, BloctoTokenStaking.getTotalStaked())
+    Test.assertEqual(true, BloctoTokenStaking.getStakingEnabled())
+    Test.assertEqual(1.0, BloctoTokenStaking.getEpochTokenPayout())
+    Test.assertEqual(0, BloctoTokenStaking.getStakerIDCount())
+}
+
+// publish to /public/bloctoPassMinter
+access(all) fun testSetupBloctoPassMinterPublic() {
     let setupCode = Test.readFile("../transactions/token/admin/setupBloctoPassMinterPublic.cdc")
     let setupVaultTx = Test.Transaction(
         code: setupCode,
@@ -48,34 +68,46 @@ access(all) fun testSetupBloctoPassMinterPublic() {
     )
     let txResult = Test.executeTransaction(setupVaultTx)
     Test.expect(txResult, Test.beSucceeded())
-
 }
-access(all) fun testSetupForStaker() {
-    // create BloctoToken vault for staker
+// grant admin to mint BloctoToken
+access(all) fun testSetupBloctoTokenMinter() {
+    let setupCode = Test.readFile("../transactions/token/admin/setupBloctoTokenMinterForStakingSelf.cdc")
+    let setupVaultTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [admin.address],
+        signers: [admin],
+        arguments: [100000.0],
+    )
+    let txResult = Test.executeTransaction(setupVaultTx)
+    Test.expect(txResult, Test.beSucceeded())
+}
+
+
+
+// prepare for staker1, transferAmount=10000, stakeAmount=8000
+access(all) fun testSetupStaker1() {
+    // create BloctoToken vault for staker1
     let setupVaultCode = Test.readFile("../transactions/token/setupBloctoTokenVault.cdc")
     let setupVaultTx = Test.Transaction(
         code: setupVaultCode,
-        authorizers: [staker.address],
-        signers: [staker],
+        authorizers: [staker1.address],
+        signers: [staker1],
         arguments: [],
     )
     let setupVaultTxResult = Test.executeTransaction(setupVaultTx)
     Test.expect(setupVaultTxResult, Test.beSucceeded())
 
-    // // create BloctoPass for staker
+    // // create BloctoPass for staker1
     let setupBloctoPassCode = Test.readFile("../transactions/token/setupBloctoPassCollection.cdc")
     let setupBloctoPassTx = Test.Transaction(
         code: setupBloctoPassCode,
-        authorizers: [staker.address],
-        signers: [staker],
+        authorizers: [staker1.address],
+        signers: [staker1],
         arguments: [],
     )
     let setupBloctoPassTxResult = Test.executeTransaction(setupBloctoPassTx)
     Test.expect(setupBloctoPassTxResult, Test.beSucceeded())
-}
 
-
-access(all) fun testStake() {
     // execute transfer transaction
     let transferAmount = 10000.0
     let transferCode = Test.readFile("../transactions/token/transferBloctoToken.cdc")
@@ -83,37 +115,148 @@ access(all) fun testStake() {
         code: transferCode,
         authorizers: [admin.address],
         signers: [admin],
-        arguments: [transferAmount, staker.address],
+        arguments: [transferAmount, staker1.address],
     )
     let transferTxResult = Test.executeTransaction(transferTx)
     Test.expect(transferTxResult, Test.beSucceeded())
 
     let getBalanceScript = Test.readFile("../scripts/token/getBloctoTokenBalance.cdc")
-    var getBalanceResult = Test.executeScript(getBalanceScript, [staker.address])
-    let stakerBalance = getBalanceResult.returnValue! as! UFix64
-    Test.assertEqual(transferAmount, stakerBalance)
+    var getBalanceResult = Test.executeScript(getBalanceScript, [staker1.address])
+    let staker1Balance = getBalanceResult.returnValue! as! UFix64
+    Test.assertEqual(transferAmount, staker1Balance)
 
     // execute stake transaction
     let stakeAmount = 8000.0
     let stakeCode = Test.readFile("../transactions/staking/EnableBltStake.cdc")
     let stakeTx = Test.Transaction(
         code: stakeCode,
-        authorizers: [staker.address],
-        signers: [staker],
+        authorizers: [staker1.address],
+        signers: [staker1],
         arguments: [stakeAmount, 0, admin.address],
     )
     let stakeTxResult = Test.executeTransaction(stakeTx)
     Test.expect(stakeTxResult, Test.beSucceeded())
 
     // check balance
-    getBalanceResult = Test.executeScript(getBalanceScript, [staker.address])
-    let newStakerBalance = getBalanceResult.returnValue! as! UFix64
-    Test.assertEqual(transferAmount - stakeAmount, newStakerBalance)
+    getBalanceResult = Test.executeScript(getBalanceScript, [staker1.address])
+    let newstaker1Balance = getBalanceResult.returnValue! as! UFix64
+    Test.assertEqual(transferAmount - stakeAmount, newstaker1Balance)
 
     // check staking info
     let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
-    let stakingInfoResult = Test.executeScript(stakingInfoScript, [staker.address, 0])
+    let stakingInfoResult = Test.executeScript(stakingInfoScript, [staker1.address, 0])
+    let stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+
+    Test.assertEqual(stakeAmount, stakingInfo.tokensCommitted)
+}
+
+// prepare for staker2, transferAmount=10000, stakeAmount=2000
+access(all) fun testSetupstaker2() {
+    // create BloctoToken vault for staker2
+    let setupVaultCode = Test.readFile("../transactions/token/setupBloctoTokenVault.cdc")
+    let setupVaultTx = Test.Transaction(
+        code: setupVaultCode,
+        authorizers: [staker2.address],
+        signers: [staker2],
+        arguments: [],
+    )
+    let setupVaultTxResult = Test.executeTransaction(setupVaultTx)
+    Test.expect(setupVaultTxResult, Test.beSucceeded())
+
+    // // create BloctoPass for staker2
+    let setupBloctoPassCode = Test.readFile("../transactions/token/setupBloctoPassCollection.cdc")
+    let setupBloctoPassTx = Test.Transaction(
+        code: setupBloctoPassCode,
+        authorizers: [staker2.address],
+        signers: [staker2],
+        arguments: [],
+    )
+    let setupBloctoPassTxResult = Test.executeTransaction(setupBloctoPassTx)
+    Test.expect(setupBloctoPassTxResult, Test.beSucceeded())
+
+    // execute transfer transaction
+    let transferAmount = 10000.0
+    let transferCode = Test.readFile("../transactions/token/transferBloctoToken.cdc")
+    let transferTx = Test.Transaction(
+        code: transferCode,
+        authorizers: [admin.address],
+        signers: [admin],
+        arguments: [transferAmount, staker2.address],
+    )
+    let transferTxResult = Test.executeTransaction(transferTx)
+    Test.expect(transferTxResult, Test.beSucceeded())
+
+    let getBalanceScript = Test.readFile("../scripts/token/getBloctoTokenBalance.cdc")
+    var getBalanceResult = Test.executeScript(getBalanceScript, [staker2.address])
+    let staker2Balance = getBalanceResult.returnValue! as! UFix64
+    Test.assertEqual(transferAmount, staker2Balance)
+
+    // execute stake transaction
+    let stakeAmount = 2000.0
+    let stakeCode = Test.readFile("../transactions/staking/EnableBltStake.cdc")
+    let stakeTx = Test.Transaction(
+        code: stakeCode,
+        authorizers: [staker2.address],
+        signers: [staker2],
+        arguments: [stakeAmount, 0, admin.address],
+    )
+    let stakeTxResult = Test.executeTransaction(stakeTx)
+    Test.expect(stakeTxResult, Test.beSucceeded())
+
+    // check balance
+    getBalanceResult = Test.executeScript(getBalanceScript, [staker2.address])
+    let newstaker2Balance = getBalanceResult.returnValue! as! UFix64
+    Test.assertEqual(transferAmount - stakeAmount, newstaker2Balance)
+
+    // check staking info
+    let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
+    let stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
     let stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
    
-     Test.assertEqual(stakeAmount, stakingInfo.tokensCommitted)
+    Test.assertEqual(stakeAmount, stakingInfo.tokensCommitted)
 }
+
+
+access(all) fun testSwitchEpochTo1() {
+    // check init epoch is 0
+    let epochScript = Test.readFile("../scripts/staking/getEpoch.cdc")
+    var epochResult = Test.executeScript(epochScript, [])
+    let epoch :UInt64 = epochResult.returnValue! as! UInt64
+    Test.assertEqual(0 as UInt64, epoch)
+
+    // switch epoch to 1
+    let stakerIDList:[UInt64] = [0, 1]    
+    let setupCode = Test.readFile("../transactions/staking/switchEpoch.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [admin.address],
+        signers: [admin],
+        arguments: [stakerIDList],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beSucceeded())
+
+    let events = Test.eventsOfType(Type<BloctoTokenStaking.NewEpoch>())
+    Test.assertEqual(1, events.length)
+    let event0 = events[0] as! BloctoTokenStaking.NewEpoch
+    Test.assertEqual(1 as UInt64, event0.epoch)
+    Test.assertEqual(10000.0, event0.totalStaked)
+    Test.assertEqual(1.0, event0.totalRewardPayout)
+   
+
+}
+
+
+
+// access(all) fun testSetEpochTokenPayout() {
+//     let setupCode = Test.readFile("../transactions/staking/setEpochTokenPayout.cdc")
+//     let setupTx = Test.Transaction(
+//         code: setupCode,
+//         authorizers: [stakingAdming.address],
+//         signers: [stakingAdming],
+//         arguments: [5000.0],
+//     )
+//     let setupTxResult = Test.executeTransaction(setupTx)
+//     Test.expect(setupTxResult, Test.beSucceeded())
+// }
+

@@ -6,7 +6,7 @@ import "BloctoTokenStaking"
 // which ends the staking auction, which refunds nodes with insufficient stake
 // and moves tokens between buckets
 
-transaction {
+transaction(list: [UInt64])  {
 
     // Local variable for a reference to the ID Table Admin object
     let adminRef: auth(BloctoTokenStaking.AdminEntitlement) &BloctoTokenStaking.Admin
@@ -19,8 +19,9 @@ transaction {
 
     execute {
         self.adminRef.endStakingAuction()
-        self.adminRef.payRewards()
-        self.adminRef.moveTokens()
+        self.adminRef.payRewards(list)
+        self.adminRef.moveTokens(list)
         self.adminRef.startStakingAuction()
+        self.adminRef.startNewEpoch()
     }
 }

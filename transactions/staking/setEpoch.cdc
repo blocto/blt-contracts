@@ -1,6 +1,8 @@
+import "BloctoTokenStaking"
 transaction(epoch: UInt64) {
-    prepare(acct: auth(BorrowValue, SaveValue) &Account) {
-        // acct.load<UInt64>(from: /storage/bloctoTokenStakingEpoch)
+    prepare(acct: auth(Storage, SaveValue) &Account) {
+        acct.storage.load<UInt64>(from: /storage/bloctoTokenStakingEpoch)
         acct.storage.save(epoch, to: /storage/bloctoTokenStakingEpoch)        
     }
 }
+

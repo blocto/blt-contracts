@@ -3,7 +3,7 @@ import "NonFungibleToken"
 import "BloctoToken"
 import "BloctoPass"
 
-transaction(amount: UFix64, index: Int,  bloctoPassAddress: Address) {
+transaction(amount: UFix64, index: Int, bloctoPassAddress: Address) {
 
     // The Vault resource that holds the tokens that are being transferred
     let vaultRef: auth(FungibleToken.Withdraw) &BloctoToken.Vault
