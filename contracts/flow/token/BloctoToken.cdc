@@ -106,9 +106,9 @@ contract BloctoToken: FungibleToken{
                 let vaultRef = BloctoToken.account.storage.borrow<auth(FungibleToken.Withdraw) &BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)
                     ?? panic("Could not borrow reference to the contract's Vault!")
                 return FungibleTokenMetadataViews.FTVaultData(
-                    storagePath: /storage/bloctoTokenVault,
-                    receiverPath: /public/bloctoTokenReceiver,
-                    metadataPath: /public/bloctoTokenBalance,
+                    storagePath: self.TokenStoragePath,
+                    receiverPath: self.TokenPublicReceiverPath,
+                    metadataPath: self.TokenPublicBalancePath,
                     receiverLinkedType: Type<&{FungibleToken.Receiver, FungibleToken.Vault}>(),
                     metadataLinkedType: Type<&{FungibleToken.Balance, FungibleToken.Vault}>(),
                     createEmptyVaultFunction: (fun (): @{FungibleToken.Vault} {
