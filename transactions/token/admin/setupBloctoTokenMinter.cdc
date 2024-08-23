@@ -1,15 +1,15 @@
-import FungibleToken from "../../../contracts/flow/token/FungibleToken.cdc"
-import BloctoToken from "../../../contracts/flow/token/BloctoToken.cdc"
+import "FungibleToken"
+import "BloctoToken"
 
 transaction(allowedAmount: UFix64) {
 
-    prepare(signer: AuthAccount) {
-        let admin = signer
-            .borrow<&BloctoToken.Administrator>(from: /storage/bloctoTokenAdmin)
+    prepare(signer: auth(Storage) &Account) {
+        let admin = signer.storage
+            .borrow<auth(BloctoToken.AdministratorEntitlement) &BloctoToken.Administrator>(from: /storage/bloctoTokenAdmin)
             ?? panic("Signer is not the admin")
 
         let minter <- admin.createNewMinter(allowedAmount: allowedAmount)
 
-        signer.save(<-minter, to: BloctoToken.TokenMinterStoragePath)
+        signer.storage.save(<-minter, to: BloctoToken.TokenMinterStoragePath)
     }
 }
