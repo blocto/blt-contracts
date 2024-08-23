@@ -178,7 +178,7 @@ contract BloctoPass: NonFungibleToken{
             self.lockupSchedule = lockupSchedule
         }
         
-        access(FungibleToken.Withdraw)
+        access(BloctoPassPrivateEntitlement)
         fun withdraw(amount: UFix64): @{FungibleToken.Vault}{ 
             post{ 
                 self.getTotalBalance() >= self.getLockupAmount():

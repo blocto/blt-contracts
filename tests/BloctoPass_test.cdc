@@ -215,8 +215,7 @@ access(all) fun testSetupstaker2() {
    
     Test.assertEqual(stakeAmount, stakingInfo.tokensCommitted)
 }
-
-
+// switch epoch to 1
 access(all) fun testSwitchEpochTo1() {
     // check init epoch is 0
     let epochScript = Test.readFile("../scripts/staking/getEpoch.cdc")
@@ -242,21 +241,114 @@ access(all) fun testSwitchEpochTo1() {
     Test.assertEqual(1 as UInt64, event0.epoch)
     Test.assertEqual(10000.0, event0.totalStaked)
     Test.assertEqual(1.0, event0.totalRewardPayout)
-   
 
+    // check staker1 staking info
+    let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
+    var stakingInfoResult = Test.executeScript(stakingInfoScript, [staker1.address, 0])
+    var stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+   
+    Test.assertEqual(0.0, stakingInfo.tokensCommitted)
+    Test.assertEqual(8000.0, stakingInfo.tokensStaked)
+    Test.assertEqual(0.0, stakingInfo.tokensRewarded)
+    Test.assertEqual(0.0, stakingInfo.tokensRequestedToUnstake)
+    Test.assertEqual(0.0, stakingInfo.tokensUnstaked)
+
+
+    // check staker2 staking info
+    stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
+    stakingInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+   
+    Test.assertEqual(0.0, stakingInfo.tokensCommitted)
+    Test.assertEqual(2000.0, stakingInfo.tokensStaked)
+    Test.assertEqual(0.0, stakingInfo.tokensRewarded)
+    Test.assertEqual(0.0, stakingInfo.tokensRequestedToUnstake)
+    Test.assertEqual(0.0, stakingInfo.tokensUnstaked)
+}
+
+access(all) fun testSetEpochTokenPayout() {
+    let setupCode = Test.readFile("../transactions/staking/setEpochTokenPayout.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [admin.address],
+        signers: [admin],
+        arguments: [5000.0],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beSucceeded())
+}
+
+// switch epoch to 2
+access(all) fun testSwitchEpochTo2() {
+    // check init epoch is 0
+    let epochScript = Test.readFile("../scripts/staking/getEpoch.cdc")
+    var epochResult = Test.executeScript(epochScript, [])
+    let epoch :UInt64 = epochResult.returnValue! as! UInt64
+    Test.assertEqual(1 as UInt64, epoch)
+
+    // switch epoch to 1
+    let stakerIDList:[UInt64] = [0, 1]    
+    let setupCode = Test.readFile("../transactions/staking/switchEpoch.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [admin.address],
+        signers: [admin],
+        arguments: [stakerIDList],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beSucceeded())
+
+    let events: [AnyStruct] = Test.eventsOfType(Type<BloctoTokenStaking.NewEpoch>())
+    Test.assertEqual(2, events.length)
+    let event1 = events[1] as! BloctoTokenStaking.NewEpoch
+    Test.assertEqual(2 as UInt64, event1.epoch)
+    Test.assertEqual(10000.0, event1.totalStaked)
+    Test.assertEqual(5000.0, event1.totalRewardPayout)
+
+    // check staker1 staking info
+    let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
+    var stakingInfoResult = Test.executeScript(stakingInfoScript, [staker1.address, 0])
+    var stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+   
+    Test.assertEqual(0.0, stakingInfo.tokensCommitted)
+    Test.assertEqual(8000.0, stakingInfo.tokensStaked)
+    Test.assertEqual(4000.0, stakingInfo.tokensRewarded)
+    Test.assertEqual(0.0, stakingInfo.tokensRequestedToUnstake)
+    Test.assertEqual(0.0, stakingInfo.tokensUnstaked)
+
+
+    // check staker2 staking info
+    stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
+    stakingInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+   
+    Test.assertEqual(0.0, stakingInfo.tokensCommitted)
+    Test.assertEqual(2000.0, stakingInfo.tokensStaked)
+    Test.assertEqual(1000.0, stakingInfo.tokensRewarded)
+    Test.assertEqual(0.0, stakingInfo.tokensRequestedToUnstake)
+    Test.assertEqual(0.0, stakingInfo.tokensUnstaked)
 }
 
 
+access(all) fun testStaker1ClaimReward() {
+    // before claim reward balance
+    let getBalanceScript = Test.readFile("../scripts/token/getBloctoTokenBalance.cdc")
+    var getBalanceResult = Test.executeScript(getBalanceScript, [staker1.address])
+    let staker1Balance = getBalanceResult.returnValue! as! UFix64
 
-// access(all) fun testSetEpochTokenPayout() {
-//     let setupCode = Test.readFile("../transactions/staking/setEpochTokenPayout.cdc")
-//     let setupTx = Test.Transaction(
-//         code: setupCode,
-//         authorizers: [stakingAdming.address],
-//         signers: [stakingAdming],
-//         arguments: [5000.0],
-//     )
-//     let setupTxResult = Test.executeTransaction(setupTx)
-//     Test.expect(setupTxResult, Test.beSucceeded())
-// }
+    // execute stake transaction
+    let stakeAmount = 4000.0
+    let stakeCode = Test.readFile("../transactions/staking/ClaimRewardBlt.cdc")
+    let stakeTx = Test.Transaction(
+        code: stakeCode,
+        authorizers: [staker1.address],
+        signers: [staker1],
+        arguments: [4000.0, 0],
+    )
+    let stakeTxResult = Test.executeTransaction(stakeTx)
+    Test.expect(stakeTxResult, Test.beSucceeded())
 
+
+    // after claim reward balance
+    getBalanceResult = Test.executeScript(getBalanceScript, [staker1.address])
+    let newStaker1Balance = getBalanceResult.returnValue! as! UFix64
+    Test.assertEqual(staker1Balance + 4000.0, newStaker1Balance)
+}
