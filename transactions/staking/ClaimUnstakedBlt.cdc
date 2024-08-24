@@ -1,5 +1,3 @@
-import "FungibleToken"
-import "NonFungibleToken"
 import "BloctoToken"
 import "BloctoPass"
 
@@ -11,7 +9,7 @@ transaction(amount: UFix64, index: Int) {
     // The private reference to user's BloctoPass
     let bloctoPassRef: auth(BloctoPass.BloctoPassPrivateEntitlement) &BloctoPass.NFT
 
-    prepare(account: auth(BorrowValue) &Account) {
+    prepare(account: auth(BorrowValue, Capabilities) &Account) {
         // Get a reference to the account's stored vault
         self.vaultRef = account.storage.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)
             ?? panic("Could not borrow reference to the owner's Vault!")
@@ -27,12 +25,14 @@ transaction(amount: UFix64, index: Int) {
     }
 
     execute {
-        self.bloctoPassRef.withdrawRewardedTokens(amount: amount)
+        self.bloctoPassRef.withdrawUnstakedTokens(amount: amount)
 
         // Unlock as much as possible
         let limit = self.bloctoPassRef.getTotalBalance() - self.bloctoPassRef.getLockupAmount()
         let max = limit > amount ? amount : limit
 
-        self.vaultRef.deposit(from: <-self.bloctoPassRef.withdraw(amount: max))
-    }
+        if (max > 0.0) {
+            self.vaultRef.deposit(from: <-self.bloctoPassRef.withdraw(amount: max))
+        }
+    } 
 }

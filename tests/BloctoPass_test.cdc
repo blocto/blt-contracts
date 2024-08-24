@@ -352,3 +352,93 @@ access(all) fun testStaker1ClaimReward() {
     let newStaker1Balance = getBalanceResult.returnValue! as! UFix64
     Test.assertEqual(staker1Balance + 4000.0, newStaker1Balance)
 }
+
+// staker2 request to unstake all amount, stakingInfo will from  tokensStaked -> tokensRequestedToUnstake
+access(all) fun testStaker2Unstake() {
+    // before staker info
+    let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
+    var stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
+    let stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+    let unstakeAmount = stakingInfo.tokensStaked
+    // request to unstake all amount
+    let stakerIDList:[UInt64] = [0, 1]    
+    let setupCode = Test.readFile("../transactions/staking/RequestToUnstakeBlt.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [staker2.address],
+        signers: [staker2],
+        arguments: [unstakeAmount, 0],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beSucceeded())
+
+
+    stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
+    let afterStakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+    Test.assertEqual(unstakeAmount, afterStakingInfo.tokensRequestedToUnstake)
+}
+
+// switch epoch to 3, staker2 stakingInfo will from tokensRequestedToUnstake -> tokensUnstaked
+access(all) fun testSwitchEpochTo3() {
+    // check init epoch is 0
+    let epochScript = Test.readFile("../scripts/staking/getEpoch.cdc")
+    var epochResult = Test.executeScript(epochScript, [])
+    let epoch :UInt64 = epochResult.returnValue! as! UInt64
+    Test.assertEqual(2 as UInt64, epoch)
+
+    // before staker2's stakinginfo
+    let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
+    var stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
+    let stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+
+    // switch epoch to next epoch
+    let stakerIDList:[UInt64] = [0, 1]    
+    let setupCode = Test.readFile("../transactions/staking/switchEpoch.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [admin.address],
+        signers: [admin],
+        arguments: [stakerIDList],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beSucceeded())
+    // check is new epoch
+    epochResult = Test.executeScript(epochScript, [])
+    let newEpoch :UInt64 = epochResult.returnValue! as! UInt64
+    Test.assertEqual(3 as UInt64, newEpoch)
+
+
+    // check staker2 staking info
+    stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
+    let afterStakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+    Test.assertEqual(afterStakingInfo.tokensUnstaked, stakingInfo.tokensRequestedToUnstake)
+}
+
+
+access(all) fun testStaker2ClaimUnstakedBLT() {
+    // before stakingInfo
+    let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
+    var stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
+    let stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+    
+    // before claim unstaked BLT balance
+    let getBalanceScript = Test.readFile("../scripts/token/getBloctoTokenBalance.cdc")
+    var getBalanceResult = Test.executeScript(getBalanceScript, [staker2.address])
+    let balance = getBalanceResult.returnValue! as! UFix64
+
+    // execute claim unstake transaction
+    let stakeCode = Test.readFile("../transactions/staking/ClaimUnstakedBlt.cdc")
+    let stakeTx = Test.Transaction(
+        code: stakeCode,
+        authorizers: [staker2.address],
+        signers: [staker2],
+        arguments: [stakingInfo.tokensUnstaked, 0],
+    )
+    let stakeTxResult = Test.executeTransaction(stakeTx)
+    Test.expect(stakeTxResult, Test.beSucceeded())
+
+    // after claim reward balance
+    getBalanceResult = Test.executeScript(getBalanceScript, [staker2.address])
+    let newBalance = getBalanceResult.returnValue! as! UFix64
+    Test.assertEqual(balance + stakingInfo.tokensUnstaked, newBalance)
+}
