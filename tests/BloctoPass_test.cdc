@@ -57,6 +57,32 @@ access(all) fun testInitInfo() {
     Test.assertEqual(0, BloctoTokenStaking.getStakerIDCount())
 }
 
+// prepare for staker1, transferAmount=10000, stakeAmount=8000
+access(all) fun testSetupStakingAdmin() {
+    // create BloctoToken vault for stakingAdmin
+    let setupVaultCode = Test.readFile("../transactions/token/setupBloctoTokenVault.cdc")
+    let setupVaultTx = Test.Transaction(
+        code: setupVaultCode,
+        authorizers: [stakingAdmin.address],
+        signers: [stakingAdmin],
+        arguments: [],
+    )
+    let setupVaultTxResult = Test.executeTransaction(setupVaultTx)
+    Test.expect(setupVaultTxResult, Test.beSucceeded())
+
+    // grant admin capability for stakingAdmin 
+     let setupCode = Test.readFile("../transactions/staking/setupStakingAdmin.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [admin.address, stakingAdmin.address ],
+        signers: [admin,  stakingAdmin],
+        arguments: [],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beSucceeded())
+
+}
+
 // publish to /public/bloctoPassMinter
 access(all) fun testSetupBloctoPassMinterPublic() {
     let setupCode = Test.readFile("../transactions/token/admin/setupBloctoPassMinterPublic.cdc")
@@ -82,7 +108,18 @@ access(all) fun testSetupBloctoTokenMinter() {
     Test.expect(txResult, Test.beSucceeded())
 }
 
-
+// grant stakingAdmin to mint BloctoToken
+access(all) fun testSetupBloctoTokenMinterForStakingAdmin() {
+    let setupCode = Test.readFile("../transactions/token/admin/setupBloctoTokenMinterForStaking.cdc")
+    let setupVaultTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [admin.address, stakingAdmin.address],
+        signers: [admin, stakingAdmin],
+        arguments: [100000.0],
+    )
+    let txResult = Test.executeTransaction(setupVaultTx)
+    Test.expect(txResult, Test.beSucceeded())
+}
 
 // prepare for staker1, transferAmount=10000, stakeAmount=8000
 access(all) fun testSetupStaker1() {
@@ -228,13 +265,15 @@ access(all) fun testSwitchEpochTo1() {
     let setupCode = Test.readFile("../transactions/staking/switchEpoch.cdc")
     let setupTx = Test.Transaction(
         code: setupCode,
-        authorizers: [admin.address],
-        signers: [admin],
+        authorizers: [stakingAdmin.address],
+        signers: [stakingAdmin],
         arguments: [stakerIDList],
     )
     let setupTxResult = Test.executeTransaction(setupTx)
     Test.expect(setupTxResult, Test.beSucceeded())
 
+    
+    // check is new epoch
     let events = Test.eventsOfType(Type<BloctoTokenStaking.NewEpoch>())
     Test.assertEqual(1, events.length)
     let event0 = events[0] as! BloctoTokenStaking.NewEpoch
@@ -263,6 +302,7 @@ access(all) fun testSwitchEpochTo1() {
     Test.assertEqual(0.0, stakingInfo.tokensRewarded)
     Test.assertEqual(0.0, stakingInfo.tokensRequestedToUnstake)
     Test.assertEqual(0.0, stakingInfo.tokensUnstaked)
+    
 }
 
 access(all) fun testSetEpochTokenPayout() {
@@ -290,8 +330,8 @@ access(all) fun testSwitchEpochTo2() {
     let setupCode = Test.readFile("../transactions/staking/switchEpoch.cdc")
     let setupTx = Test.Transaction(
         code: setupCode,
-        authorizers: [admin.address],
-        signers: [admin],
+        authorizers: [stakingAdmin.address],
+        signers: [stakingAdmin],
         arguments: [stakerIDList],
     )
     let setupTxResult = Test.executeTransaction(setupTx)
@@ -431,8 +471,8 @@ access(all) fun testSwitchEpochTo3() {
     let setupCode = Test.readFile("../transactions/staking/switchEpoch.cdc")
     let setupTx = Test.Transaction(
         code: setupCode,
-        authorizers: [admin.address],
-        signers: [admin],
+        authorizers: [stakingAdmin.address],
+        signers: [stakingAdmin],
         arguments: [stakerIDList],
     )
     let setupTxResult = Test.executeTransaction(setupTx)

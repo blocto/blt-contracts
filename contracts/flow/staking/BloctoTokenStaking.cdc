@@ -489,6 +489,11 @@ contract BloctoTokenStaking{
             BloctoTokenStaking.epochTokenPayout = newPayout
             emit NewWeeklyPayout(newPayout: newPayout)
         }
+
+        access(AdminEntitlement)
+        fun createNewAdmin(): @Admin{ 
+            return <-create Admin()
+        }
     }
     
     /// borrow a reference to to one of the stakers in the record
