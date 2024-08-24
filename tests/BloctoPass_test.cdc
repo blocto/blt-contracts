@@ -127,7 +127,7 @@ access(all) fun testSetupStaker1() {
 
     // execute stake transaction
     let stakeAmount = 8000.0
-    let stakeCode = Test.readFile("../transactions/staking/EnableBltStake.cdc")
+    let stakeCode = Test.readFile("../transactions/staking/app/EnableBltStake.cdc")
     let stakeTx = Test.Transaction(
         code: stakeCode,
         authorizers: [staker1.address],
@@ -193,7 +193,7 @@ access(all) fun testSetupstaker2() {
 
     // execute stake transaction
     let stakeAmount = 2000.0
-    let stakeCode = Test.readFile("../transactions/staking/EnableBltStake.cdc")
+    let stakeCode = Test.readFile("../transactions/staking/app/EnableBltStake.cdc")
     let stakeTx = Test.Transaction(
         code: stakeCode,
         authorizers: [staker2.address],
@@ -336,7 +336,7 @@ access(all) fun testStaker1ClaimReward() {
 
     // execute stake transaction
     let stakeAmount = 4000.0
-    let stakeCode = Test.readFile("../transactions/staking/ClaimRewardBlt.cdc")
+    let stakeCode = Test.readFile("../transactions/staking/app/ClaimRewardBlt.cdc")
     let stakeTx = Test.Transaction(
         code: stakeCode,
         authorizers: [staker1.address],
@@ -362,7 +362,7 @@ access(all) fun testStaker2Unstake() {
     let unstakeAmount = stakingInfo.tokensStaked
     // request to unstake all amount
     let stakerIDList:[UInt64] = [0, 1]    
-    let setupCode = Test.readFile("../transactions/staking/RequestToUnstakeBlt.cdc")
+    let setupCode = Test.readFile("../transactions/staking/app/RequestToUnstakeBlt.cdc")
     let setupTx = Test.Transaction(
         code: setupCode,
         authorizers: [staker2.address],
@@ -427,7 +427,7 @@ access(all) fun testStaker2ClaimUnstakedBLT() {
     let balance = getBalanceResult.returnValue! as! UFix64
 
     // execute claim unstake transaction
-    let stakeCode = Test.readFile("../transactions/staking/ClaimUnstakedBlt.cdc")
+    let stakeCode = Test.readFile("../transactions/staking/app/ClaimUnstakedBlt.cdc")
     let stakeTx = Test.Transaction(
         code: stakeCode,
         authorizers: [staker2.address],
