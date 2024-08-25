@@ -11,19 +11,27 @@ transaction(amount: UFix64, index: Int) {
     // The private reference to user's BloctoPass
     let bloctoPassRef: auth(BloctoPass.BloctoPassPrivateEntitlement) &BloctoPass.NFT
 
+    // The withdraw auth reference to user's BloctoPass
+    let bloctoPassWithdrawAuth: auth(FungibleToken.Withdraw) &BloctoPass.NFT
+
     prepare(account: auth(BorrowValue) &Account) {
       // Get a reference to the account's stored vault
       self.vaultRef = account.storage.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)
           ?? panic("Could not borrow reference to the owner's Vault!")
 
       // Get a reference to the account's BloctoPass
-      let bloctoPassCollectionRef = account.storage.borrow<auth(BloctoPass.CollectionPrivateEntitlement) &BloctoPass.Collection>(from: /storage/bloctoPassCollection)
+      let bloctoPassCollectionRef = account.storage.borrow
+        <auth(BloctoPass.CollectionPrivateEntitlement, FungibleToken.Withdraw) &BloctoPass.Collection>
+        (from: /storage/bloctoPassCollection)
           ?? panic("Could not borrow reference to the owner's BloctoPass collection!")
 
       let ids = bloctoPassCollectionRef.getIDs()
 
       // Get a reference to the BloctoPass
       self.bloctoPassRef = bloctoPassCollectionRef.borrowBloctoPassPrivate(id: ids[index])
+
+      // Get a reference to the BloctoPass withdraw
+      self.bloctoPassWithdrawAuth = bloctoPassCollectionRef.borrowWithdraw(id: ids[index])
     }
 
     execute {
@@ -33,6 +41,6 @@ transaction(amount: UFix64, index: Int) {
       let limit = self.bloctoPassRef.getTotalBalance() - self.bloctoPassRef.getLockupAmount()
       let max = limit > amount ? amount : limit
 
-      self.vaultRef.deposit(from: <-self.bloctoPassRef.withdraw(amount: max))
+      self.vaultRef.deposit(from: <-self.bloctoPassWithdrawAuth.withdraw(amount: max))
     }
 }
