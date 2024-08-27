@@ -184,7 +184,7 @@ contract TeleportCustody {
       self.unlockFee = fee
     }
     
-    access(AdminEntitlement)
+    access(all)
     fun getFeeAmount(): UFix64{  
       return self.feeCollector.balance
     }
