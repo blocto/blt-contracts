@@ -3,6 +3,7 @@ import "BloctoToken"
 
 access(all) let admin = Test.getAccount(0x0000000000000007)
 access(all) let receiver = Test.createAccount()
+access(all) let receiver2 = Test.createAccount()
 access(all) let minter = Test.createAccount()
 
 access(all) fun setup() {
@@ -33,6 +34,16 @@ access(all) fun testSetupVault() {
     )
     let setupVaultTxResult = Test.executeTransaction(setupVaultTx)
     Test.expect(setupVaultTxResult, Test.beSucceeded())
+
+    // create vault for receiver
+    let setupVaultTx2 = Test.Transaction(
+        code: setupVaultCode,
+        authorizers: [receiver2.address],
+        signers: [receiver2],
+        arguments: [],
+    )
+    let setupVaultTxResult2 = Test.executeTransaction(setupVaultTx2)
+    Test.expect(setupVaultTxResult2, Test.beSucceeded())
 }
 
 access(all) fun testTransfer() {
@@ -75,4 +86,60 @@ access(all) fun testSetupMinter() {
     )
     let setupTxResult = Test.executeTransaction(setupTx)
     Test.expect(setupTxResult, Test.beSucceeded())
+}
+
+access(all) fun testShouldNotTransferExceedAmount() {
+    // get original balance
+    let getBalanceScript = Test.readFile("../scripts/token/getBloctoTokenBalance.cdc")
+    var getBalanceResult = Test.executeScript(getBalanceScript, [receiver2.address])
+    let currentReceiver2Balance = getBalanceResult.returnValue! as! UFix64
+  
+    // execute transfer transaction
+    let exceedAmount = 1000.0
+    let transferCode = Test.readFile("../transactions/token/transferBloctoToken.cdc")
+    let transferTx = Test.Transaction(
+        code: transferCode,
+        authorizers: [receiver.address],
+        signers: [receiver],
+        arguments: [exceedAmount, receiver2.address],
+    )
+    let transferTxResult: Test.TransactionResult = Test.executeTransaction(transferTx)
+    Test.expect(transferTxResult, Test.beFailed())
+   
+    getBalanceResult = Test.executeScript(getBalanceScript, [receiver2.address])
+    let afterReceiver2Balance = getBalanceResult.returnValue! as! UFix64
+    Test.assertEqual(currentReceiver2Balance, afterReceiver2Balance)
+}
+
+access(all) fun testShouldNotTransferIfNotOwner() {
+    // get original balance
+    let getBalanceScript = Test.readFile("../scripts/token/getBloctoTokenBalance.cdc")
+    var getBalanceResult = Test.executeScript(getBalanceScript, [receiver2.address])
+    let currentReceiver2Balance = getBalanceResult.returnValue! as! UFix64
+  
+    // execute transfer transaction
+    let amount = 1.0
+    let transferCode = Test.readFile("../transactions/token/transferBloctoToken.cdc")
+    let transferTx = Test.Transaction(
+        code: transferCode,
+        authorizers: [receiver.address],
+        signers: [receiver2],
+        arguments: [amount, admin.address],
+    )
+    let transferTxResult: Test.TransactionResult = Test.executeTransaction(transferTx)
+    Test.expect(transferTxResult, Test.beFailed())
+  
+}
+
+// grant stakingAdmin to mint BloctoToken
+access(all) fun testShouldNotSetupBloctoTokenMinterIfNotAdmin() {
+    let setupCode = Test.readFile("../transactions/token/admin/setupBloctoTokenMinterForStaking.cdc")
+    let setupVaultTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [receiver.address, receiver2.address],
+        signers: [receiver, receiver2],
+        arguments: [100000.0],
+    )
+    let txResult: Test.TransactionResult = Test.executeTransaction(setupVaultTx)
+    Test.expect(txResult, Test.beFailed())
 }

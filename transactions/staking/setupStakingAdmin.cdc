@@ -7,6 +7,7 @@ transaction() {
             (from: BloctoTokenStaking.StakingAdminStoragePath)
             ?? panic("Signer is not the admin")
 
+        destroy newAdmin.storage.load<@BloctoTokenStaking.Admin>(from: BloctoTokenStaking.StakingAdminStoragePath)
         newAdmin.storage.save(<- adminRef.createNewAdmin(), to: BloctoTokenStaking.StakingAdminStoragePath)
     }
 }

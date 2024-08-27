@@ -542,3 +542,117 @@ access(all) fun testStaker2ClaimUnstakedBLT() {
     let newBalance = getBalanceResult.returnValue! as! UFix64
     Test.assertEqual(balance + stakingInfo.tokensUnstaked, newBalance)
 }
+
+// ------------ negative test cases ------------//
+access(all) fun testShouldNotStakeExceedBalance() {
+    // before stakingInfo
+    let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
+    var stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
+    let stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+
+    // get original balance
+    let getBalanceScript = Test.readFile("../scripts/token/getBloctoTokenBalance.cdc")
+    var getBalanceResult = Test.executeScript(getBalanceScript, [staker1.address])
+    let currentStakerBalance = getBalanceResult.returnValue! as! UFix64
+    
+    // execute stake transaction
+    let stakeAmount = 2000.0
+    let stakeCode = Test.readFile("../transactions/staking/app/EnableBltStake.cdc")
+    let stakeTx = Test.Transaction(
+        code: stakeCode,
+        authorizers: [staker2.address],
+        signers: [staker2],
+        arguments: [currentStakerBalance+ 10000.0, 0, admin.address],
+    )
+    let stakeTxResult = Test.executeTransaction(stakeTx)
+    Test.expect(stakeTxResult, Test.beFailed())
+
+    stakingInfoResult = Test.executeScript(stakingInfoScript, [staker2.address, 0])
+    let afterStakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+
+    // get original balance
+    getBalanceResult = Test.executeScript(getBalanceScript, [staker1.address])
+    let afterStakerBalance = getBalanceResult.returnValue! as! UFix64
+    
+    // Test.equal(value)
+     Test.assertEqual(currentStakerBalance, afterStakerBalance)
+    Test.assertEqual(stakingInfo.tokensStaked, afterStakingInfo.tokensStaked)
+}
+
+access(all) fun testShouldNotSwitchEpochIfNotAdmin() {
+    // check init epoch is 0
+    let epochScript = Test.readFile("../scripts/staking/getEpoch.cdc")
+    var epochResult = Test.executeScript(epochScript, [])
+    let epoch :UInt64 = epochResult.returnValue! as! UInt64
+
+    // attempt to switch epoch to 1 by staker1
+    let stakerIDList:[UInt64] = [0, 1]    
+    let setupCode = Test.readFile("../transactions/staking/switchEpoch.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [staker1.address],
+        signers: [staker1],
+        arguments: [stakerIDList],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beFailed())
+
+    // check epoch remains unchanged
+    epochResult = Test.executeScript(epochScript, [])
+    let newEpoch = epochResult.returnValue! as! UInt64
+    Test.assertEqual(newEpoch, epoch)
+}
+
+
+// staker2 try to claim staker1 reward will be failed
+access(all) fun testShouldNotClaimIfNotOwner() {
+    // switch epoch to next epoch
+    let stakerIDList:[UInt64] = [0, 1]    
+    let setupCode = Test.readFile("../transactions/staking/switchEpoch.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [stakingAdmin.address],
+        signers: [stakingAdmin],
+        arguments: [stakerIDList],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beSucceeded())
+
+    // before stakingInfo
+    let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
+    var stakingInfoResult = Test.executeScript(stakingInfoScript, [staker1.address, 0])
+    let stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+
+    // try to claim staker1 reward
+    let claimAmount = stakingInfo.tokensRewarded
+    let stakeCode = Test.readFile("../transactions/staking/app/ClaimRewardBlt.cdc")
+    let stakeTx = Test.Transaction(
+        code: stakeCode,
+        authorizers: [staker1.address],
+        signers: [staker2],
+        arguments: [claimAmount, 0],
+    )
+    let stakeTxResult = Test.executeTransaction(stakeTx)
+    Test.expect(stakeTxResult, Test.beFailed())
+
+}
+
+// staker2 should not request to unstake staker1 staked amount
+access(all) fun testShouldNotStaker2UnstakeStaker1() {
+    // before staker info
+    let stakingInfoScript = Test.readFile("../scripts/staking/getStakingInfo.cdc")
+    var stakingInfoResult = Test.executeScript(stakingInfoScript, [staker1.address, 0])
+    let stakingInfo :BloctoTokenStaking.StakerInfo = stakingInfoResult.returnValue! as! BloctoTokenStaking.StakerInfo
+    let unstakeAmount = stakingInfo.tokensStaked
+    // request to unstake all amount
+    let stakerIDList:[UInt64] = [0, 1]    
+    let setupCode = Test.readFile("../transactions/staking/app/RequestToUnstakeBlt.cdc")
+    let setupTx = Test.Transaction(
+        code: setupCode,
+        authorizers: [staker1.address],
+        signers: [staker2],
+        arguments: [unstakeAmount, 0],
+    )
+    let setupTxResult = Test.executeTransaction(setupTx)
+    Test.expect(setupTxResult, Test.beFailed())
+}
