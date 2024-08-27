@@ -1,4 +1,4 @@
-import BloctoTokenStaking from "../../contracts/flow/staking/BloctoTokenStaking.cdc"
+import "BloctoTokenStaking"
 
 // This transaction effectively ends the epoch and starts a new one.
 //
@@ -6,21 +6,22 @@ import BloctoTokenStaking from "../../contracts/flow/staking/BloctoTokenStaking.
 // which ends the staking auction, which refunds nodes with insufficient stake
 // and moves tokens between buckets
 
-transaction {
+transaction(list: [UInt64])  {
 
     // Local variable for a reference to the ID Table Admin object
-    let adminRef: &BloctoTokenStaking.Admin
+    let adminRef: auth(BloctoTokenStaking.AdminEntitlement) &BloctoTokenStaking.Admin
 
-    prepare(acct: AuthAccount) {
+    prepare(acct: auth(BorrowValue) &Account) {
         // borrow a reference to the admin object
-        self.adminRef = acct.borrow<&BloctoTokenStaking.Admin>(from: BloctoTokenStaking.StakingAdminStoragePath)
+        self.adminRef = acct.storage.borrow<auth(BloctoTokenStaking.AdminEntitlement) &BloctoTokenStaking.Admin>(from: BloctoTokenStaking.StakingAdminStoragePath)
             ?? panic("Could not borrow reference to staking admin")
     }
 
     execute {
         self.adminRef.endStakingAuction()
-        self.adminRef.payRewards()
-        self.adminRef.moveTokens()
+        self.adminRef.payRewards(list)
+        self.adminRef.moveTokens(list)
         self.adminRef.startStakingAuction()
+        self.adminRef.startNewEpoch()
     }
 }

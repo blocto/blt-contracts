@@ -1,5 +1,6 @@
-import BloctoTokenStaking from "../../contracts/flow/staking/BloctoTokenStaking.cdc"
+import "BloctoTokenStaking"
 
-pub fun main(): UInt64 {
+access(all)
+fun main(): UInt64 {
     return BloctoTokenStaking.getEpoch()
 }

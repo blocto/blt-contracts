@@ -10,6 +10,7 @@ transaction(allowedAmount: UFix64) {
 
         let minter <- admin.createNewMinter(allowedAmount: allowedAmount)
 
+        destroy stakingAdmin.storage.load<@BloctoToken.Minter>(from: /storage/bloctoTokenStakingMinter)
         stakingAdmin.storage.save(<-minter, to: /storage/bloctoTokenStakingMinter)
     }
 }

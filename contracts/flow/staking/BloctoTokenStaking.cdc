@@ -1,125 +1,194 @@
 /*
-
     BloctoTokenStaking
 
     The BloctoToken Staking contract manages stakers' information.
     Forked from FlowIDTableStaking contract.
-
  */
 
-import FungibleToken from "../token/FungibleToken.cdc"
-import BloctoToken from "../token/BloctoToken.cdc"
+import "FungibleToken"
+import "BloctoToken"
 
-pub contract BloctoTokenStaking {
-
+access(all)
+contract BloctoTokenStaking {
+    // An entitlement for Staker access
+    access(all) entitlement StakerEntitlement
+    // An entitlement for Admin access
+    access(all) entitlement AdminEntitlement
     /****** Staking Events ******/
-
-    pub event NewEpoch(epoch: UInt64, totalStaked: UFix64, totalRewardPayout: UFix64)
-
+    access(all)
+    event NewEpoch(epoch: UInt64, totalStaked: UFix64, totalRewardPayout: UFix64)
+    
     /// Staker Events
-    pub event NewStakerCreated(stakerID: UInt64, amountCommitted: UFix64)
-    pub event TokensCommitted(stakerID: UInt64, amount: UFix64)
-    pub event TokensStaked(stakerID: UInt64, amount: UFix64)
-    pub event TokensUnstaking(stakerID: UInt64, amount: UFix64)
-    pub event TokensUnstaked(stakerID: UInt64, amount: UFix64)
-    pub event NodeRemovedAndRefunded(stakerID: UInt64, amount: UFix64)
-    pub event RewardsPaid(stakerID: UInt64, amount: UFix64)
-    pub event MoveToken(stakerID: UInt64)
-    pub event UnstakedTokensWithdrawn(stakerID: UInt64, amount: UFix64)
-    pub event RewardTokensWithdrawn(stakerID: UInt64, amount: UFix64)
+    access(all)
+    event NewStakerCreated(stakerID: UInt64, amountCommitted: UFix64)
+    
+    access(all)
+    event TokensCommitted(stakerID: UInt64, amount: UFix64)
+    
+    access(all)
+    event TokensStaked(stakerID: UInt64, amount: UFix64)
+    
+    access(all)
+    event TokensUnstaking(stakerID: UInt64, amount: UFix64)
+    
+    access(all)
+    event TokensUnstaked(stakerID: UInt64, amount: UFix64)
+    
+    access(all)
+    event NodeRemovedAndRefunded(stakerID: UInt64, amount: UFix64)
+    
+    access(all)
+    event RewardsPaid(stakerID: UInt64, amount: UFix64)
+    
+    access(all)
+    event MoveToken(stakerID: UInt64)
+    
+    access(all)
+    event UnstakedTokensWithdrawn(stakerID: UInt64, amount: UFix64)
+    
+    access(all)
+    event RewardTokensWithdrawn(stakerID: UInt64, amount: UFix64)
+    
+    /// Contract Field Change Events
+    access(all)
+    event NewWeeklyPayout(newPayout: UFix64)
 
     /// Contract Field Change Events
-    pub event NewWeeklyPayout(newPayout: UFix64)
-
+    access(all)
+    event AdminCreated()
+    
     /// Holds the identity table for all the stakers in the network.
     /// Includes stakers that aren't actively participating
     /// key = staker ID (also corresponds to BloctoPass ID)
     /// value = the record of that staker's info, tokens, and delegators
-    access(contract) var stakers: @{UInt64: StakerRecord}
-
+    access(contract)
+    var stakers: @{UInt64: StakerRecord}
+    
     /// The total amount of tokens that are staked for all the stakers
-    access(contract) var totalTokensStaked: UFix64
-
+    access(contract)
+    var totalTokensStaked: UFix64
+    
     /// The total amount of tokens that are paid as rewards every epoch
     /// could be manually changed by the admin resource
-    access(contract) var epochTokenPayout: UFix64
-
+    access(contract)
+    var epochTokenPayout: UFix64
+    
     /// Indicates if the staking auction is currently enabled
-    access(contract) var stakingEnabled: Bool
-
+    access(contract)
+    var stakingEnabled: Bool
+    
     /// Paths for storing staking resources
-    pub let StakingAdminStoragePath: StoragePath
-
+    access(all)
+    let StakingAdminStoragePath: StoragePath
+    
     /*********** Staking Composite Type Definitions *************/
-
     /// Contains information that is specific to a staker
-    pub resource StakerRecord {
-
+    access(all)
+    resource StakerRecord {
+        
         /// The unique ID of the staker
         /// Corresponds to the BloctoPass NFT ID
-        pub let id: UInt64
-
+        access(all)
+        let id: UInt64
+        
         /// The total tokens that only this staker currently has staked
-        pub var tokensStaked: @BloctoToken.Vault
-
+        access(all)
+        var tokensStaked: @BloctoToken.Vault
+        
         /// The tokens that this staker has committed to stake for the next epoch.
-        pub var tokensCommitted: @BloctoToken.Vault
-
+        access(all)
+        var tokensCommitted: @BloctoToken.Vault
+        
         /// Tokens that this staker is able to withdraw whenever they want
-        pub var tokensUnstaked: @BloctoToken.Vault
-
+        access(all)
+        var tokensUnstaked: @BloctoToken.Vault
+        
         /// Staking rewards are paid to this bucket
         /// Can be withdrawn whenever
-        pub var tokensRewarded: @BloctoToken.Vault
-
+        access(all)
+        var tokensRewarded:  @BloctoToken.Vault
+        
         /// The amount of tokens that this staker has requested to unstake for the next epoch
-        pub(set) var tokensRequestedToUnstake: UFix64
-
+        access(all)
+        var tokensRequestedToUnstake: UFix64
+        
         init(id: UInt64) {
             pre {
                 BloctoTokenStaking.stakers[id] == nil: "The ID cannot already exist in the record"
             }
-
             self.id = id
-
-            self.tokensCommitted <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
-            self.tokensStaked <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
-            self.tokensUnstaked <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
-            self.tokensRewarded <- BloctoToken.createEmptyVault() as! @BloctoToken.Vault
+            self.tokensCommitted <- BloctoToken.createEmptyVault(vaultType: Type<@BloctoToken.Vault>())
+            self.tokensStaked <- BloctoToken.createEmptyVault(vaultType: Type<@BloctoToken.Vault>())
+            self.tokensUnstaked <- BloctoToken.createEmptyVault(vaultType: Type<@BloctoToken.Vault>())
+            self.tokensRewarded <- BloctoToken.createEmptyVault(vaultType: Type<@BloctoToken.Vault>())
             self.tokensRequestedToUnstake = 0.0
-
             emit NewStakerCreated(stakerID: self.id, amountCommitted: self.tokensCommitted.balance)
         }
 
-        destroy() {
-            let bloctoTokenRef = BloctoTokenStaking.account.borrow<&BloctoToken.Vault>(from: BloctoToken.TokenStoragePath)!
-            BloctoTokenStaking.totalTokensStaked = BloctoTokenStaking.totalTokensStaked - self.tokensStaked.balance
-            bloctoTokenRef.deposit(from: <-self.tokensStaked)
-            bloctoTokenRef.deposit(from: <-self.tokensCommitted)
-            bloctoTokenRef.deposit(from: <-self.tokensUnstaked)
-            bloctoTokenRef.deposit(from: <-self.tokensRewarded)
-        }
-
         /// Utility Function that checks a staker's overall committed balance from its borrowed record
-        access(contract) fun stakerFullCommittedBalance(): UFix64 {
+        access(contract)
+        fun stakerFullCommittedBalance(): UFix64 {
             if (self.tokensCommitted.balance + self.tokensStaked.balance) < self.tokensRequestedToUnstake {
                 return 0.0
             } else {
                 return self.tokensCommitted.balance + self.tokensStaked.balance - self.tokensRequestedToUnstake
             }
         }
+
+        /// setter for tokensRequestedToUnstake
+        access(contract)
+        fun setTokensRequestedToUnstake(_ amount: UFix64){
+            self.tokensRequestedToUnstake = amount
+        }
+
+        /// Utility Function that auth tokensStaked withdraw
+        access(contract)
+        fun authTokensStakedWithdraw(): auth(FungibleToken.Withdraw) &BloctoToken.Vault{
+            return &self.tokensStaked
+        }
+
+        /// Utility Function that auth tokensCommitted withdraw
+        access(contract)
+        fun authTokensCommittedWithdraw(): auth(FungibleToken.Withdraw) &BloctoToken.Vault{
+            return &self.tokensCommitted
+        }
+
+        /// Utility Function that auth tokensUnstaked withdraw
+        access(contract)
+        fun authTokensUnstakedWithdraw(): auth(FungibleToken.Withdraw) &BloctoToken.Vault{
+            return &self.tokensUnstaked
+        }
+
+        /// Utility Function that auth tokensRewarded withdraw
+        access(contract)
+        fun authTokensRewardedWithdraw(): auth(FungibleToken.Withdraw) &BloctoToken.Vault{
+            return &self.tokensRewarded
+        }
+
     }
 
     /// Struct to create to get read-only info about a staker
-    pub struct StakerInfo {
-        pub let id: UInt64
-        pub let tokensStaked: UFix64
-        pub let tokensCommitted: UFix64
-        pub let tokensUnstaked: UFix64
-        pub let tokensRewarded: UFix64
-        pub let tokensRequestedToUnstake: UFix64
-
-        init(stakerID: UInt64) {
+    access(all)
+    struct StakerInfo {
+        access(all)
+        let id: UInt64
+        
+        access(all)
+        let tokensStaked: UFix64
+        
+        access(all)
+        let tokensCommitted: UFix64
+        
+        access(all)
+        let tokensUnstaked: UFix64
+        
+        access(all)
+        let tokensRewarded: UFix64
+        
+        access(all)
+        let tokensRequestedToUnstake: UFix64
+        
+        view init(stakerID: UInt64) {
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
 
             self.id = stakerRecord.id
@@ -129,35 +198,40 @@ pub contract BloctoTokenStaking {
             self.tokensRewarded = stakerRecord.tokensRewarded.balance
             self.tokensRequestedToUnstake = stakerRecord.tokensRequestedToUnstake
         }
-
-        pub fun totalTokensInRecord(): UFix64 {
+        
+        access(all)
+        view fun totalTokensInRecord(): UFix64 {
             return self.tokensStaked + self.tokensCommitted + self.tokensUnstaked + self.tokensRewarded
         }
     }
-
-    pub resource interface StakerPublic {
-        pub let id: UInt64
+    
+    access(all)
+    resource interface StakerPublic {
+        access(all)
+        let id: UInt64
     }
-
+    
     /// Resource that the staker operator controls for staking
-    pub resource Staker: StakerPublic {
-
+    access(all)
+    resource Staker: StakerPublic {
+        
         /// Unique ID for the staker operator
-        pub let id: UInt64
+        access(all)
+        let id: UInt64
 
         init(id: UInt64) {
             self.id = id
         }
 
         /// Add new tokens to the system to stake during the next epoch
-        pub fun stakeNewTokens(_ tokens: @FungibleToken.Vault) {
+        access(StakerEntitlement)
+        fun stakeNewTokens(_ tokens: @{FungibleToken.Vault}) {
             pre {
                 BloctoTokenStaking.stakingEnabled: "Cannot stake if the staking auction isn't in progress"
             }
 
             // Borrow the staker's record from the staking contract
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
-
             emit TokensCommitted(stakerID: stakerRecord.id, amount: tokens.balance)
 
             // Add the new tokens to tokens committed
@@ -165,50 +239,47 @@ pub contract BloctoTokenStaking {
         }
 
         /// Stake tokens that are in the tokensUnstaked bucket
-        pub fun stakeUnstakedTokens(amount: UFix64) {
+        access(StakerEntitlement)
+        fun stakeUnstakedTokens(amount: UFix64) {
             pre {
                 BloctoTokenStaking.stakingEnabled: "Cannot stake if the staking auction isn't in progress"
             }
-
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
-
             var remainingAmount = amount
 
             // If there are any tokens that have been requested to unstake for the current epoch,
             // cancel those first before staking new unstaked tokens
-            if remainingAmount <= stakerRecord.tokensRequestedToUnstake {
-                stakerRecord.tokensRequestedToUnstake = stakerRecord.tokensRequestedToUnstake - remainingAmount
+            if remainingAmount <= stakerRecord.tokensRequestedToUnstake  {
+                stakerRecord.setTokensRequestedToUnstake(stakerRecord.tokensRequestedToUnstake - remainingAmount)
                 remainingAmount = 0.0
-            } else if remainingAmount > stakerRecord.tokensRequestedToUnstake {
+            } else if remainingAmount > stakerRecord.tokensRequestedToUnstake  {
                 remainingAmount = remainingAmount - stakerRecord.tokensRequestedToUnstake
-                stakerRecord.tokensRequestedToUnstake = 0.0
+                stakerRecord.setTokensRequestedToUnstake(0.0)
             }
 
             // Commit the remaining amount from the tokens unstaked bucket
-            stakerRecord.tokensCommitted.deposit(from: <-stakerRecord.tokensUnstaked.withdraw(amount: remainingAmount))
-
+            stakerRecord.tokensCommitted.deposit(from: <- stakerRecord.authTokensUnstakedWithdraw().withdraw(amount: remainingAmount))
             emit TokensCommitted(stakerID: stakerRecord.id, amount: remainingAmount)
         }
-
+        
         /// Stake tokens that are in the tokensRewarded bucket
-        pub fun stakeRewardedTokens(amount: UFix64) {
+        access(StakerEntitlement)
+        fun stakeRewardedTokens(amount: UFix64) {
             pre {
                 BloctoTokenStaking.stakingEnabled: "Cannot stake if the staking auction isn't in progress"
             }
 
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
-
-            stakerRecord.tokensCommitted.deposit(from: <-stakerRecord.tokensRewarded.withdraw(amount: amount))
-
+            stakerRecord.tokensCommitted.deposit(from: <- stakerRecord.authTokensRewardedWithdraw().withdraw(amount: amount))
             emit TokensCommitted(stakerID: stakerRecord.id, amount: amount)
         }
 
         /// Request amount tokens to be removed from staking at the end of the next epoch
-        pub fun requestUnstaking(amount: UFix64) {
+        access(StakerEntitlement)
+        fun requestUnstaking(amount: UFix64) {
             pre {
                 BloctoTokenStaking.stakingEnabled: "Cannot unstake if the staking auction isn't in progress"
             }
-
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
 
             // If the request is greater than the total number of tokens
@@ -227,121 +298,122 @@ pub contract BloctoTokenStaking {
             if amountCommitted >= amount {
 
                 // withdraw the requested tokens from committed since they have not been staked yet
-                stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.tokensCommitted.withdraw(amount: amount))
-
+                stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.authTokensCommittedWithdraw().withdraw(amount: amount))
             } else {
                 let amountCommitted = stakerRecord.tokensCommitted.balance
 
                 // withdraw the requested tokens from committed since they have not been staked yet
-                stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.tokensCommitted.withdraw(amount: amountCommitted))
+                stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.authTokensCommittedWithdraw().withdraw(amount: amountCommitted))
 
                 // update request to show that leftover amount is requested to be unstaked
-                stakerRecord.tokensRequestedToUnstake = stakerRecord.tokensRequestedToUnstake + (amount - amountCommitted)
+                stakerRecord.setTokensRequestedToUnstake(stakerRecord.tokensRequestedToUnstake + (amount - amountCommitted))
             }
         }
 
         /// Requests to unstake all of the staker operators staked and committed tokens
         /// as well as all the staked and committed tokens of all of their delegators
-        pub fun unstakeAll() {
+        access(StakerEntitlement)
+        fun unstakeAll() {
             pre {
-                BloctoTokenStaking.stakingEnabled: "Cannot unstake if the staking auction isn't in progress"
+                BloctoTokenStaking.stakingEnabled:
+                    "Cannot unstake if the staking auction isn't in progress"
             }
-
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
 
             /// if the request can come from committed, withdraw from committed to unstaked
             /// withdraw the requested tokens from committed since they have not been staked yet
-            stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.tokensCommitted.withdraw(amount: stakerRecord.tokensCommitted.balance))
-
+            stakerRecord.tokensUnstaked.deposit(from: <- stakerRecord.authTokensCommittedWithdraw().withdraw(amount: stakerRecord.tokensCommitted.balance))
+            
             /// update request to show that leftover amount is requested to be unstaked
-            stakerRecord.tokensRequestedToUnstake = stakerRecord.tokensStaked.balance
+            stakerRecord.setTokensRequestedToUnstake(stakerRecord.tokensStaked.balance)
         }
 
         /// Withdraw tokens from the unstaked bucket
-        pub fun withdrawUnstakedTokens(amount: UFix64): @FungibleToken.Vault {
-
+        access(StakerEntitlement)
+        fun withdrawUnstakedTokens(amount: UFix64): @{FungibleToken.Vault} {
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
-
             emit UnstakedTokensWithdrawn(stakerID: stakerRecord.id, amount: amount)
-
-            return <- stakerRecord.tokensUnstaked.withdraw(amount: amount)
+            return <- stakerRecord.authTokensUnstakedWithdraw().withdraw(amount: amount)
         }
 
         /// Withdraw tokens from the rewarded bucket
-        pub fun withdrawRewardedTokens(amount: UFix64): @FungibleToken.Vault {
-
+        access(StakerEntitlement)
+        fun withdrawRewardedTokens(amount: UFix64): @{FungibleToken.Vault} {
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(self.id)
 
             emit RewardTokensWithdrawn(stakerID: stakerRecord.id, amount: amount)
 
-            return <- stakerRecord.tokensRewarded.withdraw(amount: amount)
+            return <- stakerRecord.authTokensRewardedWithdraw().withdraw(amount: amount)
         }
     }
-
+    
     /// Admin resource that has the ability to create new staker objects and pay rewards
     /// to stakers at the end of an epoch
-    pub resource Admin {
-
+    access(all)
+    resource Admin {
+        
         /// A staker record is created when a BloctoPass NFT is created
         /// It returns the resource for stakers that they can store in their account storage
-        pub fun addStakerRecord(id: UInt64): @Staker {
+        access(AdminEntitlement)
+        fun addStakerRecord(id: UInt64): @Staker {
             pre {
-                BloctoTokenStaking.stakingEnabled: "Cannot register a staker operator if the staking auction isn't in progress"
+                BloctoTokenStaking.stakingEnabled:
+                    "Cannot register a staker operator if the staking auction isn't in progress"
             }
-
             let newStakerRecord <- create StakerRecord(id: id)
-
+            
             // Insert the staker to the table
             BloctoTokenStaking.stakers[id] <-! newStakerRecord
-
+            
             // return a new Staker object that the staker operator stores in their account
             return <-create Staker(id: id)
         }
-
+        
         /// Starts the staking auction, the period when stakers and delegators
         /// are allowed to perform staking related operations
-        pub fun startNewEpoch() {
+        access(AdminEntitlement)
+        fun startNewEpoch() {
             BloctoTokenStaking.stakingEnabled = true
-            BloctoTokenStaking.setEpoch(BloctoTokenStaking.getEpoch() + (1 as UInt64))
+            BloctoTokenStaking.setEpoch(BloctoTokenStaking.getEpoch() + 1)
             emit NewEpoch(epoch: BloctoTokenStaking.getEpoch(), totalStaked: BloctoTokenStaking.getTotalStaked(), totalRewardPayout: BloctoTokenStaking.epochTokenPayout)
         }
 
         /// Starts the staking auction, the period when stakers and delegators
         /// are allowed to perform staking related operations
-        pub fun startStakingAuction() {
+        access(AdminEntitlement)
+        fun startStakingAuction() {
             BloctoTokenStaking.stakingEnabled = true
         }
 
         /// Ends the staking Auction by removing any unapproved stakers
         /// and setting stakingEnabled to false
-        pub fun endStakingAuction() {
+        access(AdminEntitlement)
+        fun endStakingAuction() {
             BloctoTokenStaking.stakingEnabled = false
         }
 
         /// Called at the end of the epoch to pay rewards to staker operators
         /// based on the tokens that they have staked
-        pub fun payRewards(_ stakerIDs: [UInt64]) {
+        access(AdminEntitlement)
+        fun payRewards(_ stakerIDs: [UInt64]) {
             pre {
                 !BloctoTokenStaking.stakingEnabled: "Cannot pay rewards if the staking auction is still in progress"
             }
-
-            let BloctoTokenMinter = BloctoTokenStaking.account.borrow<&BloctoToken.Minter>(from: /storage/bloctoTokenStakingMinter)
+            let BloctoTokenMinter = BloctoTokenStaking.account.storage.borrow<auth(BloctoToken.MinterEntitlement) &BloctoToken.Minter>(from: /storage/bloctoTokenStakingMinter)
                 ?? panic("Could not borrow minter reference")
 
             // calculate the total number of tokens staked
             var totalStaked = BloctoTokenStaking.getTotalStaked()
-
             if totalStaked == 0.0 {
                 return
             }
             var totalRewardScale = BloctoTokenStaking.epochTokenPayout / totalStaked
-
             let epoch = BloctoTokenStaking.getEpoch()
             let epochPath = BloctoTokenStaking.getStakingRewardPath(epoch: epoch)
-            var stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: epochPath)
+            var stakingRewardRecordsRefOpt = BloctoTokenStaking.account.storage.borrow<auth(Mutate) &{String: Bool}>(from: epochPath)
             if stakingRewardRecordsRefOpt == nil {
-                BloctoTokenStaking.account.save<{String: Bool}>({} as {String: Bool}, to: epochPath)
-                stakingRewardRecordsRefOpt = BloctoTokenStaking.account.borrow<&{String: Bool}>(from: epochPath)
+                BloctoTokenStaking.account.storage.save<{String: Bool}>({} as {String: Bool}, to: epochPath)
+                stakingRewardRecordsRefOpt = BloctoTokenStaking.account.storage.borrow<auth(Mutate) &{String: Bool}>(from: epochPath)
             }
             var stakingRewardRecordsRef = stakingRewardRecordsRefOpt!
 
@@ -353,15 +425,10 @@ pub contract BloctoTokenStaking {
                     continue
                 }
                 stakingRewardRecordsRef[key] = true
-
                 let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
-
                 if stakerRecord.tokensStaked.balance == 0.0 { continue }
-
                 let rewardAmount = stakerRecord.tokensStaked.balance * totalRewardScale
-
                 if rewardAmount == 0.0 { continue }
-
                 emit RewardsPaid(stakerID: stakerRecord.id, amount: rewardAmount)
 
                 /// Deposit the staker Rewards into their tokensRewarded bucket
@@ -374,11 +441,11 @@ pub contract BloctoTokenStaking {
         /// Tokens that have been committed are moved to the staked bucket
         /// Tokens that were unstaking during the last epoch are fully unstaked
         /// Unstaking requests are filled by moving those tokens from staked to unstaking
-        pub fun moveTokens(_ stakerIDs: [UInt64]) {
+        access(AdminEntitlement)
+        fun moveTokens(_ stakerIDs: [UInt64]) {
             pre {
                 !BloctoTokenStaking.stakingEnabled: "Cannot move tokens if the staking auction is still in progress"
             }
-
             for stakerID in stakerIDs {
                 // get staker record
                 let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
@@ -389,62 +456,66 @@ pub contract BloctoTokenStaking {
                 // mark the committed tokens as staked
                 if stakerRecord.tokensCommitted.balance > 0.0 {
                     emit TokensStaked(stakerID: stakerRecord.id, amount: stakerRecord.tokensCommitted.balance)
-                    stakerRecord.tokensStaked.deposit(from: <-stakerRecord.tokensCommitted.withdraw(amount: stakerRecord.tokensCommitted.balance))
+                    stakerRecord.tokensStaked.deposit(from: <-stakerRecord.authTokensCommittedWithdraw().withdraw(amount: stakerRecord.tokensCommitted.balance))
                 }
 
                 // unstake the requested tokens and move them to tokensUnstaking
                 if stakerRecord.tokensRequestedToUnstake > 0.0 {
                     emit TokensUnstaked(stakerID: stakerRecord.id, amount: stakerRecord.tokensRequestedToUnstake)
-                    stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.tokensStaked.withdraw(amount: stakerRecord.tokensRequestedToUnstake))
+                    stakerRecord.tokensUnstaked.deposit(from: <-stakerRecord.authTokensStakedWithdraw().withdraw(amount: stakerRecord.tokensRequestedToUnstake))
 
                     // subtract their requested tokens from the total staked for their staker type
                     BloctoTokenStaking.totalTokensStaked = BloctoTokenStaking.totalTokensStaked - stakerRecord.tokensRequestedToUnstake
-
+                    
                     // Reset the tokens requested field so it can be used for the next epoch
-                    stakerRecord.tokensRequestedToUnstake = 0.0
+                    stakerRecord.setTokensRequestedToUnstake(0.0)
                 }
-
                 emit MoveToken(stakerID: stakerID)
             }
         }
 
         /// Changes the total weekly payout to a new value
-        pub fun setEpochTokenPayout(_ newPayout: UFix64) {
+        access(AdminEntitlement)
+        fun setEpochTokenPayout(_ newPayout: UFix64) {
             BloctoTokenStaking.epochTokenPayout = newPayout
-
             emit NewWeeklyPayout(newPayout: newPayout)
+        }
+
+        access(AdminEntitlement)
+        fun createNewAdmin(): @Admin {
+            emit AdminCreated()
+            return <-create Admin()
         }
     }
 
     /// borrow a reference to to one of the stakers in the record
-    access(account) fun borrowStakerRecord(_ stakerID: UInt64): &StakerRecord {
+    access(account)
+    view fun borrowStakerRecord(_ stakerID: UInt64): &StakerRecord {
         pre {
             BloctoTokenStaking.stakers[stakerID] != nil:
                 "Specified staker ID does not exist in the record"
         }
-        return( &BloctoTokenStaking.stakers[stakerID] as! &StakerRecord?)!
+        return (&BloctoTokenStaking.stakers[stakerID] as &StakerRecord?)!
     }
 
     /// Gets an array of all the stakerIDs that are staked.
     /// Only stakers that are participating in the current epoch
     /// can be staked, so this is an array of all the active stakers
-    pub fun getStakedStakerIDs(): [UInt64] {
+    access(all)
+    fun getStakedStakerIDs(): [UInt64] {
         var stakers: [UInt64] = []
-
         for stakerID in BloctoTokenStaking.getStakerIDs() {
             let stakerRecord = BloctoTokenStaking.borrowStakerRecord(stakerID)
-
-            if stakerRecord.tokensStaked.balance > 0.0
-            {
+            if stakerRecord.tokensStaked.balance > 0.0 {
                 stakers.append(stakerID)
             }
         }
-
         return stakers
     }
 
     /// Gets an slice of stakerIDs who's staking balance > 0
-    pub fun getStakedStakerIDsSlice(start: UInt64, end: UInt64): [UInt64] {
+    access(all)
+    fun getStakedStakerIDsSlice(start: UInt64, end: UInt64): [UInt64] {
         // all staker ids
         var allStakerIDs: [UInt64] = BloctoTokenStaking.getStakerIDs()
 
@@ -465,12 +536,14 @@ pub contract BloctoTokenStaking {
     }
 
     /// Gets an array of all the staker IDs that have ever registered
-    pub fun getStakerIDs(): [UInt64] {
+    access(all)
+    fun getStakerIDs(): [UInt64] {
         return BloctoTokenStaking.stakers.keys
     }
 
     /// Gets an slice of stakerIDs who's staking balance > 0
-    pub fun getStakerIDsSlice(start: UInt64, end: UInt64): [UInt64] {
+    access(all)
+    fun getStakerIDsSlice(start: UInt64, end: UInt64): [UInt64] {
         // all staker ids
         var allStakerIDs: [UInt64] = BloctoTokenStaking.getStakerIDs()
 
@@ -487,52 +560,60 @@ pub contract BloctoTokenStaking {
     }
 
     /// Gets staker id count
-    pub fun getStakerIDCount(): Int {
+    access(all)
+    fun getStakerIDCount(): Int {
         return BloctoTokenStaking.stakers.keys.length
     }
 
     /// Gets the token payout value for the current epoch
-    pub fun getEpochTokenPayout(): UFix64 {
+    access(all)
+    fun getEpochTokenPayout(): UFix64 {
         return self.epochTokenPayout
     }
 
-    pub fun getStakingEnabled(): Bool {
+    access(all)
+    fun getStakingEnabled(): Bool {
         return self.stakingEnabled
     }
 
     /// Gets the total number of BLT that is currently staked
     /// by all of the staked stakers in the current epoch
-    pub fun getTotalStaked(): UFix64 {
+    access(all)
+    fun getTotalStaked(): UFix64 {
         return BloctoTokenStaking.totalTokensStaked
     }
 
     /// Epoch
-    pub fun getEpoch(): UInt64 {
-        return self.account.copy<UInt64>(from: /storage/bloctoTokenStakingEpoch) ?? (0 as UInt64)
+    access(all)
+    fun getEpoch(): UInt64 {
+        return self.account.storage.copy<UInt64>(from: /storage/bloctoTokenStakingEpoch) ?? 0
     }
 
-    access(contract) fun setEpoch(_ epoch: UInt64) {
-        self.account.load<UInt64>(from: /storage/bloctoTokenStakingEpoch)
-        self.account.save<UInt64>(epoch, to: /storage/bloctoTokenStakingEpoch)
+    access(contract)
+    fun setEpoch(_ epoch: UInt64) {
+        self.account.storage.load<UInt64>(from: /storage/bloctoTokenStakingEpoch)
+        self.account.storage.save<UInt64>(epoch, to: /storage/bloctoTokenStakingEpoch)
     }
-
-    access(contract) fun getStakingRewardKey(epoch: UInt64, stakerID: UInt64): String {
+    
+    access(contract)
+    fun getStakingRewardKey(epoch: UInt64, stakerID: UInt64): String {
         // key: {EPOCH}_{STAKER_ID}
         return epoch.toString().concat("_").concat(stakerID.toString())
     }
 
-    access(contract) fun getStakingRewardPath(epoch: UInt64): StoragePath {
+    access(contract)
+    fun getStakingRewardPath(epoch: UInt64): StoragePath {
         // path: /storage/bloctoTokenStakingStakingRewardRecords_{EPOCH}
         return StoragePath(identifier: "bloctoTokenStakingStakingRewardRecords".concat("_").concat(epoch.toString()))!
     }
 
     /// staking reward records
-    pub fun hasSentStakingReward(epoch: UInt64, stakerID: UInt64): Bool {
-        let stakingRewardRecordsRef = self.account.borrow<&{String: Bool}>(from: BloctoTokenStaking.getStakingRewardPath(epoch: epoch))
+    access(all)
+    fun hasSentStakingReward(epoch: UInt64, stakerID: UInt64): Bool {
+        let stakingRewardRecordsRef = self.account.storage.borrow<&{String: Bool}>(from: BloctoTokenStaking.getStakingRewardPath(epoch: epoch))
         if stakingRewardRecordsRef == nil {
             return false
         }
-
         let key = BloctoTokenStaking.getStakingRewardKey(epoch: epoch, stakerID: stakerID)
         if stakingRewardRecordsRef![key] == nil {
             return false
@@ -551,6 +632,6 @@ pub contract BloctoTokenStaking {
         self.totalTokensStaked = 0.0
         self.epochTokenPayout = 1.0
 
-        self.account.save(<-create Admin(), to: self.StakingAdminStoragePath)
+        self.account.storage.save(<-create Admin(), to: self.StakingAdminStoragePath)
     }
 }

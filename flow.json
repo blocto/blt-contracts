@@ -9,21 +9,25 @@
 		"BloctoPass": {
 			"source": "./contracts/flow/token/BloctoPass.cdc",
 			"aliases": {
-				"mainnet": "0f9df91c9121c460"
+				"mainnet": "0f9df91c9121c460",
+				"testing": "0000000000000007",
+				"testnet": "653cfe36d146e7be"
 			}
 		},
 		"BloctoPassStamp": {
 			"source": "./contracts/flow/token/BloctoPassStamp.cdc",
 			"aliases": {
-				"mainnet": "0f9df91c9121c460"
+				"mainnet": "0f9df91c9121c460",
+				"testing": "0000000000000007",
+				"testnet": "653cfe36d146e7be"
 			}
 		},
 		"BloctoToken": {
 			"source": "./contracts/flow/token/BloctoToken.cdc",
 			"aliases": {
-				"testing": "0x0000000000000007",
 				"mainnet": "0f9df91c9121c460",
-				"testnet": "0x653cfe36d146e7be"
+				"testing": "0000000000000007",
+				"testnet": "653cfe36d146e7be"
 			}
 		},
 		"BloctoTokenMining": "./contracts/flow/mining/BloctoTokenMining.cdc",
@@ -42,7 +46,9 @@
 		"BloctoTokenStaking": {
 			"source": "./contracts/flow/staking/BloctoTokenStaking.cdc",
 			"aliases": {
-				"mainnet": "0f9df91c9121c460"
+				"mainnet": "0f9df91c9121c460",
+				"testing": "0000000000000007",
+				"testnet": "653cfe36d146e7be"
 			}
 		},
 		"BltUsdtSwapPair": {
@@ -101,6 +107,16 @@
 			"hash": "71af18e227984cd434a3ad00bb2f3618b76482842bae920ee55662c37c8bf331",
 			"aliases": {
 				"testnet": "9a0766d93b6608b7"
+			}
+		},
+		"FlowToken": {
+			"source": "testnet://7e60df042a9c0868.FlowToken",
+			"hash": "a7b219cf8596c1116aa219bb31535faa79ebf5e02d16fa594acd0398057674e1",
+			"aliases": {
+				"emulator": "0ae53cb6e3f42a79",
+				"mainnet": "1654653399040a61",
+				"previewnet": "4445e7ad11568276",
+				"testnet": "7e60df042a9c0868"
 			}
 		},
 		"FungibleToken": {
@@ -308,7 +324,10 @@
 		},
 		"testnet": {
 			"blt-admin-crescendo-testnet": [
-				"BloctoToken"
+				"BloctoToken",
+				"BloctoTokenStaking",
+				"BloctoPassStamp",
+				"BloctoPass"
 			],
 			"blt-admin-new-testnet": [
 				"BloctoPassStamp",

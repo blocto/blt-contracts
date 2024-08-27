@@ -1,5 +1,6 @@
-import BloctoTokenStaking from "../../contracts/flow/staking/BloctoTokenStaking.cdc"
+import "BloctoTokenStaking"
 
-pub fun main(): UFix64 {
+access(all)
+fun main(): UFix64 {
   return BloctoTokenStaking.getEpochTokenPayout()
 }

@@ -1,18 +1,19 @@
-import NonFungibleToken from "../../contracts/flow/token/NonFungibleToken.cdc"
-import BloctoPass from "../../contracts/flow/token/BloctoPass.cdc"
+import "NonFungibleToken"
+import "BloctoPass"
 
 transaction {
 
-    prepare(signer: AuthAccount) {
-        if signer.borrow<&BloctoPass.Collection>(from: BloctoPass.CollectionStoragePath) == nil {
+    prepare(signer:  auth(BorrowValue, SaveValue, Capabilities) &Account) {
+        if signer.storage.borrow<&BloctoPass.Collection>(from: BloctoPass.CollectionStoragePath) == nil {
 
-            let collection <- BloctoPass.createEmptyCollection() as! @BloctoPass.Collection
+            let collection <- BloctoPass.createEmptyCollection(nftType: Type<@BloctoPass.NFT>()) as! @BloctoPass.Collection
 
-            signer.save(<-collection, to: BloctoPass.CollectionStoragePath)
+            signer.storage.save(<-collection, to: BloctoPass.CollectionStoragePath)
 
-            signer.link<&{NonFungibleToken.CollectionPublic, BloctoPass.CollectionPublic}>(
-                BloctoPass.CollectionPublicPath,
-                target: BloctoPass.CollectionStoragePath)
+            // create a public capability for the collection
+            signer.capabilities.unpublish(BloctoPass.CollectionPublicPath)
+            let collectionCap = signer.capabilities.storage.issue<&BloctoPass.Collection>(BloctoPass.CollectionStoragePath)
+            signer.capabilities.publish(collectionCap, at: BloctoPass.CollectionPublicPath)
         }
     }
 }
