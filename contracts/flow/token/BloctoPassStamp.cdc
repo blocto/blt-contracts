@@ -69,7 +69,9 @@ contract BloctoPassStamp: NonFungibleToken {
 
         access(all) view fun getViews(): [Type] {
             return [
-                Type<MetadataViews.Display>()
+                Type<MetadataViews.Display>(),
+                Type<MetadataViews.NFTCollectionData>(),
+                Type<MetadataViews.NFTCollectionDisplay>()
             ]
         }
 
@@ -83,6 +85,10 @@ contract BloctoPassStamp: NonFungibleToken {
                             url: "https://blocto.io/"
                         )
                     )
+                 case Type<MetadataViews.NFTCollectionData>():
+                    return BloctoPassStamp.resolveContractView(resourceType: Type<@BloctoPassStamp.NFT>(), viewType: Type<MetadataViews.NFTCollectionData>())
+                case Type<MetadataViews.NFTCollectionDisplay>():
+                    return BloctoPassStamp.resolveContractView(resourceType: Type<@BloctoPassStamp.NFT>(), viewType: Type<MetadataViews.NFTCollectionDisplay>())
             }
             return nil
         }

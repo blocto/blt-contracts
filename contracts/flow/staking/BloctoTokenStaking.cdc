@@ -52,6 +52,10 @@ contract BloctoTokenStaking {
     /// Contract Field Change Events
     access(all)
     event NewWeeklyPayout(newPayout: UFix64)
+
+    /// Contract Field Change Events
+    access(all)
+    event AdminCreated()
     
     /// Holds the identity table for all the stakers in the network.
     /// Includes stakers that aren't actively participating
@@ -479,6 +483,7 @@ contract BloctoTokenStaking {
 
         access(AdminEntitlement)
         fun createNewAdmin(): @Admin {
+            emit AdminCreated()
             return <-create Admin()
         }
     }
