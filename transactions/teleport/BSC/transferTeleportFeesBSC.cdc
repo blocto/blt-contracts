@@ -1,13 +1,13 @@
 import "FungibleToken"
 import "BloctoToken"
-import "TeleportCustodySolana"
+import "TeleportCustodyBSC"
 
 transaction(target: Address) {
   // The teleport admin reference
-  let teleportAdminRef: &TeleportCustodySolana.TeleportAdmin
+  let teleportAdminRef: auth(TeleportCustodyBSC.AdminEntitlement) &TeleportCustodyBSC.TeleportAdmin
 
-  prepare(teleportAdmin: AuthAccount) {
-    self.teleportAdminRef = teleportAdmin.borrow<&TeleportCustodySolana.TeleportAdmin>(from: TeleportCustodySolana.TeleportAdminStoragePath)
+  prepare(teleportAdmin: auth(BorrowValue) &Account) {
+    self.teleportAdminRef = teleportAdmin.storage.borrow<auth(TeleportCustodyBSC.AdminEntitlement) &TeleportCustodyBSC.TeleportAdmin>(from: TeleportCustodyBSC.TeleportAdminStoragePath)
         ?? panic("Could not borrow a reference to the teleport admin resource")
   }
 
@@ -18,8 +18,7 @@ transaction(target: Address) {
     let recipient = getAccount(target)
 
     // Get a reference to the recipient's Receiver
-    let receiverRef = recipient.getCapability(BloctoToken.TokenPublicReceiverPath)
-      .borrow<&{FungibleToken.Receiver}>()
+    let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(BloctoToken.TokenPublicReceiverPath)
       ?? panic("Could not borrow receiver reference to the recipient's Vault")
 
     // Deposit the withdrawn tokens in the recipient's receiver

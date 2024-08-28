@@ -1,13 +1,13 @@
 import "FungibleToken"
 import "BloctoToken"
-import "TeleportCustodyBSC"
+import "TeleportCustodyAptos"
 
 transaction(target: Address) {
   // The teleport admin reference
-  let teleportAdminRef: auth(TeleportCustodyBSC.AdminEntitlement) &{TeleportCustodyBSC.TeleportUser}
+  let teleportAdminRef: auth(TeleportCustodyAptos.AdminEntitlement) &TeleportCustodyAptos.TeleportAdmin
 
   prepare(teleportAdmin: auth(BorrowValue) &Account) {
-    self.teleportAdminRef = teleportAdmin.borrow<auth(TeleportCustodyBSC.AdminEntitlement) &{TeleportCustodyBSC.TeleportUser}>(from: TeleportCustodyBSC.TeleportAdminStoragePath)
+    self.teleportAdminRef = teleportAdmin.storage.borrow<auth(TeleportCustodyAptos.AdminEntitlement) &TeleportCustodyAptos.TeleportAdmin>(from: TeleportCustodyAptos.TeleportAdminStoragePath)
         ?? panic("Could not borrow a reference to the teleport admin resource")
   }
 

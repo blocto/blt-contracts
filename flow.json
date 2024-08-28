@@ -68,7 +68,8 @@
 		"TeleportCustodyAptos": {
 			"source": "./contracts/flow/teleport/TeleportCustodyAptos.cdc",
 			"aliases": {
-				"mainnet": "714000cf4dd1c4ed"
+				"mainnet": "714000cf4dd1c4ed",
+				"testing": "0000000000000007"
 			}
 		},
 		"TeleportCustodyBSC": {
@@ -84,14 +85,16 @@
 			"source": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
 			"aliases": {
 				"mainnet": "0ac14a822e54cc4e",
-				"testnet": "967a0fb3c949cbc5"
+				"testnet": "967a0fb3c949cbc5",
+				"testing": "0000000000000007"
 			}
 		},
 		"TeleportCustodySolana": {
 			"source": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
 			"aliases": {
 				"mainnet": "0ac14a822e54cc4e",
-				"testnet": "967a0fb3c949cbc5"
+				"testnet": "967a0fb3c949cbc5",
+				"testing": "0000000000000007"
 			}
 		},
 		"TeleportedTetherToken": {
@@ -314,15 +317,11 @@
 	"deployments": {
 		"emulator": {
 			"blt-admin-emulator": [
-				"BloctoPass",
-				"BloctoPassStamp",
 				"BloctoToken",
-				"BloctoTokenMining",
-				"BloctoTokenSale",
-				"BloctoTokenStaking",
-				"NonFungibleToken",
-				"TeleportedTetherToken"
-				"TeleportCustodyBSC"
+				"TeleportCustodyBSC",
+				"TeleportCustodyEthereum",
+				"TeleportCustodySolana",
+				"TeleportCustodyAptos"
 			]
 		},
 		"testnet": {
@@ -330,7 +329,11 @@
 				"BloctoToken",
 				"BloctoTokenStaking",
 				"BloctoPassStamp",
-				"BloctoPass"
+				"BloctoPass",
+				"TeleportCustodyBSC",
+				"TeleportCustodyEthereum",
+				"TeleportCustodySolana",
+				"TeleportCustodyAptos"
 			],
 			"blt-admin-new-testnet": [
 				"BloctoPassStamp",

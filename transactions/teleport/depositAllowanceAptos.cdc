@@ -1,4 +1,4 @@
-import TeleportCustodyAptos from "../../contracts/flow/teleport/TeleportCustodyAptos.cdc"
+import "TeleportCustodyAptos"
 
 transaction(teleportAdmin: Address, allowedAmount: UFix64) {
   prepare(admin: AuthAccount) {
