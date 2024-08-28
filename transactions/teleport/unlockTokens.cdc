@@ -1,5 +1,5 @@
-import FungibleToken from "../../contracts/flow/token/FungibleToken.cdc"
-import BloctoToken from "../../contracts/flow/token/BloctoToken.cdc"
+import "FungibleToken"
+import "BloctoToken"
 import TeleportCustody from "../../contracts/flow/teleport/TeleportCustody.cdc"
 
 transaction(amount: UFix64, target: Address, from: String, hash: String) {

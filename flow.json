@@ -68,28 +68,33 @@
 		"TeleportCustodyAptos": {
 			"source": "./contracts/flow/teleport/TeleportCustodyAptos.cdc",
 			"aliases": {
-				"mainnet": "714000cf4dd1c4ed"
+				"mainnet": "714000cf4dd1c4ed",
+				"testing": "0000000000000007"
 			}
 		},
 		"TeleportCustodyBSC": {
 			"source": "./contracts/flow/teleport/TeleportCustodyBSC.cdc",
 			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
 				"mainnet": "0ac14a822e54cc4e",
-				"testnet": "967a0fb3c949cbc5"
+				"testnet": "967a0fb3c949cbc5",
+				"testing": "0000000000000007"
 			}
 		},
 		"TeleportCustodyEthereum": {
 			"source": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
 			"aliases": {
 				"mainnet": "0ac14a822e54cc4e",
-				"testnet": "967a0fb3c949cbc5"
+				"testnet": "967a0fb3c949cbc5",
+				"testing": "0000000000000007"
 			}
 		},
 		"TeleportCustodySolana": {
 			"source": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
 			"aliases": {
 				"mainnet": "0ac14a822e54cc4e",
-				"testnet": "967a0fb3c949cbc5"
+				"testnet": "967a0fb3c949cbc5",
+				"testing": "0000000000000007"
 			}
 		},
 		"TeleportedTetherToken": {
@@ -183,7 +188,7 @@
 			"key": "600c63b7dd45898b8411d9e2d2717987bbadda02aa10e9cd29f49ebe6d8ed047"
 		},
 		"blt-admin-emulator": {
-			"address": "f3fcd2c1a78f5eee",
+			"address": "f8d6e0586b0a20c7",
 			"key": "eb4347b08ebd2f74d38bec1026b07430fe04510c95afe8534735677a3410dd87"
 		},
 		"blt-admin-exp-testnet": {
@@ -312,14 +317,11 @@
 	"deployments": {
 		"emulator": {
 			"blt-admin-emulator": [
-				"BloctoPass",
-				"BloctoPassStamp",
 				"BloctoToken",
-				"BloctoTokenMining",
-				"BloctoTokenSale",
-				"BloctoTokenStaking",
-				"NonFungibleToken",
-				"TeleportedTetherToken"
+				"TeleportCustodyBSC",
+				"TeleportCustodyEthereum",
+				"TeleportCustodySolana",
+				"TeleportCustodyAptos"
 			]
 		},
 		"testnet": {
@@ -327,7 +329,11 @@
 				"BloctoToken",
 				"BloctoTokenStaking",
 				"BloctoPassStamp",
-				"BloctoPass"
+				"BloctoPass",
+				"TeleportCustodyBSC",
+				"TeleportCustodyEthereum",
+				"TeleportCustodySolana",
+				"TeleportCustodyAptos"
 			],
 			"blt-admin-new-testnet": [
 				"BloctoPassStamp",

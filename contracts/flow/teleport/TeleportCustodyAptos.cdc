@@ -2,7 +2,7 @@ import "FungibleToken"
 import "BloctoToken"
 
 access(all)
-contract TeleportCustodyEthereum { 
+contract TeleportCustodyAptos {
   access(all)entitlement AdministratorEntitlement
   access(all)entitlement AdminEntitlement
 
@@ -40,17 +40,17 @@ contract TeleportCustodyEthereum {
   var isFrozen: Bool
   
   access(contract)
-  var unlocked:{ String: Bool}
+  var unlocked: { String: Bool}
   
   access(contract)
   let lockVault: @BloctoToken.Vault
   
   access(all)
-  resource Allowance{ 
+  resource Allowance { 
     access(all)
     var balance: UFix64
     
-    init(balance: UFix64){ 
+    init(balance: UFix64) { 
       self.balance = balance
     }
   }
@@ -64,13 +64,13 @@ contract TeleportCustodyEthereum {
     }
     
     access(AdministratorEntitlement)
-    fun freeze(){ 
-      TeleportCustodyEthereum.isFrozen = true
+    fun freeze() { 
+      TeleportCustodyAptos.isFrozen = true
     }
     
     access(AdministratorEntitlement)
-    fun unfreeze(){ 
-      TeleportCustodyEthereum.isFrozen = false
+    fun unfreeze() { 
+      TeleportCustodyAptos.isFrozen = false
     }
     
     access(AdministratorEntitlement)
@@ -129,16 +129,16 @@ contract TeleportCustodyEthereum {
     access(all)
     fun lock(from: @{FungibleToken.Vault}, to: [UInt8]) { 
       pre { 
-        !TeleportCustodyEthereum.isFrozen:
+        !TeleportCustodyAptos.isFrozen:
           "Teleport service is frozen"
-        to.length == TeleportCustodyEthereum.teleportAddressLength:
+        to.length == TeleportCustodyAptos.teleportAddressLength:
           "Teleport address should be teleportAddressLength bytes"
       }
       let vault <- from as! @BloctoToken.Vault
       let fee <- vault.withdraw(amount: self.lockFee)
       self.feeCollector.deposit(from: <-fee)
       let amount = vault.balance
-      TeleportCustodyEthereum.lockVault.deposit(from: <-vault)
+      TeleportCustodyAptos.lockVault.deposit(from: <-vault)
       emit Locked(amount: amount, to: to)
       emit FeeCollected(amount: self.lockFee, type: 0)
     }
@@ -146,23 +146,23 @@ contract TeleportCustodyEthereum {
     access(AdminEntitlement)
     fun unlock(amount: UFix64, from: [UInt8], txHash: String): @{FungibleToken.Vault} { 
       pre { 
-        !TeleportCustodyEthereum.isFrozen:
+        !TeleportCustodyAptos.isFrozen:
           "Teleport service is frozen"
         amount <= self.allowedAmount:
           "Amount unlocked must be less than the allowed amount"
         amount > self.unlockFee:
           "Amount unlocked must be greater than unlock fee"
-        from.length == TeleportCustodyEthereum.teleportAddressLength:
+        from.length == TeleportCustodyAptos.teleportAddressLength:
           "Teleport address should be teleportAddressLength bytes"
-        txHash.length == TeleportCustodyEthereum.teleportTxHashLength:
+        txHash.length == TeleportCustodyAptos.teleportTxHashLength:
           "Teleport tx hash should be teleportTxHashLength bytes"
-        !(TeleportCustodyEthereum.unlocked[txHash] ?? false):
+        !(TeleportCustodyAptos.unlocked[txHash] ?? false):
           "Same unlock txHash has been executed"
       }
       self.allowedAmount = self.allowedAmount - amount
-      TeleportCustodyEthereum.unlocked[txHash] = true
+      TeleportCustodyAptos.unlocked[txHash] = true
       emit Unlocked(amount: amount, from: from, txHash: txHash)
-      let vault <- TeleportCustodyEthereum.lockVault.withdraw(amount: amount)
+      let vault <- TeleportCustodyAptos.lockVault.withdraw(amount: amount)
       let fee <- vault.withdraw(amount: self.unlockFee)
       self.feeCollector.deposit(from: <-fee)
       emit FeeCollected(amount: self.unlockFee, type: 1)
@@ -185,7 +185,7 @@ contract TeleportCustodyEthereum {
     }
     
     access(all)
-    fun getFeeAmount(): UFix64{  
+    fun getFeeAmount(): UFix64 { 
       return self.feeCollector.balance
     }
     
@@ -198,27 +198,30 @@ contract TeleportCustodyEthereum {
     init(allowedAmount: UFix64) { 
       self.allowedAmount = allowedAmount
       self.feeCollector <- BloctoToken.createEmptyVault(vaultType: Type<@BloctoToken.Vault>()) as! @BloctoToken.Vault
-      self.lockFee = 3.0
+      self.lockFee = 1.0
       self.unlockFee = 0.01
     }
   }
   
   access(all)
   fun getLockVaultBalance(): UFix64 { 
-    return TeleportCustodyEthereum.lockVault.balance
+    return TeleportCustodyAptos.lockVault.balance
   }
   
   init() { 
-    self.teleportAddressLength = 20
+    // Aptos address length
+    self.teleportAddressLength = 32
+    
+    // Aptos tx hash length
     self.teleportTxHashLength = 64
-    self.AdminStoragePath = /storage/teleportCustodyEthereumAdmin
-    self.TeleportAdminStoragePath = /storage/teleportCustodyEthereumTeleportAdmin
-    self.TeleportAdminTeleportUserPath = /public/teleportCustodyEthereumTeleportUser
-    self.TeleportAdminTeleportControlPath = /private/teleportCustodyEthereumTeleportControl
+    self.AdminStoragePath = /storage/teleportCustodyAptosAdmin
+    self.TeleportAdminStoragePath = /storage/teleportCustodyAptosTeleportAdmin
+    self.TeleportAdminTeleportUserPath = /public/teleportCustodyAptosTeleportUser
+    self.TeleportAdminTeleportControlPath = /private/teleportCustodyAptosTeleportControl
     self.isFrozen = false
     self.unlocked = {} 
     self.lockVault <- BloctoToken.createEmptyVault(vaultType: Type<@BloctoToken.Vault>()) as! @BloctoToken.Vault
-    let admin: @TeleportCustodyEthereum.Administrator <- create Administrator()
+    let admin <- create Administrator()
     self.account.storage.save(<-admin, to: self.AdminStoragePath)
   }
 }
