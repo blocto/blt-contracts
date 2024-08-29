@@ -69,6 +69,7 @@
 			"source": "./contracts/flow/teleport/TeleportCustodyAptos.cdc",
 			"aliases": {
 				"mainnet": "714000cf4dd1c4ed",
+				"testnet": "653cfe36d146e7be",
 				"testing": "0000000000000007"
 			}
 		},
@@ -77,7 +78,7 @@
 			"aliases": {
 				"emulator": "f8d6e0586b0a20c7",
 				"mainnet": "0ac14a822e54cc4e",
-				"testnet": "967a0fb3c949cbc5",
+				"testnet": "653cfe36d146e7be",
 				"testing": "0000000000000007"
 			}
 		},
@@ -85,7 +86,7 @@
 			"source": "./contracts/flow/teleport/TeleportCustodyEthereum.cdc",
 			"aliases": {
 				"mainnet": "0ac14a822e54cc4e",
-				"testnet": "967a0fb3c949cbc5",
+				"testnet": "653cfe36d146e7be",
 				"testing": "0000000000000007"
 			}
 		},
@@ -93,7 +94,7 @@
 			"source": "./contracts/flow/teleport/TeleportCustodySolana.cdc",
 			"aliases": {
 				"mainnet": "0ac14a822e54cc4e",
-				"testnet": "967a0fb3c949cbc5",
+				"testnet": "653cfe36d146e7be",
 				"testing": "0000000000000007"
 			}
 		},
