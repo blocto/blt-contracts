@@ -354,7 +354,7 @@ contract BloctoTokenStaking {
         
         /// A staker record is created when a BloctoPass NFT is created
         /// It returns the resource for stakers that they can store in their account storage
-        access(AdminEntitlement)
+        access(all)
         fun addStakerRecord(id: UInt64): @Staker {
             pre {
                 BloctoTokenStaking.stakingEnabled:
@@ -371,7 +371,7 @@ contract BloctoTokenStaking {
         
         /// Starts the staking auction, the period when stakers and delegators
         /// are allowed to perform staking related operations
-        access(AdminEntitlement)
+        access(all)
         fun startNewEpoch() {
             BloctoTokenStaking.stakingEnabled = true
             BloctoTokenStaking.setEpoch(BloctoTokenStaking.getEpoch() + 1)
@@ -380,21 +380,21 @@ contract BloctoTokenStaking {
 
         /// Starts the staking auction, the period when stakers and delegators
         /// are allowed to perform staking related operations
-        access(AdminEntitlement)
+        access(all)
         fun startStakingAuction() {
             BloctoTokenStaking.stakingEnabled = true
         }
 
         /// Ends the staking Auction by removing any unapproved stakers
         /// and setting stakingEnabled to false
-        access(AdminEntitlement)
+        access(all)
         fun endStakingAuction() {
             BloctoTokenStaking.stakingEnabled = false
         }
 
         /// Called at the end of the epoch to pay rewards to staker operators
         /// based on the tokens that they have staked
-        access(AdminEntitlement)
+        access(all)
         fun payRewards(_ stakerIDs: [UInt64]) {
             pre {
                 !BloctoTokenStaking.stakingEnabled: "Cannot pay rewards if the staking auction is still in progress"
@@ -441,7 +441,7 @@ contract BloctoTokenStaking {
         /// Tokens that have been committed are moved to the staked bucket
         /// Tokens that were unstaking during the last epoch are fully unstaked
         /// Unstaking requests are filled by moving those tokens from staked to unstaking
-        access(AdminEntitlement)
+        access(all)
         fun moveTokens(_ stakerIDs: [UInt64]) {
             pre {
                 !BloctoTokenStaking.stakingEnabled: "Cannot move tokens if the staking auction is still in progress"
@@ -475,13 +475,13 @@ contract BloctoTokenStaking {
         }
 
         /// Changes the total weekly payout to a new value
-        access(AdminEntitlement)
+        access(all)
         fun setEpochTokenPayout(_ newPayout: UFix64) {
             BloctoTokenStaking.epochTokenPayout = newPayout
             emit NewWeeklyPayout(newPayout: newPayout)
         }
 
-        access(AdminEntitlement)
+        access(all)
         fun createNewAdmin(): @Admin {
             emit AdminCreated()
             return <-create Admin()
